@@ -2,6 +2,9 @@ import React from 'react'
 import * as THREE from 'three'
 import BoxImpl from './Box'
 import React3 from 'react-three-renderer'
+import Vector from '../../modules/Vector'
+
+// noinspection JSUnresolvedFunction
 const OrbitControls = require('three-orbit-controls')(THREE)
 
 
@@ -12,10 +15,6 @@ export default class ThreeScene extends React.Component {
     // construct the position vector here, because if we use 'new' within render,
     // React will think that things have changed when they have not.
     this.cameraPosition = new THREE.Vector3(10, 10, 50)
-
-    this.state = {
-      cubeRotation: new THREE.Euler()
-    }
   }
 
   componentDidMount() {
@@ -23,29 +22,37 @@ export default class ThreeScene extends React.Component {
   }
 
   componentWillUnmount() {
-    this.controls.dispose();
-    this.controls = null;
+    this.controls.dispose()
+    this.controls = null
+  }
+
+  makeRand = (max) => {
+    return Number(parseInt(Math.random() * max % max));
   }
 
   render() {
     const width = window.innerWidth // canvas width
     const height = window.innerHeight // canvas height
-    const {size, changeSize} = this.props;
+    const { size, changeSize, changeVoxel } = this.props
 
     const smallBoxSize = new THREE.Vector3(1, 1, 1)
-    const bigBoxSize = new THREE.Vector3(size, size, size);
-    return (<div ref={(ref) => this.renderBox = ref}>
+    const bigBoxSize = new THREE.Vector3(size, size, size)
+    return (<div>
       <div style={{ position: 'absolute', left: 0, top: 0, color: 'red' }}>
         <div>Left mouse - rotate camera</div>
         <div>Mouse scroll - zoom</div>
         <div>Right mouse - pan</div>
-        <button onClick={() => changeSize(Math.random() * 10 % 10)}>change size random</button>
+        <button onClick={() => changeSize(this.makeRand(10))}>change size random</button>
+        <button onClick={() => {
+          const rand = Vector(this.makeRand(size), this.makeRand(size), this.makeRand(size))
+          return changeVoxel(rand, true)
+        }}>fill random voxel
+        </button>
       </div>
       <React3
         mainCamera="camera" // this points to the perspectiveCamera which has the name set to "camera" below
         width={width}
         height={height}
-        ref={(ref) => this.react3 = ref}
       >
         <scene>
           <perspectiveCamera

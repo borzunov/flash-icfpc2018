@@ -2,7 +2,7 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import ThreeScene from './ThreeScene'
-import { changeSize } from '../../modules/space'
+import { changeSize, changeVoxel } from '../../modules/space'
 
 const mapStateToProps = ({ space }) => ({
   size: space.size,
@@ -11,7 +11,8 @@ const mapStateToProps = ({ space }) => ({
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      changeSize
+      changeSize,
+      changeVoxel,
     },
     dispatch
   )
