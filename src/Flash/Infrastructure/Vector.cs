@@ -32,10 +32,30 @@ namespace Flash.Infrastructure
         /// <summary>
         /// (this - other).Mlen == 1;
         /// </summary>
-        public bool IsAdjacent(Vector other)
+        public bool IsAdjacentTo(Vector other)
         {
             return (this - other).Mlen == 1;
         }
+
+        /// <summary>
+        /// is linear difference
+        /// </summary>
+        public bool IsLd => Mlen == Clen && Mlen != 0;
+
+        /// <summary>
+        /// is short linear difference
+        /// </summary>
+        public bool IsSld => IsLd && Mlen <= 5;
+
+        /// <summary>
+        /// is long linear difference
+        /// </summary>
+        public bool IsLld => IsLd && Mlen <= 15;
+
+        /// <summary>
+        /// is near difference
+        /// </summary>
+        public bool IsNd => Mlen > 0 && Mlen <= 2 && Clen == 1;
 
         #region equality members
         protected bool Equals(Vector other)
