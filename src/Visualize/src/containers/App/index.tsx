@@ -5,7 +5,6 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { RootState } from '../../reducers';
-import { Header, MainSection } from '../../components';
 
 export namespace App {
   export interface Props extends RouteComponentProps<void> {
@@ -24,9 +23,7 @@ export class App extends React.Component<App.Props, App.State> {
     const { todos, actions, children } = this.props;
     return (
       <div className={style.normal} onClick={() => {}}>
-        <Header addTodo={actions.addTodo} />
-        <MainSection todos={todos} actions={actions} />
-        {children}
+          FLASH-ICFPC-2018
       </div>
     );
   }
