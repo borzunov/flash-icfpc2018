@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Remoting.Messaging;
 
 namespace Flash.Infrastructure
 {
@@ -37,6 +38,19 @@ namespace Flash.Infrastructure
             return (this - other).Mlen == 1;
         }
 
+        public Vector[] GetAdjacents()
+        {
+            return new[]
+            {
+                new Vector(X, Y-1, Z), // ORDER is very important for check grounded
+                new Vector(X+1, Y, Z),
+                new Vector(X, Y, Z+1),
+                new Vector(X-1, Y, Z),
+                new Vector(X, Y, Z-1),
+                new Vector(X, Y+1, Z)
+            };
+        }
+
         /// <summary>
         /// is linear difference
         /// </summary>
@@ -56,6 +70,31 @@ namespace Flash.Infrastructure
         /// is near difference
         /// </summary>
         public bool IsNd => Mlen > 0 && Mlen <= 2 && Clen == 1;
+
+        public Vector[] GetNears()
+        {
+            return new[]
+            {
+                new Vector(X+1, Y, Z),
+                new Vector(X, Y+1, Z),
+                new Vector(X, Y, Z+1),
+                new Vector(X-1, Y, Z),
+                new Vector(X, Y-1, Z),
+                new Vector(X, Y, Z-1),
+                new Vector(X+1, Y+1, Z),
+                new Vector(X, Y+1, Z+1),
+                new Vector(X+1, Y, Z+1),
+                new Vector(X-1, Y-1, Z),
+                new Vector(X, Y-1, Z-1),
+                new Vector(X-1, Y, Z-1),
+                new Vector(X+1, Y-1, Z),
+                new Vector(X, Y+1, Z-1),
+                new Vector(X+1, Y, Z-1),
+                new Vector(X-1, Y+1, Z),
+                new Vector(X, Y-1, Z+1),
+                new Vector(X-1, Y, Z+1)
+            };
+        }
 
         #region equality members
         protected bool Equals(Vector other)

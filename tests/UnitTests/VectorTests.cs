@@ -1,4 +1,5 @@
-﻿using Flash.Infrastructure;
+﻿using System.Linq;
+using Flash.Infrastructure;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -115,6 +116,24 @@ namespace UnitTests
         public bool IsNd_Correct(int x, int y, int z)
         {
             return new Vector(x, y, z).IsNd;
+        }
+
+        [TestCase(0, 0, 0)]
+        [TestCase(10, 1, 0)]
+        public void GetAdjacent_IsAdjacents(int x, int y, int z)
+        {
+            var vector = new Vector(x, y, z);
+
+            vector.GetAdjacents().All(vector.IsAdjacentTo).Should().BeTrue();
+        }
+
+        [TestCase(0, 0, 0)]
+        [TestCase(10, 1, 0)]
+        public void GetNears_IsNd(int x, int y, int z)
+        {
+            var vector = new Vector(x, y, z);
+
+            vector.GetNears().All(v => (v - vector).IsNd).Should().BeTrue();
         }
     }
 }
