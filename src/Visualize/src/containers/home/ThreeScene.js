@@ -16,10 +16,6 @@ const OrbitControls = require('three-orbit-controls')(THREE)
 export default class ThreeScene extends React.PureComponent {
   constructor(props, context) {
     super(props, context)
-
-    // construct the position vector here, because if we use 'new' within render,
-    // React will think that things have changed when they have not.
-    this.cameraPosition = new THREE.Vector3(10, 10, 50)
   }
 
   componentDidMount() {
@@ -65,6 +61,9 @@ export default class ThreeScene extends React.PureComponent {
 
     return (<div>
       <div style={{ position: 'absolute', left: 0, top: 0, color: 'red' }}>
+        <div>Open in chrome and install <a target="_blank"
+                                           href="https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en">redux
+          dev tools</a></div>
         <div>Left mouse - rotate camera</div>
         <div>Mouse scroll - zoom</div>
         <div>Right mouse - pan</div>
@@ -73,10 +72,10 @@ export default class ThreeScene extends React.PureComponent {
         <button onClick={this.fillRandomVoxel}>fill random voxel
         </button>
         <button onClick={() => {
-          for (let i = 0; i < size * size * size / 4; ++i) {
+          for (let i = 0; i < size * size * size / 8; ++i) {
             setTimeout(() => this.fillRandomVoxel(), 10)
           }
-        }}>fucking overload quarter
+        }}>fucking overload 1/8
         </button>
       </div>
       <React3
@@ -92,15 +91,10 @@ export default class ThreeScene extends React.PureComponent {
             aspect={width / height}
             near={0.1}
             far={1000}
-            position={this.cameraPosition}
+            position={vecToThree(Vector(size * 0.75, size * 0.75, size * 2.5), bigBoxSize)}
           />
-          <Box store={store} color={0xffffff} position={vecToThree(Vector(0, 0, 0), bigBoxSize)} size={bigBoxSize}/>
-          {/*<Box store={store} color={0x00ff00} position={new THREE.Vector3(0, 0, 0)} size={smallBoxSize} solid/>*/}
-          {/*<Box store={store} color={0xff0000} position={new THREE.Vector3(1, 0, 0)} size={smallBoxSize}/>*/}
-          {/*<Box store={store} color={0x00ff00} position={new THREE.Vector3(2, 0, 0)} size={smallBoxSize}/>*/}
-          {/*<Box store={store} color={0xff0000} position={new THREE.Vector3(3, 0, 0)} size={smallBoxSize}/>*/}
-          {/*<Box store={store} color={0x00ff00} position={new THREE.Vector3(4, 0, 0)} size={smallBoxSize}/>*/}
-          {/*<Box store={store} color={0xff0000} position={new THREE.Vector3(5, 0, 0)} size={smallBoxSize}/>*/}
+          <Box store={store} color={0xffffff} position={vecToThree(Vector(0, 0, 0), bigBoxSize)} size={bigBoxSize}
+               contoured/>
           {boxes}
         </scene>
       </React3>

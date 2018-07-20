@@ -2,7 +2,7 @@ export const SIZE_CHANGED = 'space/SIZE_CHANGED'
 export const VOXEL_CHANGED = 'space/VOXEL_CHANGED'
 
 const initialState = {
-  size: 10,
+  size: 20,
   voxels: {
   }
 }

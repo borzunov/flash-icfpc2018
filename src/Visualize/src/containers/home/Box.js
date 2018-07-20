@@ -1,14 +1,21 @@
 import React from 'react'
 import * as THREE from 'three'
 import { connect } from 'react-redux'
+import {compose, pure} from 'recompose';
 
-const BoxImpl = ({ position, color, size, filled = false }) => {
+const BoxImpl = ({ position, color, size, filled = false, contoured = false }) => {
   const box = new THREE.BoxBufferGeometry(size.x, size.y, size.z)
-  if (!filled)
+  if (!filled && !contoured) {
+    return null;
+
+  }
+  else if (contoured){
     return <lineSegments position={position}>
       <edgesGeometry geometry={box}/>
       <lineBasicMaterial color={color} linewidth={2}/>
     </lineSegments>
+  }
+
   return (<mesh
       position={position}
     >
@@ -24,12 +31,19 @@ const BoxImpl = ({ position, color, size, filled = false }) => {
   )
 }
 
-const Box = connect(
-  (({ space }, posKey) => {
+const Box = compose(connect(
+  (({ space }, {posKey, contoured}) => {
+    let filled = space.voxels[posKey]
+    let color;
+    if (filled)
+      color = 0xffffff;
+    else if (contoured)
+      color = 0x00ff00;
     return {
-      filled: space.voxels[posKey]
+      filled,
+      color,
     }
   })
-)(BoxImpl)
+), pure)(BoxImpl)
 
 export default Box
