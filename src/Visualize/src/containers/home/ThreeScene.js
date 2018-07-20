@@ -1,6 +1,6 @@
 import React from 'react'
 import * as THREE from 'three'
-import BoxImpl from './box'
+import BoxImpl from './Box'
 import React3 from 'react-three-renderer'
 const OrbitControls = require('three-orbit-controls')(THREE)
 
@@ -20,6 +20,11 @@ export default class ThreeScene extends React.Component {
 
   componentDidMount() {
     this.controls = new OrbitControls(this.camera)
+  }
+
+  componentWillUnmount() {
+    this.controls.dispose();
+    this.controls = null;
   }
 
   render() {
@@ -51,7 +56,7 @@ export default class ThreeScene extends React.Component {
             position={this.cameraPosition}
           />
           <BoxImpl color={0xffffff} position={new THREE.Vector3(0, 0, 0)} size={bigBoxSize}/>
-          <BoxImpl color={0x00ff00} position={new THREE.Vector3(0, 0, 0)} size={smallBoxSize}/>
+          <BoxImpl color={0x00ff00} position={new THREE.Vector3(0, 0, 0)} size={smallBoxSize} solid/>
           <BoxImpl color={0xff0000} position={new THREE.Vector3(1, 0, 0)} size={smallBoxSize}/>
           <BoxImpl color={0x00ff00} position={new THREE.Vector3(2, 0, 0)} size={smallBoxSize}/>
           <BoxImpl color={0xff0000} position={new THREE.Vector3(3, 0, 0)} size={smallBoxSize}/>
