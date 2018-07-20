@@ -5,7 +5,7 @@ import ThreeScene from './ThreeScene'
 import { changeSize, changeVoxel, changeBot } from '../../modules/space'
 
 const mapStateToProps = ({ space }) => ({
-  size: space.size,
+  mapSize: space.size,
 })
 
 const mapDispatchToProps = dispatch =>

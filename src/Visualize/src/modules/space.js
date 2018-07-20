@@ -3,7 +3,7 @@ export const VOXEL_CHANGED = 'space/VOXEL_CHANGED'
 export const BOT_CHANGED = 'space/BOT_CHANGED'
 
 const initialState = {
-  size: 20,
+  size: 30,
   voxels: {
   },
   bots: {

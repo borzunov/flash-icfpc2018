@@ -14,3 +14,8 @@ body {
 button:disabled {
   opacity: 0.5;
 }
+
+html, body, #root, main, #root>div, #root>div>div {
+  height: 100%;
+  width: 100%;
+}

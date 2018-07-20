@@ -6,10 +6,11 @@ import Vector from '../../modules/Vector'
 import store from '../../store'
 import BotContainer from './BotContainer'
 import { vecToThree } from './coords'
-
+import { withSize } from 'react-sizeme'
 
 import case1 from '../../test-logs/1.js'
 import { LogAction } from '../../test-logs/LogAction'
+import FillContainer from './FillContainer'
 
 const reset = () => {
   // reset dev-tools
@@ -41,7 +42,8 @@ const playLog = ({ changeSize, changeVoxel, changeBot }, { size, log }) => {
   }
 }
 
-export default class ThreeScene extends React.PureComponent {
+
+class ThreeScene extends React.PureComponent {
   componentDidMount() {
     this.controls = new OrbitControls(this.camera)
   }
@@ -56,40 +58,27 @@ export default class ThreeScene extends React.PureComponent {
   }
 
   fillRandomVoxel = () => {
-    const { size } = this.props
-    const rand = Vector(this.makeRand(size), this.makeRand(size), this.makeRand(size))
+    const { mapSize } = this.props
+    const rand = Vector(this.makeRand(mapSize), this.makeRand(mapSize), this.makeRand(mapSize))
     return this.props.changeVoxel(rand, true)
   }
 
   addRandomBot = () => {
-    const { size } = this.props
-    const rand = Vector(this.makeRand(size), this.makeRand(size), this.makeRand(size))
+    const { mapSize } = this.props
+    const rand = Vector(this.makeRand(mapSize), this.makeRand(mapSize), this.makeRand(mapSize))
     return this.props.changeBot(rand, true)
   }
 
   render() {
-    const width = window.innerWidth // canvas width
-    const height = window.innerHeight // canvas height
-    const { size, changeSize } = this.props
+    const { mapSize, changeSize } = this.props
+
+    const { width, height } = this.props.size
 
     const smallBoxSize = new THREE.Vector3(1, 1, 1)
-    const bigBoxSize = new THREE.Vector3(size, size, size)
+    const bigBoxSize = new THREE.Vector3(mapSize, mapSize, mapSize)
     const botSize = new THREE.Vector3(0.75, 0.75, 0.75)
-    const boxes = []
 
-    for (let i = 0; i < size; ++i) {
-      for (let j = 0; j < size; ++j) {
-        for (let k = 0; k < size; ++k) {
-          const pos = Vector(i, j, k)
-          const threePos = vecToThree(pos, smallBoxSize)
-          const key = pos.serialize()
-          boxes.push(<Box store={store} size={smallBoxSize} position={threePos} key={key}
-                          posKey={key}/>)
-        }
-      }
-    }
-
-    return (<div>
+    return (<div style={{width: '100%', height: '100%'}}>
       <div style={{ position: 'absolute', left: 0, top: 0, color: 'red' }}>
         <div>Open in chrome and install <a target="_blank" rel="noopener noreferrer"
                                            href="https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en">redux
@@ -99,20 +88,20 @@ export default class ThreeScene extends React.PureComponent {
         <div>Right mouse - pan</div>
         <div>Arrow buttons - move camera</div>
         <button onClick={() => {
-          reset();
-          return changeSize(size + 10)
+          reset()
+          return changeSize(mapSize + 10)
         }}>size + 10
         </button>
         <button onClick={() => {
-          reset();
-          return changeSize(size - 10)
+          reset()
+          return changeSize(mapSize - 10)
         }}>size - 10
         </button>
         <button onClick={this.fillRandomVoxel}>fill random voxel
         </button>
         <button onClick={() => {
           reset()
-          for (let i = 0; i < size * size * size / 8; ++i) {
+          for (let i = 0; i < mapSize * mapSize * mapSize / 8; ++i) {
             setTimeout(() => this.fillRandomVoxel(), 10)
           }
         }}>fucking overload 1/8
@@ -143,14 +132,16 @@ export default class ThreeScene extends React.PureComponent {
             aspect={width / height}
             near={0.1}
             far={1000}
-            position={vecToThree(Vector(size * 0.75, size * 0.75, size * 2.5), bigBoxSize)}
+            position={vecToThree(Vector(mapSize * 0.75, mapSize * 0.75, mapSize * 2.5), bigBoxSize)}
           />
           <Box store={store} color={0xffffff} position={vecToThree(Vector(0, 0, 0), bigBoxSize)} size={bigBoxSize}
                contoured/>
-          {boxes}
+          <FillContainer boxSize={smallBoxSize}/>
           <BotContainer botSize={botSize} botColor={0xffa500}/>
         </scene>
       </React3>
     </div>)
   }
 }
+
+export default withSize({ monitorHeight: true, refreshRate: 500 })(ThreeScene)
