@@ -10,5 +10,10 @@
             FirstDirection = firstDirection;
             SecondDirection = secondDirection;
         }
+
+        public void Apply(State state, Bot bot)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
