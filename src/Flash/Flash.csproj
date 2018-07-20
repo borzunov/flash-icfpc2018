@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Infrastructure\Bot.cs" />
     <Compile Include="Infrastructure\Matrix.cs" />
     <Compile Include="Infrastructure\Region.cs" />
     <Compile Include="Infrastructure\Commands\FlipCommand.cs" />
