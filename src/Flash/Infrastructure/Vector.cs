@@ -96,6 +96,20 @@ namespace Flash.Infrastructure
             };
         }
 
+        public int GetFirstNonZeroComponent()
+        {
+            if (X != 0)
+                return X;
+
+            if (Y != 0)
+                return Y;
+
+            if (Z != 0)
+                return Z;
+
+            throw new InvalidOperationException("There is no non zero component");
+        }
+
         #region equality members
         protected bool Equals(Vector other)
         {

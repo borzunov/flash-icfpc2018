@@ -16,14 +16,12 @@ namespace Flash.Infrastructure.Serializers
 
         public void SerializeLinearShortLength(Vector vector, BitSet setToWrite)
         {
-            setToWrite.WriteByte((byte)(vector.Mlen + 5));
+            setToWrite.WriteByte((byte)(vector.GetFirstNonZeroComponent() + 5));
         }
 
         public void SerializeLinearLongLength(Vector vector, BitSet setToWrite)
         {
-            setToWrite.WriteByte((byte)(vector.Mlen + 15));
+            setToWrite.WriteByte((byte)(vector.GetFirstNonZeroComponent() + 15));
         }
-
-
     }
 }
