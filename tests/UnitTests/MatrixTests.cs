@@ -40,5 +40,38 @@ namespace UnitTests
         {
             m.GetNears(v).Should().HaveCount(count);
         }
+
+        public static TestCaseData[] IsGroundedCases =
+        {
+            new TestCaseData(new Vector(2, 0, 2), true),
+            new TestCaseData(new Vector(0, 1, 2), true),
+            new TestCaseData(new Vector(0, 1, 0), true),
+            new TestCaseData(new Vector(0, 2, 1), true),
+            new TestCaseData(new Vector(2, 1, 0), false),
+        };
+
+        [TestCaseSource(nameof(IsGroundedCases))]
+        public void IsGrounded_Correct(Vector v, bool expected)
+        {
+            var m = new Matrix(
+                new[]
+                {
+                    @"
+001
+000
+000",
+                    @"
+101
+000
+101",
+                    @"
+111
+100
+100"
+                });
+            m.IsGrounded(v).Should().Be(expected);
+        }
+
+
     }
 }

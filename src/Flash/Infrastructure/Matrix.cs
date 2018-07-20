@@ -25,6 +25,23 @@ namespace Flash.Infrastructure
             matrix = new bool[r, r, r];
         }
 
+        public Matrix(string[] layers)
+        {
+            var r = layers.Length;
+            matrix = new bool[r,r,r];
+            for (var y=0; y< layers.Length; y++)
+            {
+                var lines = layers[y].Split(new[] {'\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
+                for (var z = R - 1; z > -1; z--)
+                {
+                    for (var x = 0; x < R; x++)
+                    {
+                        matrix[x, y, z] = lines[R-z-1][x] == '1';
+                    }
+                }
+            }
+        }
+
         public bool IsFull(Vector v)
         {
             return matrix[v.X, v.Y, v.Z];
@@ -52,10 +69,19 @@ namespace Flash.Infrastructure
                    v.Z >= 0 && v.Z < R;
         }
 
-        private HashSet<Vector> grounded;
+        private HashSet<Vector> grounded = new HashSet<Vector>();
 
         public bool IsGrounded(Vector v)
         {
+            if (!IsFull(v))
+                return false;
+            var visited = new HashSet<Vector>();
+            return CheckIsGrounded(v, visited);
+        }
+
+        public bool CheckIsGrounded(Vector v, HashSet<Vector> visited)
+        {
+            visited.Add(v);
             if (v.Y == 0 || grounded.Contains(v))
             {
                 return true;
@@ -63,7 +89,7 @@ namespace Flash.Infrastructure
 
             foreach (var adj in GetAdjacents(v))
             {
-                if (IsGrounded(adj))
+                if (IsFull(adj) && !visited.Contains(adj) && CheckIsGrounded(adj, visited))
                 {
                     grounded.Add(v);
                     return true;
@@ -71,6 +97,17 @@ namespace Flash.Infrastructure
             }
 
             return false;
+        }
+
+        public void Fill(Vector v)
+        {
+            matrix[v.X, v.Y, v.Z] = true;
+        }
+        
+        public void Clear(Vector v)
+        {
+            matrix[v.X, v.Y, v.Z] = false;
+            grounded.Clear();
         }
     }
 }

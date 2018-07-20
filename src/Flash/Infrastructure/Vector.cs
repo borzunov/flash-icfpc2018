@@ -124,5 +124,10 @@ namespace Flash.Infrastructure
             }
         }
         #endregion
+
+        public override string ToString()
+        {
+            return $"({X},{Y},{Z})";
+        }
     }
 }
