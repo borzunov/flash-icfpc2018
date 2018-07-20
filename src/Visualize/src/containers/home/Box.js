@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { connect } from 'react-redux'
 import {compose, pure} from 'recompose';
 
-const BoxImpl = ({ position, color, size, filled = false, contoured = false }) => {
+export const BoxImpl = ({ position, color, size, filled = false, contoured = false }) => {
   const box = new THREE.BoxBufferGeometry(size.x, size.y, size.z)
   if (!filled && !contoured) {
     return null;
@@ -32,13 +32,14 @@ const BoxImpl = ({ position, color, size, filled = false, contoured = false }) =
 }
 
 const Box = compose(connect(
-  (({ space }, {posKey, contoured}) => {
+  (({ space }, {posKey, contoured, color}) => {
     let filled = space.voxels[posKey]
-    let color;
-    if (filled)
-      color = 0xffffff;
-    else if (contoured)
-      color = 0x00ff00;
+    if (!color) {
+      if (filled)
+        color = 0xffffff;
+      else if (contoured)
+        color = 0x00ff00;
+    }
     return {
       filled,
       color,

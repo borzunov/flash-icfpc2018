@@ -1,10 +1,13 @@
 export const SIZE_CHANGED = 'space/SIZE_CHANGED'
 export const VOXEL_CHANGED = 'space/VOXEL_CHANGED'
+export const BOT_CHANGED = 'space/BOT_CHANGED'
 
 const initialState = {
   size: 20,
   voxels: {
-  }
+  },
+  bots: {
+  },
 }
 
 export default (state = initialState, action) => {
@@ -20,6 +23,14 @@ export default (state = initialState, action) => {
         voxels: {
           ...state.voxels,
           [action.payload.position]: action.payload.filled,
+        }
+      }
+    case BOT_CHANGED:
+      return {
+        ...state,
+        bots: {
+          ...state.bots,
+          [action.payload.position]: action.payload.exists,
         }
       }
     default:
@@ -50,16 +61,14 @@ export const changeVoxel = (position, filled) => {
   }
 }
 
-// export const incrementAsync = () => {
-//   return dispatch => {
-//     dispatch({
-//       type: INCREMENT_REQUESTED
-//     })
-//
-//     return setTimeout(() => {
-//       dispatch({
-//         type: INCREMENT
-//       })
-//     }, 3000)
-//   }
-// }
+export const changeBot = (position, exists) => {
+  return dispatch => {
+    dispatch({
+      type: BOT_CHANGED,
+      payload: {
+        exists,
+        position: position.serialize(),
+      }
+    })
+  }
+}

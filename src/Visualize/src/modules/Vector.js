@@ -15,9 +15,15 @@ class VectorImpl {
   static getKey(x, y, z) {
     return `${x}/${y}/${z}`
   }
+
+  static deserialize(str) {
+    return Vector(...str.split('/'));
+  }
 }
 
 export const getVectorKey = VectorImpl.getKey;
+
+export const deserializeVector = VectorImpl.deserialize;
 
 function Vector (x, y, z) {
   if (new.target) {

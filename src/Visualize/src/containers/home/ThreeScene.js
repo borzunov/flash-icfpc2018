@@ -4,14 +4,11 @@ import Box from './Box'
 import React3 from 'react-three-renderer'
 import Vector from '../../modules/Vector'
 import store from '../../store'
-
-const vecToThree = (vec, size) => {
-  return new THREE.Vector3(vec.x + size.x / 2, vec.y + size.y / 2, vec.z + size.z / 2)
-}
+import BotContainer from './BotContainer'
+import { vecToThree } from './coords'
 
 // noinspection JSUnresolvedFunction
 const OrbitControls = require('three-orbit-controls')(THREE)
-
 
 export default class ThreeScene extends React.PureComponent {
   componentDidMount() {
@@ -33,6 +30,12 @@ export default class ThreeScene extends React.PureComponent {
     return this.props.changeVoxel(rand, true)
   }
 
+  addRandomBot = () => {
+    const { size } = this.props
+    const rand = Vector(this.makeRand(size), this.makeRand(size), this.makeRand(size));
+    return this.props.changeBot(rand, true);
+  }
+
   render() {
     const width = window.innerWidth // canvas width
     const height = window.innerHeight // canvas height
@@ -40,6 +43,7 @@ export default class ThreeScene extends React.PureComponent {
 
     const smallBoxSize = new THREE.Vector3(1, 1, 1)
     const bigBoxSize = new THREE.Vector3(size, size, size)
+    const botSize = new THREE.Vector3(0.75, 0.75, 0.75)
     const boxes = []
 
     for (let i = 0; i < size; ++i) {
@@ -48,12 +52,11 @@ export default class ThreeScene extends React.PureComponent {
           const pos = Vector(i, j, k)
           const threePos = vecToThree(pos, smallBoxSize)
           const key = pos.serialize()
-          boxes.push(<Box store={store} color={0x00ff00} size={smallBoxSize} position={threePos} key={key}
+          boxes.push(<Box store={store} size={smallBoxSize} position={threePos} key={key}
                           posKey={key}/>)
         }
       }
     }
-
 
     return (<div>
       <div style={{ position: 'absolute', left: 0, top: 0, color: 'red' }}>
@@ -72,6 +75,12 @@ export default class ThreeScene extends React.PureComponent {
             setTimeout(() => this.fillRandomVoxel(), 10)
           }
         }}>fucking overload 1/8
+        </button>
+        <button onClick={() => {
+          for (let i = 0; i < 10; ++i) {
+            setTimeout(() => this.addRandomBot(), 10)
+          }
+        }}>add some bots
         </button>
       </div>
       <React3
@@ -92,6 +101,7 @@ export default class ThreeScene extends React.PureComponent {
           <Box store={store} color={0xffffff} position={vecToThree(Vector(0, 0, 0), bigBoxSize)} size={bigBoxSize}
                contoured/>
           {boxes}
+          <BotContainer botSize={botSize} botColor={0xffa500} />
         </scene>
       </React3>
     </div>)
