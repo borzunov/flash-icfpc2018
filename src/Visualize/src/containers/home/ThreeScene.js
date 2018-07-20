@@ -30,14 +30,16 @@ export default class ThreeScene extends React.Component {
   render() {
     const width = window.innerWidth // canvas width
     const height = window.innerHeight // canvas height
+    const {size, changeSize} = this.props;
 
     const smallBoxSize = new THREE.Vector3(1, 1, 1)
-    const bigBoxSize = new THREE.Vector3(10, 10, 10)
+    const bigBoxSize = new THREE.Vector3(size, size, size);
     return (<div ref={(ref) => this.renderBox = ref}>
       <div style={{ position: 'absolute', left: 0, top: 0, color: 'red' }}>
         <div>Left mouse - rotate camera</div>
         <div>Mouse scroll - zoom</div>
         <div>Right mouse - pan</div>
+        <button onClick={() => changeSize(Math.random() * 10 % 10)}>change size random</button>
       </div>
       <React3
         mainCamera="camera" // this points to the perspectiveCamera which has the name set to "camera" below
