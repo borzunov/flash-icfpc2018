@@ -11,8 +11,22 @@ import { withSize } from 'react-sizeme'
 import case1 from '../../test-logs/1.js'
 import { LogAction } from '../../test-logs/LogAction'
 import FillContainer from './FillContainer'
+import Queue from 'async/queue';
+
+let currentWait = 10;
+const syncQueueWithWait = new Queue((f, callback) => {
+  f();
+  setTimeout(callback, currentWait);
+}, 1);
+
+const SPEED_CONST = 4;
 
 const reset = () => {
+  // clear queue to avoid more actions that are not finished
+  syncQueueWithWait.pause();
+  syncQueueWithWait.remove(() => true);
+  syncQueueWithWait.resume();
+  let currentSize = store.getState().space.size;
   // reset dev-tools
   store.liftedStore.dispatch({ type: 'RESET' })
   // reset our state
@@ -71,7 +85,7 @@ class ThreeScene extends React.PureComponent {
 
   render() {
     const { mapSize, changeSize } = this.props
-
+    currentWait = mapSize / SPEED_CONST;
     const { width, height } = this.props.size
 
     const smallBoxSize = new THREE.Vector3(1, 1, 1)
@@ -88,28 +102,28 @@ class ThreeScene extends React.PureComponent {
         <div>Right mouse - pan</div>
         <div>Arrow buttons - move camera</div>
         <button onClick={() => {
-          reset()
           return changeSize(mapSize + 10)
         }}>size + 10
         </button>
         <button onClick={() => {
-          reset()
           return changeSize(mapSize - 10)
         }}>size - 10
+        </button>
+        <button onClick={() => {
+          reset();
+        }}>reset
         </button>
         <button onClick={this.fillRandomVoxel}>fill random voxel
         </button>
         <button onClick={() => {
-          reset()
           for (let i = 0; i < mapSize * mapSize * mapSize / 8; ++i) {
-            setTimeout(() => this.fillRandomVoxel(), 10)
+            syncQueueWithWait.push(() => this.fillRandomVoxel())
           }
         }}>fucking overload 1/8
         </button>
         <button onClick={() => {
-          reset()
           for (let i = 0; i < 10; ++i) {
-            setTimeout(() => this.addRandomBot(), 10)
+            syncQueueWithWait.push(() => this.addRandomBot())
           }
         }}>add some bots
         </button>
