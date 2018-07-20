@@ -14,10 +14,6 @@ const OrbitControls = require('three-orbit-controls')(THREE)
 
 
 export default class ThreeScene extends React.PureComponent {
-  constructor(props, context) {
-    super(props, context)
-  }
-
   componentDidMount() {
     this.controls = new OrbitControls(this.camera)
   }
@@ -40,7 +36,7 @@ export default class ThreeScene extends React.PureComponent {
   render() {
     const width = window.innerWidth // canvas width
     const height = window.innerHeight // canvas height
-    const { size, changeSize, changeVoxel } = this.props
+    const { size, changeSize } = this.props
 
     const smallBoxSize = new THREE.Vector3(1, 1, 1)
     const bigBoxSize = new THREE.Vector3(size, size, size)
@@ -61,7 +57,7 @@ export default class ThreeScene extends React.PureComponent {
 
     return (<div>
       <div style={{ position: 'absolute', left: 0, top: 0, color: 'red' }}>
-        <div>Open in chrome and install <a target="_blank"
+        <div>Open in chrome and install <a target="_blank" rel="noopener noreferrer"
                                            href="https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en">redux
           dev tools</a></div>
         <div>Left mouse - rotate camera</div>
