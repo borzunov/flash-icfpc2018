@@ -33,6 +33,8 @@ export default (state = initialState, action) => {
           [action.payload.position]: action.payload.exists,
         }
       }
+    case 'RESET':
+      return initialState;
     default:
       return state
   }

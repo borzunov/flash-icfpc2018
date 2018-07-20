@@ -8,28 +8,35 @@ import BotContainer from './BotContainer'
 import { vecToThree } from './coords'
 
 
-import case1 from '../../test-logs/1.js';
+import case1 from '../../test-logs/1.js'
 import { LogAction } from '../../test-logs/LogAction'
+
+const reset = () => {
+  // reset dev-tools
+  store.liftedStore.dispatch({ type: 'RESET' })
+  // reset our state
+  store.dispatch({ type: 'RESET' })
+}
 
 // noinspection JSUnresolvedFunction
 const OrbitControls = require('three-orbit-controls')(THREE)
 
-const playLog = ({changeSize, changeVoxel, changeBot}, {size, log}) => {
-  changeSize(size);
+const playLog = ({ changeSize, changeVoxel, changeBot }, { size, log }) => {
+  changeSize(size)
   for (let act of log) {
     switch (act.t) {
       case LogAction.Add:
-        changeBot(act.p, true);
-        break;
+        changeBot(act.p, true)
+        break
       case LogAction.Remove:
-        changeBot(act.p, false);
-        break;
+        changeBot(act.p, false)
+        break
       case LogAction.Fill:
-        changeVoxel(act.p, true);
-        break;
+        changeVoxel(act.p, true)
+        break
       default:
         // do nothing
-        break;
+        break
     }
   }
 }
@@ -56,8 +63,8 @@ export default class ThreeScene extends React.PureComponent {
 
   addRandomBot = () => {
     const { size } = this.props
-    const rand = Vector(this.makeRand(size), this.makeRand(size), this.makeRand(size));
-    return this.props.changeBot(rand, true);
+    const rand = Vector(this.makeRand(size), this.makeRand(size), this.makeRand(size))
+    return this.props.changeBot(rand, true)
   }
 
   render() {
@@ -91,24 +98,35 @@ export default class ThreeScene extends React.PureComponent {
         <div>Mouse scroll - zoom</div>
         <div>Right mouse - pan</div>
         <div>Arrow buttons - move camera</div>
-        <button onClick={() => changeSize(this.makeRand(10))}>change size random</button>
+        <button onClick={() => {
+          reset();
+          return changeSize(size + 10)
+        }}>size + 10
+        </button>
+        <button onClick={() => {
+          reset();
+          return changeSize(size - 10)
+        }}>size - 10
+        </button>
         <button onClick={this.fillRandomVoxel}>fill random voxel
         </button>
         <button onClick={() => {
+          reset()
           for (let i = 0; i < size * size * size / 8; ++i) {
             setTimeout(() => this.fillRandomVoxel(), 10)
           }
         }}>fucking overload 1/8
         </button>
         <button onClick={() => {
+          reset()
           for (let i = 0; i < 10; ++i) {
             setTimeout(() => this.addRandomBot(), 10)
           }
         }}>add some bots
         </button>
         <button onClick={() => {
-          // TODO: clear state
-          playLog(this.props, case1);
+          reset()
+          playLog(this.props, case1)
         }}>play test 1
         </button>
       </div>
@@ -130,7 +148,7 @@ export default class ThreeScene extends React.PureComponent {
           <Box store={store} color={0xffffff} position={vecToThree(Vector(0, 0, 0), bigBoxSize)} size={bigBoxSize}
                contoured/>
           {boxes}
-          <BotContainer botSize={botSize} botColor={0xffa500} />
+          <BotContainer botSize={botSize} botColor={0xffa500}/>
         </scene>
       </React3>
     </div>)
