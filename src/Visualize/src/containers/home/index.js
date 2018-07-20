@@ -65,7 +65,11 @@ class Simple extends React.Component {
     const smallBoxSize = new THREE.Vector3(1, 1, 1)
     const bigBoxSize = new THREE.Vector3(10, 10, 10)
     return (<div ref={(ref) => this.renderBox = ref}>
-      <div style={{position: 'absolute', left: 0, top: 0, color: 'red'}}>WASD - move camera</div>
+      <div style={{position: 'absolute', left: 0, top: 0, color: 'red'}}>
+        <div>Left mouse - rotate camera</div>
+        <div>Mouse scroll - zoom</div>
+        <div>Right mouse - pan</div>
+      </div>
       <React3
         mainCamera="camera" // this points to the perspectiveCamera which has the name set to "camera" below
         width={width}
