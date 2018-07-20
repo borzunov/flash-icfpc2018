@@ -65,6 +65,7 @@
     <Compile Include="MatrixTests.cs" />
     <Compile Include="CommandsSerializersTests.cs" />
     <Compile Include="RegionTests.cs" />
+    <Compile Include="StateTests.cs" />
     <Compile Include="VectorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

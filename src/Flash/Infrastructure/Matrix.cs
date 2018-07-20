@@ -70,11 +70,28 @@ namespace Flash.Infrastructure
         }
 
         private HashSet<Vector> grounded = new HashSet<Vector>();
+        
+        public bool IsGrounded()
+        {
+            for (var x = 0; x < R; x++)
+            {
+                for (var y = 0; y < R; y++)
+                {
+                    for (var z = 0; z < R; z++)
+                    {
+                        if (!IsGrounded(new Vector(x, y, z)))
+                            return false;
+                    }
+                }
+            }
+
+            return true;
+        }
 
         public bool IsGrounded(Vector v)
         {
-            if (!IsFull(v))
-                return false;
+            if (IsVoid(v))
+                return true;
             var visited = new HashSet<Vector>();
             return CheckIsGrounded(v, visited);
         }
