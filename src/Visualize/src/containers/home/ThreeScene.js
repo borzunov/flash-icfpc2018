@@ -7,8 +7,32 @@ import store from '../../store'
 import BotContainer from './BotContainer'
 import { vecToThree } from './coords'
 
+
+import case1 from '../../test-logs/1.js';
+import { LogAction } from '../../test-logs/LogAction'
+
 // noinspection JSUnresolvedFunction
 const OrbitControls = require('three-orbit-controls')(THREE)
+
+const playLog = ({changeSize, changeVoxel, changeBot}, {size, log}) => {
+  changeSize(size);
+  for (let act of log) {
+    switch (act.t) {
+      case LogAction.Add:
+        changeBot(act.p, true);
+        break;
+      case LogAction.Remove:
+        changeBot(act.p, false);
+        break;
+      case LogAction.Fill:
+        changeVoxel(act.p, true);
+        break;
+      default:
+        // do nothing
+        break;
+    }
+  }
+}
 
 export default class ThreeScene extends React.PureComponent {
   componentDidMount() {
@@ -81,6 +105,11 @@ export default class ThreeScene extends React.PureComponent {
             setTimeout(() => this.addRandomBot(), 10)
           }
         }}>add some bots
+        </button>
+        <button onClick={() => {
+          // TODO: clear state
+          playLog(this.props, case1);
+        }}>play test 1
         </button>
       </div>
       <React3

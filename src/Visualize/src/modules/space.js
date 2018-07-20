@@ -55,7 +55,7 @@ export const changeVoxel = (position, filled) => {
       type: VOXEL_CHANGED,
       payload: {
         filled,
-        position: position.serialize(),
+        position: position.serialize ? position.serialize() : position,
       }
     })
   }
@@ -67,7 +67,7 @@ export const changeBot = (position, exists) => {
       type: BOT_CHANGED,
       payload: {
         exists,
-        position: position.serialize(),
+        position: position.serialize ? position.serialize() : position,
       }
     })
   }
