@@ -8,5 +8,13 @@
         {
             Direction = direction;
         }
+
+        public void Apply(State state, Bot bot)
+        {
+            var newPositon = bot.Pos + Direction;
+            
+            bot.Pos = newPositon;
+            state.Energy += 2*Direction.Mlen;
+        }
     }
 }

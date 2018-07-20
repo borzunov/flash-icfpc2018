@@ -15,9 +15,9 @@ namespace Flash.Infrastructure
 
         public Trace Trace { get; }
         public Matrix Matrix { get; }
-        public long Energy { get; }
-        public bool Harmonics { get; }
-        public Bot[] Bots { get; }
+        public long Energy { get; set; }
+        public bool Harmonics { get; set; }
+        public Bot[] Bots { get; set; }
 
         public bool IsValid()
         {
