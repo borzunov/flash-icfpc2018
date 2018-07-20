@@ -12,31 +12,42 @@ import {
 import React3 from 'react-three-renderer'
 import * as THREE from 'three'
 
+const BoxImpl = ({ position }) => {
+  // var geo = new THREE.EdgesGeometry( geometry ); // or WireframeGeometry( geometry )
+  //
+  // var mat = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 2 } );
+  //
+  // var wireframe = new THREE.LineSegments( geo, mat );
+  const box = new THREE.BoxBufferGeometry(1, 1, 1);
+  return <lineSegments position={position}>
+    <edgesGeometry geometry={box}/>
+    <lineBasicMaterial color={0x00ff00} linewidth={2}/>
+  </lineSegments>
+  // return (<mesh
+  //     position={position}
+  //   >
+  //     <boxGeometry
+  //       width={1}
+  //       height={1}
+  //       depth={1}
+  //     />
+  //     <meshBasicMaterial
+  //       color={0x00ff00}
+  //     />
+  //   </mesh>
+  // )
+}
+
 class Simple extends React.Component {
   constructor(props, context) {
     super(props, context)
 
     // construct the position vector here, because if we use 'new' within render,
     // React will think that things have changed when they have not.
-    this.cameraPosition = new THREE.Vector3(0, 0, 5)
+    this.cameraPosition = new THREE.Vector3(1, 1, 5)
 
     this.state = {
       cubeRotation: new THREE.Euler()
-    }
-
-    this._onAnimate = () => {
-      // we will get this callback every frame
-
-      // pretend cubeRotation is immutable.
-      // this helps with updates and pure rendering.
-      // React will be sure that the rotation has now updated.
-      this.setState({
-        cubeRotation: new THREE.Euler(
-          this.state.cubeRotation.x + 0.1,
-          this.state.cubeRotation.y + 0.1,
-          0
-        )
-      })
     }
   }
 
@@ -48,8 +59,6 @@ class Simple extends React.Component {
       mainCamera="camera" // this points to the perspectiveCamera which has the name set to "camera" below
       width={width}
       height={height}
-
-      onAnimate={this._onAnimate}
     >
       <scene>
         <perspectiveCamera
@@ -58,21 +67,13 @@ class Simple extends React.Component {
           aspect={width / height}
           near={0.1}
           far={1000}
-
           position={this.cameraPosition}
         />
-        <mesh
-          rotation={this.state.cubeRotation}
-        >
-          <boxGeometry
-            width={1}
-            height={1}
-            depth={1}
-          />
-          <meshBasicMaterial
-            color={0x00ff00}
-          />
-        </mesh>
+        <BoxImpl position={new THREE.Vector3(0, 0, 0)}/>
+        <BoxImpl position={new THREE.Vector3(1, 0, 0)}/>
+        <BoxImpl position={new THREE.Vector3(2, 0, 0)}/>
+        <BoxImpl position={new THREE.Vector3(3, 0, 0)}/>
+        <BoxImpl position={new THREE.Vector3(4, 0, 0)}/>
       </scene>
     </React3>)
   }
