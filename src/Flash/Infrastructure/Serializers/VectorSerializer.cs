@@ -2,26 +2,26 @@
 
 namespace Flash.Infrastructure.Serializers
 {
-    public class VectorSerializer
+    public static class VectorSerializer
     {
-        public void SerializeLcdAxis(Vector vector, BitSet setToWrite)
+        public static void SerializeLcdAxis(Vector vector, BitWriter writerToWrite)
         {
             if (vector.X != 0)
-                setToWrite.WriteZero().WriteOne();
+                writerToWrite.WriteZero().WriteOne();
             else if (vector.Y != 0)
-                setToWrite.WriteOne().WriteZero();
+                writerToWrite.WriteOne().WriteZero();
             else
-                setToWrite.WriteOne(2);
+                writerToWrite.WriteOne(2);
         }
 
-        public void SerializeLinearShortLength(Vector vector, BitSet setToWrite)
+        public static void SerializeLinearShortLength(Vector vector, BitWriter writerToWrite)
         {
-            setToWrite.WriteByte((byte)(vector.GetFirstNonZeroComponent() + 5));
+            writerToWrite.WriteByte((byte)(vector.GetFirstNonZeroComponent() + 5));
         }
 
-        public void SerializeLinearLongLength(Vector vector, BitSet setToWrite)
+        public static void SerializeLinearLongLength(Vector vector, BitWriter writerToWrite)
         {
-            setToWrite.WriteByte((byte)(vector.GetFirstNonZeroComponent() + 15));
+            writerToWrite.WriteByte((byte)(vector.GetFirstNonZeroComponent() + 15));
         }
     }
 }

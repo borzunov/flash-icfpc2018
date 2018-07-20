@@ -4,14 +4,23 @@ using Flash.Infrastructure.Commands;
 
 namespace Flash.Infrastructure.Serializers
 {
-    public class SMoveCommandSerializer : ICommandSerializer
+    public class SMoveCommandSerializer: BaseCommandSerializer<SMoveCommand>
     {
-        public Type CommandType => typeof(SMoveCommand);
-
-        public void Serialize(ICommand command, Stream streamToWrite)
+        protected override byte[] Serialize(SMoveCommand command)
         {
-            var moveCmd = command as SMoveCommand;
-            var bitSet = new BitSet();
+            var bytes = BitWriter.Start()
+                .WriteZero(2)
+                .WriteLcdAxis(command.Direction)
+                .WriteZero()
+                .WriteOne()
+                .WriteZero(2)
+                .Label("end first byte")
+                .WriteZero(3)
+                .WriteLinearLongLength(command.Direction)
+                .Label("end second byte")
+                .ToBytes();
+
+            return bytes;
         }
     }
 }

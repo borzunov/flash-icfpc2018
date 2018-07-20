@@ -4,13 +4,11 @@ using Flash.Infrastructure.Commands;
 
 namespace Flash.Infrastructure.Serializers
 {
-    public class FlipCommandSerializer : ICommandSerializer
+    public class FlipCommandSerializer : BaseCommandSerializer<FlipCommand>
     {
-        public Type CommandType => typeof(FlipCommand);
-
-        public void Serialize(ICommand command, Stream streamToWrite)
+        protected override byte[] Serialize(FlipCommand command)
         {
-            streamToWrite.WriteByte(0b1111_1101);
+            return new byte[] {0b1111_1101};
         }
     }
 }

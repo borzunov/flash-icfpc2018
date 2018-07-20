@@ -4,13 +4,11 @@ using Flash.Infrastructure.Commands;
 
 namespace Flash.Infrastructure.Serializers
 {
-    public class HaltCommandSerializer : ICommandSerializer
+    public class HaltCommandSerializer : BaseCommandSerializer<HaltCommand>
     {
-        public Type CommandType => typeof(HaltCommand);
-
-        public void Serialize(ICommand command, Stream streamToWrite)
+        protected override byte[] Serialize(HaltCommand command)
         {
-            streamToWrite.WriteByte(0b1111_1111);
+            return new byte[] {0b1111_1111};
         }
     }
 }

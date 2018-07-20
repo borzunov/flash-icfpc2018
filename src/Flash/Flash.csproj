@@ -48,7 +48,9 @@
     <Compile Include="Infrastructure\Commands\FlipCommand.cs" />
     <Compile Include="Infrastructure\Commands\SMoveCommand.cs" />
     <Compile Include="Infrastructure\Commands\WaitCommand.cs" />
-    <Compile Include="Infrastructure\Serializers\BitSet.cs" />
+    <Compile Include="Infrastructure\Serializers\BaseCommandSerializer.cs" />
+    <Compile Include="Infrastructure\Serializers\BitWriter.cs" />
+    <Compile Include="Infrastructure\Serializers\BitSetExtensions.cs" />
     <Compile Include="Infrastructure\Serializers\SMoveCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\FlipCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\VectorSerializer.cs" />

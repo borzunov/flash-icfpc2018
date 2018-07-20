@@ -22,11 +22,8 @@ namespace UnitTests
             ICommand command,
             byte[] expectedBytes)
         {
-            var ms = new MemoryStream();
+            var sut = serializer.Serialize(command);
 
-            serializer.Serialize(command, ms);
-
-            var sut = ms.ToArray();
             sut.Should().BeEquivalentTo(expectedBytes, op => op.WithStrictOrdering());
         }
     }

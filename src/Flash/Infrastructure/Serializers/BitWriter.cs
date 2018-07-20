@@ -1,15 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Flash.Infrastructure.Serializers
 {
-    public class BitSet
+    public class BitWriter
     {
         private readonly List<byte> bytes = new List<byte> {Capacity = 10};
         private int bytePointer;
         private int bitPointer;
 
-        public BitSet WriteByte(byte value)
+        public static BitWriter Start()
+        {
+            return new BitWriter();
+        }
+
+        public BitWriter WriteByte(byte value)
         {
             for (var bit = 7; bit >= 0; bit--)
             {
@@ -22,7 +28,7 @@ namespace Flash.Infrastructure.Serializers
             return this;
         }
 
-        public BitSet WriteZero(int count = 1)
+        public BitWriter WriteZero(int count = 1)
         {
             for (var i = 0; i < count; i++)
                 GoToNextBit();
@@ -30,7 +36,7 @@ namespace Flash.Infrastructure.Serializers
             return this;
         }
 
-        public BitSet WriteOne(int count = 1)
+        public BitWriter WriteOne(int count = 1)
         {
             for (var i = 0; i < count; i++)
             {
@@ -38,6 +44,11 @@ namespace Flash.Infrastructure.Serializers
                 bytes[bytePointer] |= (byte) (1 << bitPointer);
             }
 
+            return this;
+        }
+
+        public BitWriter Label(string description)
+        {
             return this;
         }
 

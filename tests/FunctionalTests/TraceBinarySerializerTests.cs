@@ -11,7 +11,7 @@ namespace FunctionalTests
 {
     public class TraceBinarySerializerTests
     {
-        private readonly TraceBinarySerializer traceBinarySerializer = new TraceBinarySerializer();
+        private readonly TraceBinarySerializer traceBinarySerializer = TraceBinarySerializer.Create();
 
         private static IEnumerable<TestCaseData> GetSerializeTest()
         {

@@ -6,7 +6,6 @@ namespace Flash.Infrastructure.Serializers
 {
     public interface ICommandSerializer
     {
-        Type CommandType { get; }
-        void Serialize(ICommand command, Stream streamToWrite);
+        byte[] Serialize(ICommand command);
     }
 }
