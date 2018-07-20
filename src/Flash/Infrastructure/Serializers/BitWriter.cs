@@ -9,15 +9,16 @@ namespace Flash.Infrastructure.Serializers
         private readonly List<byte> bytes = new List<byte> {Capacity = 10};
         private int bytePointer;
         private int bitPointer;
+        private int finishedBytesCount;
 
         public static BitWriter Start()
         {
             return new BitWriter();
         }
 
-        public BitWriter WriteByte(byte value)
+        public BitWriter WriteByte(byte value, int offset, int length)
         {
-            for (var bit = 7; bit >= 0; bit--)
+            for (var bit = offset; bit >= Math.Max(offset - length + 1, 0); bit--)
             {
                 if ((value & (1 << bit)) != 0)
                     WriteOne();
@@ -47,8 +48,23 @@ namespace Flash.Infrastructure.Serializers
             return this;
         }
 
-        public BitWriter Label(string description)
+        public BitWriter EndOfFirstByte()
         {
+            return EndByte(1);
+        }
+
+        public BitWriter EndOfSecondByte()
+        {
+            return EndByte(2);
+        }
+
+        private BitWriter EndByte(int n)
+        {
+            if (bytePointer != n-1 || bitPointer != 0)
+                throw new InvalidOperationException("Incorrect number of bits");
+
+            finishedBytesCount++;
+
             return this;
         }
 
@@ -67,6 +83,9 @@ namespace Flash.Infrastructure.Serializers
 
         private void GoToNextByte()
         {
+            if(bytePointer + 1 != finishedBytesCount)
+                throw new InvalidOperationException("No enought end labels");
+
             bytes.Add(0);
             bytePointer++;
             bitPointer = 7;

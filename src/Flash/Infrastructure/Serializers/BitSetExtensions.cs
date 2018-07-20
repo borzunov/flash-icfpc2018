@@ -9,7 +9,7 @@ namespace Flash.Infrastructure.Serializers
             return bs;
         }
 
-        public static BitWriter SerializeLinearShortLength(this BitWriter bs, Vector vector)
+        public static BitWriter WriteLinearShortLength(this BitWriter bs, Vector vector)
         {
             VectorSerializer.SerializeLinearShortLength(vector, bs);
 

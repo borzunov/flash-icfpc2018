@@ -16,12 +16,17 @@ namespace Flash.Infrastructure.Serializers
 
         public static void SerializeLinearShortLength(Vector vector, BitWriter writerToWrite)
         {
-            writerToWrite.WriteByte((byte)(vector.GetFirstNonZeroComponent() + 5));
+            writerToWrite.WriteByte((byte) (vector.GetFirstNonZeroComponent() + 5), 3, 4);
         }
 
         public static void SerializeLinearLongLength(Vector vector, BitWriter writerToWrite)
         {
-            writerToWrite.WriteByte((byte)(vector.GetFirstNonZeroComponent() + 15));
+            writerToWrite.WriteByte((byte)(vector.GetFirstNonZeroComponent() + 15), 4, 5);
+        }
+        public static void SerializeNearDifference(Vector vector, BitWriter writerToWrite)
+        {
+            var nd = (byte) ((vector.X + 1) * 9 + (vector.Y + 1) * 3 + (vector.Z + 1) * 1);
+            writerToWrite.WriteByte(nd, 4, 5);
         }
     }
 }

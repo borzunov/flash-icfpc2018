@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Infrastructure\Bot.cs" />
+    <Compile Include="Infrastructure\Commands\LMoveCommand.cs" />
     <Compile Include="Infrastructure\Matrix.cs" />
     <Compile Include="Infrastructure\Region.cs" />
     <Compile Include="Infrastructure\Commands\FlipCommand.cs" />
@@ -51,6 +52,7 @@
     <Compile Include="Infrastructure\Serializers\BaseCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\BitWriter.cs" />
     <Compile Include="Infrastructure\Serializers\BitSetExtensions.cs" />
+    <Compile Include="Infrastructure\Serializers\LMoveCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\SMoveCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\FlipCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\VectorSerializer.cs" />

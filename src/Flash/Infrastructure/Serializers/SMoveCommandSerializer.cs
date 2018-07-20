@@ -14,10 +14,10 @@ namespace Flash.Infrastructure.Serializers
                 .WriteZero()
                 .WriteOne()
                 .WriteZero(2)
-                .Label("end first byte")
+                .EndOfFirstByte()
                 .WriteZero(3)
                 .WriteLinearLongLength(command.Direction)
-                .Label("end second byte")
+                .EndOfSecondByte()
                 .ToBytes();
 
             return bytes;
