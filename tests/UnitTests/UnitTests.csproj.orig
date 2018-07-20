@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7547E4E5-664C-4DFF-BC1B-3F85CE601775}</ProjectGuid>
+    <ProjectGuid>{10E1E0AE-2402-440F-984F-2DCE657137D3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FunctionalTests</RootNamespace>
-    <AssemblyName>FunctionalTests</AssemblyName>
+    <RootNamespace>UnitTests</RootNamespace>
+    <AssemblyName>UnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -62,7 +62,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TraceBinarySerializerTests.cs" />
+<<<<<<< origin/master
+    <Compile Include="MatrixTests.cs" />
+    <Compile Include="RegionTests.cs" />
+=======
+    <Compile Include="CommandsSerializersTests.cs" />
+>>>>>>> local
+    <Compile Include="VectorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -42,8 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< origin/master
     <Compile Include="Infrastructure\Matrix.cs" />
     <Compile Include="Infrastructure\Region.cs" />
+=======
     <Compile Include="Infrastructure\Commands\FlipCommand.cs" />
     <Compile Include="Infrastructure\Commands\SMoveCommand.cs" />
     <Compile Include="Infrastructure\Commands\WaitCommand.cs" />
@@ -58,6 +60,7 @@
     <Compile Include="Infrastructure\Serializers\TraceBinarySerializer.cs" />
     <Compile Include="Infrastructure\State.cs" />
     <Compile Include="Infrastructure\Trace.cs" />
+>>>>>>> local
     <Compile Include="Infrastructure\Vector.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -5,5 +5,9 @@ namespace Flash.Infrastructure
 {
     public class Trace : List<ICommand>
     {
+        public Trace(IEnumerable<ICommand> commands): base(commands)
+        {
+            //nothing
+        }
     }
 }
