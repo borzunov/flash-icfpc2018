@@ -21,61 +21,84 @@ namespace Flash
             var modelFilePath = @"..\..\..\data\models\";
 
 
-	        foreach (var file in Directory.EnumerateFiles(modelFilePath))
-	        {
-				
-		        var resultMatrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(file));
-		        var ai = new GreedyAI();
+            var list = Directory.EnumerateFiles(modelFilePath).Skip(30).ToList();
+            list.Shuffle();
+
+            var count = list.AsParallel().Select(file =>
+            {
+                var resultMatrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(file));
+                var ai = new GreedyAI();
 
 
 
-		        var simulator = new Simulator();
-		        var size = resultMatrix.R;
-		        var state = State.CreateInitial(size, new FakeOpLog());
-		        state.Matrix = resultMatrix;
+                var simulator = new Simulator();
+                var size = resultMatrix.R;
+                var state = State.CreateInitial(size, new FakeOpLog());
+                state.Matrix = resultMatrix;
 
-		        var ans = new List<Trace1>();
-		        while (true)
-		        {
-			        var commands = ai.NextStep(state).ToList();
+                var ans = new List<Trace1>();
+                while (true)
+                {
+                    var commands = ai.NextStep(state).ToList();
 
-					var trace = new Trace(commands);
-			        var trace1 = new Trace1(commands);
+                    var trace = new Trace(commands);
+                    var trace1 = new Trace1(commands);
 
-					simulator.NextStep(state, trace);
-			        ans.Add(trace1);
+                    simulator.NextStep(state, trace);
+                    ans.Add(trace1);
 
-					if (commands.Count == 1 && commands[0] is HaltCommand)
-			        {
-				        break;
-			        }
-		        }
+                    if (commands.Count == 1 && commands[0] is HaltCommand)
+                    {
+                        break;
+                    }
+                }
 
-				var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
-		        mongoOplogWriter.WriteLogName($"{Path.GetFileName(file).Substring(0,5)}");
+                var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
+                mongoOplogWriter.WriteLogName($"{Path.GetFileName(file).Substring(0, 5)}");
 
-		        var newState = State.CreateInitial(size, mongoOplogWriter);
-		        mongoOplogWriter.WriteInitialState(newState);
+                var newState = State.CreateInitial(size, mongoOplogWriter);
+                mongoOplogWriter.WriteInitialState(newState);
 
-		        var traceBinarySerializer = TraceBinarySerializer.Create();
-		        var bytes = new List<byte>();
-		        for (var index = ans.Count - 2; index >= 0; index--)
-		        {
-			        var trace1 = ans[index];
-			        var newTrace = trace1.Revert();
-//		        var newTrace1 = trace1.Revert();
-			        bytes.AddRange(traceBinarySerializer.Serialize(newTrace));
-			        simulator.NextStep(newState, newTrace);
-		        }
+                var traceBinarySerializer = TraceBinarySerializer.Create();
+                var bytes = new List<byte>();
+                for (var index = ans.Count - 2; index >= 0; index--)
+                {
+                    var trace1 = ans[index];
+                    var newTrace = trace1.Revert();
+                    bytes.AddRange(traceBinarySerializer.Serialize(newTrace));
+                    simulator.NextStep(newState, newTrace);
+                }
 
-		        Console.WriteLine($"{Path.GetFileName(file).Substring(0, 5)}  - {newState.Energy}");
-		        var halt = new Trace(new ICommand[] {new HaltCommand()});
-		        bytes.AddRange(traceBinarySerializer.Serialize(halt));
-		        simulator.NextStep(newState, halt);
+                Console.WriteLine($"{Path.GetFileName(file).Substring(0, 5)}  - {newState.Energy}");
+                var halt = new Trace(new ICommand[] { new HaltCommand() });
+                bytes.AddRange(traceBinarySerializer.Serialize(halt));
+                simulator.NextStep(newState, halt);
 
-		        File.WriteAllBytes($"c:\\users\\s.jane\\desktop\\result\\{Path.GetFileName(file).Substring(0,5)}.nbt", bytes.ToArray());
-		        mongoOplogWriter.Save();
-	        }
+                File.WriteAllBytes($"result\\{Path.GetFileName(file).Substring(0, 5)}.nbt", bytes.ToArray());
+                mongoOplogWriter.Save();
+
+                return 1;
+            }).Count();
         }
+
+    }
+
+    public static class ListEx
+    {
+        private static Random rng = new Random();
+
+        public static void Shuffle<T>(this IList<T> list)
+        {
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+        }
+
     }
 }
