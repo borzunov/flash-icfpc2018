@@ -42,14 +42,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Infrastructure\Bot.cs" />
+    <Compile Include="Infrastructure\AI\FileAI.cs" />
+    <Compile Include="Infrastructure\Models\Bot.cs" />
     <Compile Include="Infrastructure\Commands\FillCommand.cs" />
     <Compile Include="Infrastructure\Commands\FissionCommand.cs" />
     <Compile Include="Infrastructure\Commands\FusionPCommand.cs" />
     <Compile Include="Infrastructure\Commands\FusionSCommand.cs" />
     <Compile Include="Infrastructure\Commands\LMoveCommand.cs" />
-    <Compile Include="Infrastructure\Matrix.cs" />
-    <Compile Include="Infrastructure\Region.cs" />
+    <Compile Include="Infrastructure\AI\IAI.cs" />
+    <Compile Include="Infrastructure\Models\Matrix.cs" />
+    <Compile Include="Infrastructure\Models\Region.cs" />
     <Compile Include="Infrastructure\Commands\FlipCommand.cs" />
     <Compile Include="Infrastructure\Commands\SMoveCommand.cs" />
     <Compile Include="Infrastructure\Commands\WaitCommand.cs" />
@@ -72,9 +74,9 @@
     <Compile Include="Infrastructure\Serializers\TraceBinarySerializer.cs" />
     <Compile Include="Infrastructure\Simulation\QueueExtensions.cs" />
     <Compile Include="Infrastructure\Simulation\Simulator.cs" />
-    <Compile Include="Infrastructure\State.cs" />
-    <Compile Include="Infrastructure\Trace.cs" />
-    <Compile Include="Infrastructure\Vector.cs" />
+    <Compile Include="Infrastructure\Models\State.cs" />
+    <Compile Include="Infrastructure\Models\Trace.cs" />
+    <Compile Include="Infrastructure\Models\Vector.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
