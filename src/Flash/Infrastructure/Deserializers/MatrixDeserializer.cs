@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using Flash.Infrastructure.Models;
 using Flash.Infrastructure.Tools;
 
 namespace Flash.Infrastructure.Deserializers

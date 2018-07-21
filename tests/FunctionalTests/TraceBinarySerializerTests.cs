@@ -2,6 +2,7 @@
 using System.IO;
 using Flash.Infrastructure;
 using Flash.Infrastructure.Commands;
+using Flash.Infrastructure.Models;
 using Flash.Infrastructure.Serializers;
 using FluentAssertions;
 using NSubstitute;

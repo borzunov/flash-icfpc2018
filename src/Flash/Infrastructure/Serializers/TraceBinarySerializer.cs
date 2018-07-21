@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Flash.Infrastructure.Commands;
+using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Serializers
 {

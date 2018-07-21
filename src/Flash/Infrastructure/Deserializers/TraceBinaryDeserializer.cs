@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Flash.Infrastructure.Commands;
+using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Deserializers
 {

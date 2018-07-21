@@ -1,3 +1,5 @@
+using Flash.Infrastructure.Models;
+
 namespace Flash.Infrastructure.Serializers
 {
     public static class BitSetExtensions

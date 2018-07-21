@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Flash.Infrastructure
+namespace Flash.Infrastructure.Models
 {
     public class Region
     {

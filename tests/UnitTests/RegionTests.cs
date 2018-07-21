@@ -1,4 +1,5 @@
 ﻿using Flash.Infrastructure;
+using Flash.Infrastructure.Models;
 using FluentAssertions;
 using NUnit.Framework;
 

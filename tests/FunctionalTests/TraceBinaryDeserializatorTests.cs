@@ -4,6 +4,7 @@ using System.Linq;
 using Flash.Infrastructure;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Deserializers;
+using Flash.Infrastructure.Models;
 using FluentAssertions;
 using NUnit.Framework;
 

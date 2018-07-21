@@ -5,7 +5,7 @@ using Flash.Infrastructure.Deserializers;
 using Flash.Infrastructure.Models;
 using Flash.Infrastructure.Simulation;
 
-namespace Flash.Infrastructure
+namespace Flash.Infrastructure.AI
 {
     public class FileAI : IAI
     {
