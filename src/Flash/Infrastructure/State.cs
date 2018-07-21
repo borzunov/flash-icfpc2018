@@ -17,7 +17,7 @@ namespace Flash.Infrastructure
         public Matrix Matrix { get; }
         public long Energy { get; set; }
         public bool Harmonics { get; set; }
-        public Bot[] Bots { get; set; }
+        public Bot[] Bots { get; set; } // always sorted by id
 
         public bool IsValid()
         {

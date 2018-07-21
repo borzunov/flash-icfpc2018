@@ -13,7 +13,10 @@
 
         public void Apply(State state, Bot bot)
         {
-            throw new System.NotImplementedException();
+            var newPosition = bot.Pos + FirstDirection + SecondDirection;
+
+            bot.Pos = newPosition;
+            state.Energy += 2*(FirstDirection.Mlen + 2 + SecondDirection.Mlen);
         }
     }
 }

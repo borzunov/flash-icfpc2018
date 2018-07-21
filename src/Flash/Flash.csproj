@@ -43,6 +43,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Infrastructure\Bot.cs" />
+    <Compile Include="Infrastructure\Commands\FillCommand.cs" />
+    <Compile Include="Infrastructure\Commands\FissionCommand.cs" />
+    <Compile Include="Infrastructure\Commands\FusionP.cs" />
+    <Compile Include="Infrastructure\Commands\FusionSCommand.cs" />
     <Compile Include="Infrastructure\Commands\LMoveCommand.cs" />
     <Compile Include="Infrastructure\Matrix.cs" />
     <Compile Include="Infrastructure\Region.cs" />

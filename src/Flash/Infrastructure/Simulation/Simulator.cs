@@ -12,6 +12,7 @@ namespace Flash.Infrastructure.Simulation
 
             Validate(state, trace);
 
+            UpdateEnergy(state);
 
             while (trace.Any())
             {
@@ -27,6 +28,21 @@ namespace Flash.Infrastructure.Simulation
             }
 
             return state;
+        }
+
+        private static void UpdateEnergy(State state)
+        {
+            var r = state.Matrix.R;
+            if (state.Harmonics)
+            {
+                state.Energy += 30*r*r*r;
+            }
+            else
+            {
+                state.Energy += 3*r*r*r;
+            }
+
+            state.Energy += 20*state.Bots.Length;
         }
 
         private void Validate(State state, Trace trace)
