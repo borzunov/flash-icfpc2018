@@ -137,7 +137,7 @@ namespace Flash.Infrastructure
 		public static bool LifeWillGoodWithoutMe(Vector me, State state)
 		{
 			state.Matrix.Clear(me);
-			var flag = me.GetAdjacents().Where(x => x.IsGood(state.Matrix.R)).All(x => state.Matrix.IsGrounded(x));
+			var flag = me.GetAdjacents().Where(x => x.IsGood(state.Matrix.R) && state.Matrix.IsFull(x)).All(x => state.Matrix.IsGrounded(x));
 			state.Matrix.Fill(me);
 
 			return flag;
