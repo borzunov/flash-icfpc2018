@@ -1,6 +1,6 @@
 import React from 'react'
 import * as THREE from 'three'
-import { compose, shouldUpdate, withProps } from 'recompose'
+import { compose, onlyUpdateForKeys, shouldUpdate, withProps } from 'recompose'
 import { dataStore } from '../../store'
 
 export const BoxImpl = ({ position, color, size, filled = false, contoured = false, opacity = 1, showEdges = false }) => {
@@ -41,6 +41,8 @@ export const BoxImpl = ({ position, color, size, filled = false, contoured = fal
 
 const Box = compose(
   withProps({ store: dataStore }),
-  shouldUpdate(({ contoured }) => !!contoured))(BoxImpl)
+  //shouldUpdate(({ contoured }) => !!contoured),
+  onlyUpdateForKeys(['color', 'opacity', 'size'])
+)(BoxImpl)
 
 export default Box
