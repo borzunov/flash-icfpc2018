@@ -33,7 +33,7 @@ namespace Flash.Infrastructure.Commands
 
 	    public ICommand Revert()
 	    {
-		    throw new NotImplementedException();
+            return new ClearCommand(NearDistance);
 	    }
     }
 }
