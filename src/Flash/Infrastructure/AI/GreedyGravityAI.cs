@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Bingo.Graph;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Models;
 
@@ -63,7 +64,6 @@ namespace Flash.Infrastructure.AI
             var commands = new List<ICommand>();
             while (filled.Count < figure.Count)
             {
-	            var time = DateTime.UtcNow;
                 var nextPoint = curPoint.GetAdjacents()
                     .Where(p => figure.Contains(p) && !filled.Contains(p))
                     .OrderByDescending(p => gravity[p])
@@ -134,7 +134,8 @@ namespace Flash.Infrastructure.AI
                 foreach (var neigh in cur.GetAdjacents())
                     if (figure.Contains(neigh) && !dist.ContainsKey(neigh))
                     {
-                        dist[neigh] = dist[cur] + 1;
+						var diff = neigh - cur;
+                        dist[neigh] = dist[cur] - diff.X - diff.Y*4 - diff.Z*2;
                         order.Enqueue(neigh);
                     }
             }
@@ -160,9 +161,8 @@ namespace Flash.Infrastructure.AI
             while (order.Count > 0)
             {
                 var cur = order.Dequeue();
-                var neighs = (doFill && cur == start
-                    ? (IEnumerable<Vector>) cur.GetAdjacents()
-                    : cur.GetLongLinearNeighs());
+
+                var neighs = cur.GetLongLinearNeighs();
                 foreach (var neigh in neighs)
                 {
                     if (!targetMatrix.Contains(neigh) || prev.ContainsKey(neigh) ||
@@ -177,6 +177,8 @@ namespace Flash.Infrastructure.AI
                         break;
                     }
                 }
+				if(found)
+					break;
             }
             if (!found)
                 throw new ArgumentException("`end` is unreachable from `start`");
