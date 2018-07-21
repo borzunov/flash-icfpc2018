@@ -1,6 +1,9 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using Flash.Infrastructure;
+using Flash.Infrastructure.AI;
 using Flash.Infrastructure.Commands;
+using Flash.Infrastructure.Deserializers;
 using Flash.Infrastructure.Models;
 using Flash.Infrastructure.Simulation;
 
@@ -13,10 +16,11 @@ namespace Flash
             var trackFilePath = @"..\..\..\data\track\LA001.nbt";
             var modelFilePath = @"..\..\..\data\track\LA001_tgt.mdl";
 
-            var ai = new FileAI(trackFilePath);
+            var matrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(modelFilePath));
+            var ai = new GreedyGravityAI(matrix);
 
             var mongoOplogWriter = new JsonOpLogWriter(new ConsoleJsonWriter());
-            mongoOplogWriter.WriteLogName("MY_BEST_ALGO");
+            mongoOplogWriter.WriteLogName("GreedyGravityAI");
 
             var simulator = new Simulator();
             var size = 30;

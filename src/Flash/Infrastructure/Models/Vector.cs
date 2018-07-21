@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
 
 namespace Flash.Infrastructure
@@ -104,6 +105,23 @@ namespace Flash.Infrastructure
             };
         }
 
+        private const int LongLinearMLen = 15;
+
+        public List<Vector> GetLongLinearNeighs()
+        {
+            var result = new List<Vector>();
+            for (var i = 1; i <= LongLinearMLen; i++)
+            {
+                result.Add(new Vector(X - i, Y, Z));
+                result.Add(new Vector(X + i, Y, Z));
+                result.Add(new Vector(X, Y - i, Z));
+                result.Add(new Vector(X, Y + i, Z));
+                result.Add(new Vector(X, Y, Z - i));
+                result.Add(new Vector(X, Y, Z + i));
+            }
+            return result;
+        }
+
         public int GetFirstNonZeroComponent()
         {
             if (X != 0)
@@ -145,6 +163,9 @@ namespace Flash.Infrastructure
                 return hashCode;
             }
         }
+
+        public static bool operator ==(Vector a, Vector b) => a.Equals(b);
+        public static bool operator !=(Vector a, Vector b) => !a.Equals(b);
         #endregion
 
         public override string ToString()
