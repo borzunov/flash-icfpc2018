@@ -7,6 +7,8 @@ import { playLog } from './playLog'
 import { withHandlers, compose } from 'recompose'
 import Queue from 'async/queue'
 import store from '../../store'
+import Loader from 'react-loaders'
+import 'loaders.css/loaders.min.css'
 
 let currentWait = 10
 const SPEED_CONST = 4
@@ -34,14 +36,18 @@ class LogPlayer extends React.PureComponent {
   }
 
   componentWillUnmount() {
-    clearInterval(this.refresher)
   }
 
   render() {
-    const { latest, playLog } = this.props
+    const { latest, playLog, loading, refreshLogs } = this.props
+
+    function rednerFetched() {
+      return latest.map((l, i) => <button onClick={() => playLog(l)} key={i}>{i + 1}: {l.name}</button>)
+    }
+
     return <div className="log-player">
-      <h3>Click on log to play</h3>
-      {latest.map((l, i) => <button onClick={() => playLog(l)} key={i}>{i + 1}: {l.name}</button>)}
+      <h3 onClick={refreshLogs} style={{color: 'white'}}>{loading ? 'Fetching logs...' : 'Click to play'}</h3>
+      {loading ? <Loader style={{marginTop: 30}} type={'ball-scale-ripple-multiple'}/> : rednerFetched()}
     </div>
   }
 }
@@ -49,7 +55,10 @@ class LogPlayer extends React.PureComponent {
 export default compose(
   connect(
     ({ logs }) => {
-      return { latest: logs.latest.slice(0, 10) }
+      return {
+        latest: logs.latest.slice(0, 10),
+        loading: logs.loading,
+      }
     },
     dispatch => {
       return bindActionCreators({
