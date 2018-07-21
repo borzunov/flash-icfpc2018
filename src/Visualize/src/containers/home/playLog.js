@@ -7,7 +7,7 @@ export const playLog = ({ changeSize, changeVoxel, changeBot, changeColor, chang
     console.error(`log is longer than ${MAX} and will crash app. Won't play`)
     return
   }
-  else {
+  else if (window.showLog) {
     console.log(JSON.stringify({size, log, name}))
   }
   for (let act of log) {
