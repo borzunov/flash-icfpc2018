@@ -1,10 +1,12 @@
 import { LogAction } from '../../test-logs/LogAction'
 
-export const playLog = ({ changeSize, changeVoxel, changeBot, changeColor, changeEnergy, changeHarmonic }, { size, log, name }, enqueue) => {
+export const playLog = ({ changeSize, changeVoxel, changeBot, changeColor, changeEnergy, changeHarmonic, changeMessage }, { size, log, name }, enqueue) => {
   changeSize(size)
   if (log.length > 5000) {
     console.error(`log is longer than 5000 and will crash app. Won't play`)
     return
+  }
+  else {
   }
   for (let act of log) {
     switch (act.t) {
@@ -25,6 +27,9 @@ export const playLog = ({ changeSize, changeVoxel, changeBot, changeColor, chang
         break
       case LogAction.Harmonic:
         enqueue(() => changeHarmonic(act.h))
+        break
+      case LogAction.Message:
+        enqueue(() => changeMessage(act.m))
         break
       default:
         console.warn('bad act', act);

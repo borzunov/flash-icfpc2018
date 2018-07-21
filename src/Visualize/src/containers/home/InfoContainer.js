@@ -8,6 +8,7 @@ const ColorContainerImpl = ({ energy, harmonic, message }) => {
   return (<div style={{position: 'absolute', bottom: 0, right: 0, textAlign: 'right', color: 'white', padding: 20}}>
       <div>Energy: {energy}</div>
       <div>Harmonic: {harmonic ? 'high' : 'low'}</div>
+      <div>Message: {message}</div>
   </div>)
 }
 

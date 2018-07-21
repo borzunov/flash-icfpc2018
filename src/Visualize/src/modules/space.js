@@ -4,6 +4,7 @@ export const BOT_CHANGED = 'space/BOT_CHANGED'
 export const COLOR_CHANGED = 'space/COLOR_CHANGED'
 export const ENERGY_CHANGED = 'space/ENERGY_CHANGED'
 export const HARMONIC_CHANGED = 'space/HARMONIC_CHANGED'
+export const MESSAGE_CHANGED = 'space/MESSAGE_CHANGED'
 
 const initialState = {
   size: 30,
@@ -11,7 +12,8 @@ const initialState = {
   colors: {},
   bots: {},
   energy: 0,
-  harmonic: false
+  harmonic: false,
+  message: ''
 }
 
 export default (state = initialState, action) => {
@@ -25,6 +27,11 @@ export default (state = initialState, action) => {
       return {
         ...state,
         energy: action.payload
+      }
+    case MESSAGE_CHANGED:
+      return {
+        ...state,
+        message: action.payload
       }
     case HARMONIC_CHANGED:
       return {
@@ -90,6 +97,15 @@ export const changeEnergy = (newEn) => {
     dispatch({
       type: ENERGY_CHANGED,
       payload: newEn
+    })
+  }
+}
+
+export const changeMessage = (newM) => {
+  return dispatch => {
+    dispatch({
+      type: MESSAGE_CHANGED,
+      payload: newM
     })
   }
 }
