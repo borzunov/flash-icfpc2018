@@ -26,9 +26,9 @@ export const getVectorKey = VectorImpl.getKey;
 export const deserializeVector = VectorImpl.deserialize;
 
 function Vector (x, y, z) {
-  if (new.target) {
-    throw new Error('just call Vector without new');
-  }
+  // if (new.target) {
+  //   throw new Error('just call Vector without new');
+  // }
   let key = VectorImpl.getKey(x, y, z)
   pool[key] = pool[key] || new VectorImpl(x, y, z);
   return pool[key];
