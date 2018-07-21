@@ -63,7 +63,18 @@ namespace Flash.Infrastructure.Models
 		    };
 	    }
 
-	    public Vector GetAdjacent(int s, int n)
+        public Vector[] GetAdjacentsInXZ(int n)
+        {
+            return new[]
+            {
+                new Vector(X+n, Y, Z),
+                new Vector(X, Y, Z+n),
+                new Vector(X-n, Y, Z),
+                new Vector(X, Y, Z-n),
+            };
+        }
+
+        public Vector GetAdjacent(int s, int n)
 	    {
 		    return GetAdjacents(n)[s];
 	    }
@@ -117,6 +128,21 @@ namespace Flash.Infrastructure.Models
                 new Vector(X+1, Y, Z-1),
                 new Vector(X-1, Y+1, Z),
                 new Vector(X, Y-1, Z+1),
+                new Vector(X-1, Y, Z+1)
+            };
+        }
+
+        public Vector[] GetNearsInXZ()
+        {
+            return new[]
+            {
+                new Vector(X+1, Y, Z),
+                new Vector(X, Y, Z+1),
+                new Vector(X-1, Y, Z),
+                new Vector(X, Y, Z-1),
+                new Vector(X+1, Y, Z+1),
+                new Vector(X-1, Y, Z-1),
+                new Vector(X+1, Y, Z-1),
                 new Vector(X-1, Y, Z+1)
             };
         }

@@ -11,21 +11,21 @@ using Flash.Infrastructure.Simulation;
 
 namespace Flash
 {
-    public class Program
+    public class Program1
     {
-        public static void Main(string[] args)
+        public static void Main1(string[] args)
         {
             var trackFilePath = @"..\..\..\data\track\LA001.nbt";
             var modelFilePath = @"..\..\..\data\models\";
 
             var num = 2;
             var list = Directory.EnumerateFiles(modelFilePath).Skip(num-1).Take(1).ToList();
-            //list.Shuffle();
+            list.Shuffle();
 
-            var count = list.Select(file =>
+            var count = list.AsParallel().Select(file =>
             {
                 var resultMatrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(file));
-                var ai = new LineAI(resultMatrix);
+                var ai = new EasyAI(resultMatrix);
 
                 var opLogWriter = new JsonOpLogWriter(new MongoJsonWriter());
                 opLogWriter.WriteLogName($"TIME TO WIN! {num}");
@@ -34,14 +34,18 @@ namespace Flash
                 var size = resultMatrix.R;
                 var state = State.CreateInitial(size, opLogWriter);
                 opLogWriter.WriteInitialState(state);
+                //state.Matrix = resultMatrix;
 
+                var ans = new List<Trace1>();
                 while (true)
                 {
                     var commands = ai.NextStep(state).ToList();
 
                     var trace = new Trace(commands);
+                    var trace1 = new Trace1(commands);
 
                     simulator.NextStep(state, trace);
+                    ans.Add(trace1);
 
                     if (commands.Count == 1 && commands[0] is HaltCommand)
                     {
@@ -75,26 +79,7 @@ namespace Flash
 //                mongoOplogWriter.Save();
 
                 return 1;
-            }).Take(1).Count();
-        }
-
-    }
-
-    public static class ListEx
-    {
-        private static Random rng = new Random();
-
-        public static void Shuffle<T>(this IList<T> list)
-        {
-            int n = list.Count;
-            while (n > 1)
-            {
-                n--;
-                int k = rng.Next(n + 1);
-                T value = list[k];
-                list[k] = list[n];
-                list[n] = value;
-            }
+            }).Count();
         }
 
     }

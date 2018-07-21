@@ -139,6 +139,7 @@
     <Compile Include="Infrastructure\Models\Trace.cs" />
     <Compile Include="Infrastructure\Models\Vector.cs" />
     <Compile Include="Infrastructure\Tools\BitReader.cs" />
+    <Compile Include="Program1.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
