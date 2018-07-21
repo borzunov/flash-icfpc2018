@@ -9,5 +9,10 @@ namespace Flash.Infrastructure
         {
             //nothing
         }
+
+        public static Trace From(params ICommand[] commands)
+        {
+            return new Trace(commands);
+        }
     }
 }

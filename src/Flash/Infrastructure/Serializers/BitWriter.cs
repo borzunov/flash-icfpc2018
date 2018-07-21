@@ -7,13 +7,15 @@ namespace Flash.Infrastructure.Serializers
     public class BitWriter
     {
         private readonly List<byte> bytes = new List<byte> {Capacity = 10};
-        private int bytePointer;
+        private int bytePointer = -1;
         private int bitPointer;
         private int finishedBytesCount;
 
         public static BitWriter Start()
         {
-            return new BitWriter();
+            var bitWriter = new BitWriter();
+
+            return bitWriter;
         }
 
         public BitWriter WriteByte(byte value, int offset, int length)
