@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
 
-namespace Flash.Infrastructure
+namespace Flash.Infrastructure.Models
 {
     public class Vector
     {

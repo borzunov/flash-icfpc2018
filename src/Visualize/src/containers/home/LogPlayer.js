@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { refreshLogs } from '../../modules/logs'
 import { bindActionCreators } from 'redux'
-import { changeBot, changeSize, changeVoxel } from '../../modules/space'
+import { changeBot, changeSize, changeVoxel, changeColor } from '../../modules/space'
 import { playLog } from './playLog'
 import { withHandlers, compose, withProps } from 'recompose'
 import Queue from 'async/queue'
@@ -79,7 +79,8 @@ export default compose(
     ...bindActionCreators({
       changeSize,
       changeVoxel,
-      changeBot
+      changeBot,
+      changeColor
     }, dataStore.dispatch)
   }),
   connect(
@@ -94,11 +95,11 @@ export default compose(
     }, dispatch)
   ),
   withHandlers({
-    playLog: ({ changeSize, changeBot, changeVoxel }) => ({ log, size }, reset, push) => {
+    playLog: ({ changeSize, changeBot, changeVoxel, changeColor }) => ({ log, size }, reset, push) => {
       reset()
       passed = 0
       total = log.length
-      playLog({ changeSize, changeBot, changeVoxel }, { size, log }, push)
+      playLog({ changeSize, changeBot, changeVoxel, changeColor }, { size, log }, push)
     }
   })
 )(LogPlayer)
