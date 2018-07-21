@@ -30,7 +30,6 @@ class ThreeScene extends React.PureComponent {
     this.updateCamera()
   }
 
-
   updateCamera = () => {
     let mapSize = this.props.mapSize
     const ms2 = mapSize / 2
@@ -55,8 +54,15 @@ class ThreeScene extends React.PureComponent {
     const bigBoxSize = new THREE.Vector3(mapSize, mapSize, mapSize)
 
     return (<div style={{ width: '100%', height: '100%' }}>
-      <Menu isOpen={true} noOverlay closeButton={false}>
-        <LogPlayer/>
+      <Menu isOpen={true} noOverlay closeButton={false} width={300}>
+        <Tabs defaultIndex={0} onSelect={index => console.log(index)}>
+          <TabList>
+            <Tab>Log player</Tab>
+            <Tab>Model viewer</Tab>
+          </TabList>
+          <TabPanel style={{position: 'relative', width: '100%'}}><LogPlayer bd="logs"/></TabPanel>
+          <TabPanel style={{position: 'relative', width: '100%'}}><LogPlayer bd="models"/></TabPanel>
+        </Tabs>
       </Menu>
       <HelpText/>
       <InfoContainer/>

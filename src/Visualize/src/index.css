@@ -60,3 +60,6 @@ html, body, #root, main, #root > div, #root > div > div {
     padding-left: 15px;
 }
 
+.bm-menu {
+    padding: 0 !important;
+}

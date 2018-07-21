@@ -12,7 +12,7 @@ import {
   changeMessage
 } from '../../modules/space'
 import { playLog } from './playLog'
-import { withHandlers, compose, withProps } from 'recompose'
+import { withHandlers, compose, withProps, mapProps } from 'recompose'
 import Queue from 'async/queue'
 import { dataStore } from '../../store'
 import Loader from 'react-loaders'
@@ -61,13 +61,16 @@ class LogPlayer extends React.PureComponent {
   }
 
   render() {
-    let { latest, playLog, loading, refreshLogs } = this.props
-    latest = latest.concat([case1, case2, case3, case4])
+    let { latest, playLog, loading, refreshLogs, bd } = this.props
+    if (bd === 'logs')
+      latest = latest.concat([case1, case2, case3, case4])
+    if (bd === 'models')
+      latest = latest.concat([]) // TODO
     const queueLength = this.syncQueueWithWait ? this.syncQueueWithWait.length() : 0
     let content
     if (loading)
       content = <div className="flex-column">
-        <h3>Fetching logs...</h3>
+        <h3>Fetching {bd}...</h3>
         <Loader style={{ marginTop: 30 }} type={'ball-scale-ripple-multiple'}/>
       </div>
     else if (queueLength > 0)
@@ -125,5 +128,10 @@ export default compose(
         log
       }, push)
     }
-  })
+  }),
+  mapProps(({refreshLogs, bd, ...rest}) => ({
+    refreshLogs: () => refreshLogs(bd),
+    bd,
+    ...rest
+  }))
 )(LogPlayer)
