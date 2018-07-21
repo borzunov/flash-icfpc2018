@@ -55,12 +55,12 @@ class ThreeScene extends React.PureComponent {
 
     return (<div style={{ width: '100%', height: '100%' }}>
       <Menu isOpen={true} noOverlay closeButton={false} width={300}>
-        <Tabs defaultIndex={0} onSelect={index => console.log(index)}>
+        <Tabs defaultIndex={0}>
           <TabList>
             <Tab>Log player</Tab>
             <Tab>Model viewer</Tab>
           </TabList>
-          <TabPanel style={{position: 'relative', width: '100%'}}><LogPlayer bd="logs"/></TabPanel>
+          <TabPanel style={{position: 'relative', width: '100%'}}><LogPlayer bd="logs" limit={10}/></TabPanel>
           <TabPanel style={{position: 'relative', width: '100%'}}><LogPlayer bd="models"/></TabPanel>
         </Tabs>
       </Menu>

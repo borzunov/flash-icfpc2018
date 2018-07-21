@@ -6,4 +6,6 @@ export const LogAction = {
   Energy: 4,
   Harmonic: 5,
   FillColor: 6,
+  FillBatch: 7,
+  VoidBatch: 8,
 }

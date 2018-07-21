@@ -1,5 +1,6 @@
 export const SIZE_CHANGED = 'space/SIZE_CHANGED'
 export const VOXEL_CHANGED = 'space/VOXEL_CHANGED'
+export const VOXEL_CHANGED_BATCH = 'space/VOXEL_CHANGED_BATCH'
 export const BOT_CHANGED = 'space/BOT_CHANGED'
 export const COLOR_CHANGED = 'space/COLOR_CHANGED'
 export const ENERGY_CHANGED = 'space/ENERGY_CHANGED'
@@ -44,6 +45,18 @@ export default (state = initialState, action) => {
         voxels: {
           ...state.voxels,
           [action.payload.position]: action.payload.filled
+        }
+      }
+    case VOXEL_CHANGED_BATCH:
+      let newVoxels = {};
+      for (let pos of action.payload.positions) {
+        newVoxels[pos] = action.payload.value;
+      }
+      return {
+        ...state,
+        voxels: {
+          ...state.voxels,
+          ...newVoxels
         }
       }
     case COLOR_CHANGED:
@@ -118,6 +131,18 @@ export const changeColor = (position, color, opacity = 0.5) => {
         position,
         color,
         opacity
+      }
+    })
+  }
+}
+
+export const changeVoxelBatch = (positions, value) => {
+  return dispatch => {
+    dispatch({
+      type: VOXEL_CHANGED_BATCH,
+      payload: {
+        positions,
+        value
       }
     })
   }

@@ -9,7 +9,8 @@ import {
   changeColor,
   changeHarmonic,
   changeEnergy,
-  changeMessage
+  changeMessage,
+  changeVoxelBatch,
 } from '../../modules/space'
 import { playLog } from './playLog'
 import { withHandlers, compose, withProps, mapProps } from 'recompose'
@@ -104,13 +105,14 @@ export default compose(
       changeColor,
       changeHarmonic,
       changeEnergy,
-      changeMessage
+      changeMessage,
+      changeVoxelBatch
     }, dataStore.dispatch)
   }),
   connect(
-    ({ logs }) => {
+    ({ logs }, { limit = 999999 }) => {
       return {
-        latest: logs.latest.slice(0, 10),
+        latest: logs.latest.slice(0, limit),
         loading: logs.loading
       }
     },
@@ -119,17 +121,26 @@ export default compose(
     }, dispatch)
   ),
   withHandlers({
-    playLog: ({ changeSize, changeBot, changeVoxel, changeColor, changeEnergy, changeHarmonic, changeMessage }) => ({ log, size }, reset, push) => {
+    playLog: ({ changeSize, changeBot, changeVoxel, changeColor, changeEnergy, changeHarmonic, changeMessage, changeVoxelBatch }) => ({ log, size }, reset, push) => {
       reset()
       passed = 0
       total = log.length
-      playLog({ changeSize, changeBot, changeVoxel, changeColor, changeHarmonic, changeEnergy, changeMessage }, {
+      playLog({
+        changeSize,
+        changeBot,
+        changeVoxel,
+        changeColor,
+        changeHarmonic,
+        changeEnergy,
+        changeMessage,
+        changeVoxelBatch
+      }, {
         size,
         log
       }, push)
     }
   }),
-  mapProps(({refreshLogs, bd, ...rest}) => ({
+  mapProps(({ refreshLogs, bd, ...rest }) => ({
     refreshLogs: () => refreshLogs(bd),
     bd,
     ...rest
