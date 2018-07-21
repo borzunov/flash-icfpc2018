@@ -3,6 +3,11 @@ import space from './space'
 import logs from './logs'
 
 export default combineReducers({
-  space,
   logs
 })
+
+const dataReducer = combineReducers({
+  space,
+})
+
+export {dataReducer};

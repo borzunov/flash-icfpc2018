@@ -1,6 +1,6 @@
 import case1 from '../../test-logs/1'
 import React from 'react'
-import store from '../../store'
+import store, { dataStore } from '../../store'
 import { withHandlers, withProps } from 'recompose'
 import { bindActionCreators, compose } from 'redux'
 import { connect } from 'react-redux'
@@ -24,9 +24,10 @@ const reset = () => {
   syncQueueWithWait.remove(() => true)
   syncQueueWithWait.resume()
   // reset dev-tools
-  store.liftedStore.dispatch({ type: 'RESET' })
+  if (dataStore.liftedStore)
+    dataStore.liftedStore.dispatch({ type: 'RESET' })
   // reset our state
-  store.dispatch({ type: 'RESET' })
+  dataStore.dispatch({ type: 'RESET' })
 }
 
 function ControlPanelImpl({ changeSize, mapSize, fillRandomVoxel, addRandomBot, doPlayLog, enqueue }) {
@@ -68,7 +69,7 @@ function ControlPanelImpl({ changeSize, mapSize, fillRandomVoxel, addRandomBot, 
 }
 
 export default compose(
-  withProps(store),
+  withProps({store: dataStore}),
   connect(({ space }) => {
       return {
         mapSize: space.size

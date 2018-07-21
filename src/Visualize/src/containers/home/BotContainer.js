@@ -1,7 +1,7 @@
 import React from 'react'
 import { compose, pure, withProps } from 'recompose'
 import { connect } from 'react-redux'
-import store from '../../store'
+import {dataStore} from '../../store'
 import { BoxImpl } from './Box'
 import { vecToThree } from './coords'
 import { deserializeVector } from '../../modules/Vector'
@@ -17,7 +17,7 @@ const BotContainerImpl = ({ bots, botSize, botColor }) => {
     }</group>)
 }
 
-const BotContainer = compose(withProps({ store }),
+const BotContainer = compose(withProps({ store: dataStore }),
   connect(
     ({ space }) => ({ bots: space.bots })
   ), pure)(BotContainerImpl)
