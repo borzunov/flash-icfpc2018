@@ -1,11 +1,13 @@
 //import { push } from 'connected-react-router'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import { compose, withProps } from 'recompose'
+import { dataStore } from '../../store'
 import ThreeScene from './ThreeScene'
 import { changeSize, changeVoxel, changeBot } from '../../modules/space'
 
 const mapStateToProps = ({ space }) => ({
-  mapSize: space.size,
+  mapSize: space.size
 })
 
 const mapDispatchToProps = dispatch =>
@@ -13,12 +15,14 @@ const mapDispatchToProps = dispatch =>
     {
       changeSize,
       changeVoxel,
-      changeBot,
+      changeBot
     },
-    dispatch
+    dispatch,
   )
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ThreeScene)
+export default compose(
+  withProps({store: dataStore}),
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  ))(ThreeScene)

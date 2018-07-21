@@ -2,7 +2,7 @@ import React from 'react'
 import { compose, pure, withProps } from 'recompose'
 
 import { connect } from 'react-redux'
-import store from '../../store'
+import {dataStore} from '../../store'
 import { vecToThree } from './coords'
 import { deserializeVector } from '../../modules/Vector'
 import Box from './Box'
@@ -12,14 +12,14 @@ const FillContainerImpl = ({ boxSize, voxels }) => {
     {Object.entries(voxels)
       .filter(([pos, exists]) => exists)
       .map(([pos]) => {
-        return (<Box store={store} size={boxSize} position={vecToThree(deserializeVector(pos), boxSize)} key={pos}
+        return (<Box store={dataStore} size={boxSize} position={vecToThree(deserializeVector(pos), boxSize)} key={pos}
                      posKey={pos}/>)
       })
     }</group>)
 }
 
 const FillContainer = compose(
-  withProps({store}),
+  withProps({store: dataStore}),
   connect(({ space }) => ({ voxels: space.voxels })),
   pure
 )(FillContainerImpl)
