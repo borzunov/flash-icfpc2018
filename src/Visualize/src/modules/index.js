@@ -1,6 +1,8 @@
 import { combineReducers } from 'redux'
-import counter from './counter'
+import space from './space'
+import logs from './logs'
 
 export default combineReducers({
-  counter
+  space,
+  logs
 })
