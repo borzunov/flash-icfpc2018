@@ -38,12 +38,14 @@ namespace Flash
 		        while (true)
 		        {
 			        var commands = ai.NextStep(state).ToList();
-					//			        Console.WriteLine(state.Energy);
+
 					var trace = new Trace(commands);
 			        var trace1 = new Trace1(commands);
-			        simulator.NextStep(state, trace);
+
+					simulator.NextStep(state, trace);
 			        ans.Add(trace1);
-			        if (commands.Count == 1 && commands[0] is HaltCommand)
+
+					if (commands.Count == 1 && commands[0] is HaltCommand)
 			        {
 				        break;
 			        }
@@ -71,7 +73,7 @@ namespace Flash
 		        bytes.AddRange(traceBinarySerializer.Serialize(halt));
 		        simulator.NextStep(newState, halt);
 
-		        File.WriteAllBytes($"c:\\users\\starcev.m\\desktop\\result\\{Path.GetFileName(file).Substring(0,5)}.nbt", bytes.ToArray());
+		        File.WriteAllBytes($"c:\\users\\s.jane\\desktop\\result\\{Path.GetFileName(file).Substring(0,5)}.nbt", bytes.ToArray());
 		        mongoOplogWriter.Save();
 	        }
         }

@@ -7,7 +7,7 @@ namespace UnitTests
 {
 	public class GreedyAiTest
 	{
-		[Test]
+		/*[Test]
 		public void NAME()
 		{
 			var matrix = new bool[12, 12, 12];
@@ -15,6 +15,6 @@ namespace UnitTests
 			var resultMatrix = new Matrix(matrix);
 			var vector = GreedyAI.bfs(resultMatrix, new Bot(1, new Vector(0, 0, 0), new int[] {12}), State.CreateInitial(12));
 			vector.Should().Be(new Vector(0, 0, 6));
-		}
+		}*/
 	}
 }

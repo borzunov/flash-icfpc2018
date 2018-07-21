@@ -19,7 +19,8 @@ namespace Flash.Infrastructure.Models
 
 	public class Trace1
 	{
-		public List<ICommand> commands;
+		private readonly List<ICommand> commands;
+
 		public Trace1(IEnumerable<ICommand> commands)
 		{
 			this.commands = commands.ToList();
