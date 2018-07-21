@@ -23,18 +23,24 @@ namespace Flash.Infrastructure.AI
                         if (targetMatrix.IsFull(point))
                             figure.Add(point);
                     }
-            
-            commands = FillFigure(figure, new HashSet<Vector>(), figure.First(), figure.Last());
+
+            var start = figure.First();
+            Move(new HashSet<Vector> { }, new HashSet<Vector> { },
+                new Vector(0, 0, 0), start, false, out var tmpPath, out commands);
+            commands.AddRange(FillFigure(figure, new HashSet<Vector>(), start, figure.Last()));
         }
 
         private List<ICommand> FillFigure(HashSet<Vector> figure, HashSet<Vector> prohibited,
                                 Vector start, Vector end) {
             if (figure.Intersect(prohibited).Count() > 0)
                 throw new ArgumentException("`figure` should not intersect `prohibited`");
-            if (!(figure.Contains(start) && !figure.Contains(end)))
+            if (!(figure.Contains(start) && figure.Contains(end)))
                 throw new ArgumentException("`figure` should contain `start` and `end`");
 
             var gravity = CalcGravity(figure, end);
+            Console.WriteLine("figure.Count = {0}", figure.Count);
+            Console.WriteLine("gravity.Count = {0}", gravity.Count);
+            figure = gravity.Keys.ToHashSet(); // FIXME: It's a hack for non-connected figures
 
             var filled = new HashSet<Vector>();
             var curPoint = start;
@@ -58,6 +64,10 @@ namespace Flash.Infrastructure.AI
                 commands.AddRange(curCommands);
                 curPoint = nextPoint;
             }
+
+            commands.Add(new HaltCommand());
+            Console.WriteLine("Commands have been generated");
+
             return commands;
         }
 

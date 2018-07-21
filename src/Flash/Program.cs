@@ -13,14 +13,14 @@ namespace Flash
     {
         public static void Main(string[] args)
         {
-            var trackFilePath = @"..\..\..\data\track\LA001.nbt";
-            var modelFilePath = @"..\..\..\data\track\LA001_tgt.mdl";
+            //var trackFilePath = @"..\..\..\data\track\LA001.nbt";
+            var modelFilePath = @"..\..\..\data\models\LA006_tgt.mdl";
 
             var matrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(modelFilePath));
             var ai = new GreedyGravityAI(matrix);
 
-            var mongoOplogWriter = new JsonOpLogWriter(new ConsoleJsonWriter());
-            mongoOplogWriter.WriteLogName("GreedyGravityAI");
+            var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
+            mongoOplogWriter.WriteLogName("GreedyGravityAI_3");
 
             var simulator = new Simulator();
             var size = 30;

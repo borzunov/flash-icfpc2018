@@ -105,7 +105,7 @@ namespace Flash.Infrastructure
             };
         }
 
-        private const int LongLinearMLen = 15;
+        private const int LongLinearMLen = 2; // FIXME: Was 15
 
         public List<Vector> GetLongLinearNeighs()
         {
@@ -139,6 +139,8 @@ namespace Flash.Infrastructure
         #region equality members
         protected bool Equals(Vector other)
         {
+            if (other is null)
+                return false;
             return X == other.X && Y == other.Y && Z == other.Z;
         }
 
@@ -164,8 +166,14 @@ namespace Flash.Infrastructure
             }
         }
 
-        public static bool operator ==(Vector a, Vector b) => a.Equals(b);
-        public static bool operator !=(Vector a, Vector b) => !a.Equals(b);
+        public static bool operator ==(Vector a, Vector b)
+        {
+            if (a is null)
+                return b is null;
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(Vector a, Vector b) => !(a == b);
         #endregion
 
         public override string ToString()
