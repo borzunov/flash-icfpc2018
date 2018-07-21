@@ -15,19 +15,31 @@ namespace Flash.Infrastructure.AI
         {
             this.targetMatrix = targetMatrix;
             var figure = new HashSet<Vector>();
+
+            var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
+            mongoOplogWriter.WriteLogName("GreedyGravityAI_Expected");
+            var state = State.CreateInitial(targetMatrix.R, mongoOplogWriter);
+            mongoOplogWriter.WriteInitialState(state);
+
             for (var x = 0; x < targetMatrix.R; x++)
                 for (var y = 0; y < targetMatrix.R; y++)
                     for (var z = 0; z < targetMatrix.R; z++)
                     {
                         var point = new Vector(x, y, z);
                         if (targetMatrix.IsFull(point))
+                        {
                             figure.Add(point);
+                            mongoOplogWriter.WriteFill(point);
+                        }
                     }
+            mongoOplogWriter.Save();
+            Console.WriteLine("Debug written");
 
-            var start = figure.First();
+            var start = figure.OrderBy(p => Tuple.Create(p.Z, p.Y, p.X)).First();
+            var end = figure.OrderBy(p => Tuple.Create(p.Z, p.Y, p.X)).Last();
             Move(new HashSet<Vector> { }, new HashSet<Vector> { },
                 new Vector(0, 0, 0), start, false, out var tmpPath, out commands);
-            commands.AddRange(FillFigure(figure, new HashSet<Vector>(), start, figure.Last()));
+            commands.AddRange(FillFigure(figure, new HashSet<Vector>(), start, end));
         }
 
         private List<ICommand> FillFigure(HashSet<Vector> figure, HashSet<Vector> prohibited,
@@ -57,11 +69,18 @@ namespace Flash.Infrastructure.AI
                         .OrderBy(p => (curPoint - p).Mlen)
                         .ThenByDescending(p => gravity[p])
                         .First();
-                
-                Move(filled, prohibited, curPoint, nextPoint, true, out var curPath, out var curCommands);
-                filled.Add(curPoint);
-                volatiles.AddRange(curPath);
-                commands.AddRange(curCommands);
+
+                try
+                {
+                    Move(filled, prohibited, curPoint, nextPoint, true, out var curPath, out var curCommands);
+                    filled.Add(curPoint);
+                    volatiles.AddRange(curPath);
+                    commands.AddRange(curCommands);
+                } catch (ArgumentException)
+                {
+                    Console.WriteLine("Exception, was able to draw only {0} points", filled.Count);
+                    break;
+                }
                 curPoint = nextPoint;
             }
 
