@@ -41,20 +41,12 @@ namespace Flash.Infrastructure.Models
         {
             return new[]
             {
-				//                new Vector(X, Y-1, Z), // ORDER is very important for check grounded
-				//                new Vector(X+1, Y, Z),
-				//                new Vector(X, Y, Z+1),
-				//                new Vector(X-1, Y, Z),
-				//                new Vector(X, Y, Z-1),
-				//                new Vector(X, Y+1, Z)
-
-	            new Vector(X, Y+1, Z), // ORDER is very important for check grounded
-	            new Vector(X, Y, Z-1),
-	            new Vector(X-1, Y, Z),
-	            new Vector(X, Y, Z+1),
-	            new Vector(X+1, Y, Z),
-	            new Vector(X, Y-1, Z)
-
+				new Vector(X, Y-1, Z), // ORDER is very important for check grounded
+				new Vector(X+1, Y, Z),
+				new Vector(X, Y, Z+1),
+				new Vector(X-1, Y, Z),
+				new Vector(X, Y, Z-1),
+				new Vector(X, Y+1, Z)
 			};
         }
 

@@ -54,7 +54,7 @@ namespace UnitTests
         [TestCaseSource(nameof(IsGroundedCases))]
         public void IsGrounded_Correct(Vector v, bool expected)
         {
-            var m = new Matrix(
+            var m = Matrix.Create(
                 new[]
                 {
                     @"

@@ -35,7 +35,7 @@ namespace Flash.Infrastructure.Models
 
         private bool CheckGround()
         {
-            return Harmonics || Matrix.IsGrounded(); //TODO optimize IsGrounded
+            return Harmonics || Matrix.IsWellFormed();
         }
 
         private bool CheckNanobotsPositions()

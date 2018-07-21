@@ -4,121 +4,77 @@ using System.Linq;
 
 namespace Flash.Infrastructure.Models
 {
-    //    public class _Matrix
-    //    {
-    //        private readonly bool[,,] matrix;
-    //        public int R => matrix.GetLength(0);
-    //
-    //        private int connectedComponentAmount;
-    //        private HashSet<Vector> bridges;
-    //
-    //        public _Matrix(bool[,,] matrix)
-    //        {
-    //            if (matrix.GetLength(0) != matrix.GetLength(1) || matrix.GetLength(1) != matrix.GetLength(2))
-    //                throw new Exception("Matrix should have equal demensions");
-    //
-    //            this.matrix = matrix;
-    //        }
-    //
-    //        public _Matrix(int r)
-    //        {
-    //            matrix = new bool[r, r, r];
-    //
-    //            bridges = new HashSet<Vector>();
-    //            connectedComponentAmount = 0;
-    //        }
-    //
-    //        public _Matrix(IReadOnlyList<string> layers)
-    //        {
-    //            var r = layers.Count;
-    //            matrix = new bool[r, r, r];
-    //            for (var y = 0; y < layers.Count; y++)
-    //            {
-    //                var lines = layers[y].Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-    //                for (var z = R - 1; z > -1; z--)
-    //                {
-    //                    for (var x = 0; x < R; x++)
-    //                    {
-    //                        matrix[x, y, z] = lines[R - z - 1][x] == '1';
-    //                    }
-    //                }
-    //            }
-    //        }
-    //
-    //        public bool IsFull(Vector v)
-    //        {
-    //            return matrix[v.X, v.Y, v.Z];
-    //        }
-    //
-    //        public bool IsVoid(Vector v)
-    //        {
-    //            return !matrix[v.X, v.Y, v.Z];
-    //        }
-    //
-    //        public IEnumerable<Vector> GetAdjacents(Vector v)
-    //        {
-    //            return v.GetAdjacents().Where(Contains);
-    //        }
-    //
-    //        public IEnumerable<Vector> GetNears(Vector v)
-    //        {
-    //            return v.GetNears().Where(Contains);
-    //        }
-    //
-    //        public bool Contains(Vector v)
-    //        {
-    //            return v.X >= 0 && v.X < R &&
-    //                   v.Y >= 0 && v.Y < R &&
-    //                   v.Z >= 0 && v.Z < R;
-    //        }
-    //    }
-
-
     public class Matrix
     {
-        private readonly bool[,,] matrix;
-        public int R => matrix.GetLength(0);
+        private readonly HashSet<Vector> pointsAtGround = new HashSet<Vector>();
+        private readonly HashSet<Vector> pointsNotInGround = new HashSet<Vector>();
+        private readonly HashSet<Vector> groundedPoints = new HashSet<Vector>();
 
-        public Matrix(bool[,,] matrix)
-        {
-            if (matrix.GetLength(0) != matrix.GetLength(1) || matrix.GetLength(1) != matrix.GetLength(2))
-            {
-                throw new Exception("Matrix should have equal demensions");
-            }
-
-            this.matrix = matrix;
-        }
+        public int R { get; }
 
         public Matrix(int r)
         {
-            matrix = new bool[r, r, r];
+            R = r;
         }
 
-        public Matrix(string[] layers)
+        public static Matrix Create(string[] layers)
         {
             var r = layers.Length;
-            matrix = new bool[r, r, r];
+            var matrix = new bool[r, r, r];
             for (var y = 0; y < layers.Length; y++)
             {
                 var lines = layers[y].Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-                for (var z = R - 1; z > -1; z--)
+                for (var z = r - 1; z > -1; z--)
                 {
-                    for (var x = 0; x < R; x++)
+                    for (var x = 0; x < r; x++)
                     {
-                        matrix[x, y, z] = lines[R - z - 1][x] == '1';
+                        matrix[x, y, z] = lines[r - z - 1][x] == '1';
                     }
                 }
             }
+
+            return new Matrix(matrix);
+        }
+
+        public Matrix(bool[,,] matrix)
+        {
+            R = matrix.GetLength(0);
+
+            if (matrix.GetLength(1) != R || matrix.GetLength(2) != R)
+                throw new ArgumentException("Matrix should have equals size in width, height and length");
+
+            for (var x = 0; x < R; x++)
+            {
+                for (var y = 0; y < R; y++)
+                {
+                    for (var z = 0; z < R; z++)
+                    {
+                        var v = new Vector(x, y, z);
+
+                        if (matrix[x, y, z])
+                            Fill(v);
+                    }
+                }
+            }
+
+            FullWellFormedRecomputing();
         }
 
         public bool IsFull(Vector v)
         {
-            return matrix[v.X, v.Y, v.Z];
+            return pointsAtGround.Contains(v) || pointsNotInGround.Contains(v);
         }
 
         public bool IsVoid(Vector v)
         {
-            return !matrix[v.X, v.Y, v.Z];
+            return !IsFull(v);
+        }
+
+        public bool Contains(Vector v)
+        {
+            return v.X >= 0 && v.X < R &&
+                   v.Y >= 0 && v.Y < R &&
+                   v.Z >= 0 && v.Z < R;
         }
 
         public IEnumerable<Vector> GetAdjacents(Vector v)
@@ -131,100 +87,73 @@ namespace Flash.Infrastructure.Models
             return v.GetNears().Where(Contains);
         }
 
-        public bool Contains(Vector v)
-        {
-            return v.X >= 0 && v.X < R &&
-                   v.Y >= 0 && v.Y < R &&
-                   v.Z >= 0 && v.Z < R;
-        }
-		
-	    public static bool Contains(int R, Vector v)
-	    {
-		    return v.X >= 0 && v.X < R &&
-		           v.Y >= 0 && v.Y < R &&
-		           v.Z >= 0 && v.Z < R;
-	    }
-
-		private HashSet<Vector> grounded = new HashSet<Vector>();
-
-        public bool IsGrounded()
-        {
-            for (var x = 0; x < R; x++)
-            {
-                for (var y = 0; y < R; y++)
-                {
-                    for (var z = 0; z < R; z++)
-                    {
-                        if (!IsGrounded(new Vector(x, y, z)))
-                            return false;
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        public bool IsGrounded(Vector v)
-        {
-            if (IsVoid(v))
-                return true;
-            
-            return CheckIsGrounded(v);
-        }
-
-        public bool CheckIsGrounded(Vector point)
-        {
-            var used = new HashSet<Vector>();
-            var queue = new Queue<Vector>();
-            queue.Enqueue(point);
-	        used.Add(point);
-
-			while (queue.Count != 0)
-            {
-                var v = queue.Dequeue();
-
-                if (v.Y == 0)
-                    return true;
-
-                foreach (var adj in GetAdjacents(v))
-                {
-	                if (IsFull(adj) && !used.Contains(adj))
-	                {
-		                used.Add(adj);
-						queue.Enqueue(adj);
-	                }
-                }
-            }
-
-            return false;
-//
-//            visited.Add(point);
-//            if (point.Y == 0 || grounded.Contains(point))
-//            {
-//                return true;
-//            }
-//
-//            foreach (var adj in GetAdjacents(point))
-//            {
-//                if (IsFull(adj) && !visited.Contains(adj) && CheckIsGrounded(adj, visited))
-//                {
-//                    grounded.Add(point);
-//                    return true;
-//                }
-//            }
-//
-//            return false;
-        }
-
         public void Fill(Vector v)
         {
-            matrix[v.X, v.Y, v.Z] = true;
+            if (v.Y == 0)
+            {
+                groundedPoints.Add(v);
+                pointsAtGround.Add(v);
+
+                return;
+            }
+
+            pointsNotInGround.Add(v);
+
+            foreach (var adj in GetAdjacents(v))
+            {
+                if (groundedPoints.Contains(adj))
+                {
+                    groundedPoints.Add(v);
+                    break;
+                }
+            }
         }
 
         public void Clear(Vector v)
         {
-            matrix[v.X, v.Y, v.Z] = false;
-            grounded.Clear();
+            if (v.Y == 0)
+                pointsAtGround.Remove(v);
+            else
+                pointsNotInGround.Remove(v);
+
+            FullWellFormedRecomputing();
+        }
+
+        public bool IsWellFormed()
+        {
+            return groundedPoints.Count == pointsAtGround.Count + pointsNotInGround.Count;
+        }
+
+        public bool IsGrounded(Vector v)
+        {
+            return groundedPoints.Contains(v);
+        }
+
+        private void FullWellFormedRecomputing()
+        {
+            groundedPoints.Clear();
+
+            var queue = new Queue<Vector>();
+            var used = new HashSet<Vector>();
+
+            foreach (var point in pointsAtGround)
+            {
+                queue.Enqueue(point);
+                used.Add(point);
+            }
+
+            while (queue.Count != 0)
+            {
+                var v = queue.Dequeue();
+
+                groundedPoints.Add(v);
+
+                foreach (var adj in GetAdjacents(v).Where(vector => IsFull(vector) && !used.Contains(vector)))
+                {
+                    used.Add(adj);
+                    queue.Enqueue(adj);
+                }
+            }
         }
     }
 }
