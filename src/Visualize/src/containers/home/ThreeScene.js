@@ -10,7 +10,7 @@ import ControlPanel from './ControlPanel'
 import FillContainer from './FillContainer'
 import { slide as Menu } from 'react-burger-menu'
 import HelpText from './HelpText'
-
+import LogPlayer from './LogPlayer'
 
 // noinspection JSUnresolvedFunction
 const OrbitControls = require('three-orbit-controls')(THREE)
@@ -35,6 +35,7 @@ class ThreeScene extends React.PureComponent {
 
     return (<div style={{ width: '100%', height: '100%' }}>
       <Menu isOpen={true} noOverlay closeButton={false}>
+        <LogPlayer/>
         <ControlPanel/>
       </Menu>
       <HelpText/>

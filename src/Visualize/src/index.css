@@ -35,3 +35,21 @@ html, body, #root, main, #root > div, #root > div > div {
 .control-panel button {
     width: 100%;
 }
+
+.log-player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    top: 0;
+}
+
+.log-player button {
+    width: 100%;
+    text-align: left;
+    padding-left: 15px;
+}
+

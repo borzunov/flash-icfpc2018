@@ -1,22 +1,22 @@
 import case1 from '../../test-logs/1'
 import React from 'react'
 import store from '../../store'
-import { withProps, withHandlers } from 'recompose'
-import { compose } from 'redux'
+import { withHandlers, withProps } from 'recompose'
+import { bindActionCreators, compose } from 'redux'
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
 import { changeBot, changeSize, changeVoxel } from '../../modules/space'
 import Vector from '../../modules/Vector'
 import Queue from 'async/queue'
-import { LogAction } from '../../test-logs/LogAction'
+import { playLog } from './playLog'
 
 let currentWait = 10
+const SPEED_CONST = 4
+
 const syncQueueWithWait = new Queue((f, callback) => {
   f()
   setTimeout(callback, currentWait)
 }, 1)
 
-const SPEED_CONST = 4
 
 const reset = () => {
   // clear queue to avoid more actions that are not finished
@@ -27,26 +27,6 @@ const reset = () => {
   store.liftedStore.dispatch({ type: 'RESET' })
   // reset our state
   store.dispatch({ type: 'RESET' })
-}
-
-const playLog = ({ changeSize, changeVoxel, changeBot }, { size, log }) => {
-  changeSize(size)
-  for (let act of log) {
-    switch (act.t) {
-      case LogAction.Add:
-        changeBot(act.p, true)
-        break
-      case LogAction.Remove:
-        changeBot(act.p, false)
-        break
-      case LogAction.Fill:
-        changeVoxel(act.p, true)
-        break
-      default:
-        // do nothing
-        break
-    }
-  }
 }
 
 function ControlPanelImpl({ changeSize, mapSize, fillRandomVoxel, addRandomBot, doPlayLog, enqueue }) {
@@ -113,7 +93,7 @@ export default compose(
   ),
   withHandlers({
     doPlayLog: ({changeSize, changeVoxel, changeBot}) => ({size, log}) => {
-      playLog({ changeSize, changeVoxel, changeBot }, { size, log });
+      playLog({ changeSize, changeVoxel, changeBot }, { size, log }, syncQueueWithWait.push);
     },
     fillRandomVoxel: ({ mapSize, makeRand, changeVoxel }) => () => {
       const rand = Vector(makeRand(mapSize), makeRand(mapSize), makeRand(mapSize))
