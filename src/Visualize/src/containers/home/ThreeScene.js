@@ -55,7 +55,6 @@ const playLog = ({ changeSize, changeVoxel, changeBot }, { size, log }) => {
   }
 }
 
-
 class ThreeScene extends React.PureComponent {
   componentDidMount() {
     this.controls = new OrbitControls(this.camera)
@@ -92,20 +91,22 @@ class ThreeScene extends React.PureComponent {
     const botSize = new THREE.Vector3(0.75, 0.75, 0.75)
 
     return (<div style={{ width: '100%', height: '100%' }}>
-      <div style={{ position: 'absolute', left: 0, top: 0, color: 'red' }}>
+      <div style={{ position: 'absolute', left: 0, top: 0, color: 'white' }}>
         <div>Open in chrome and install <a target="_blank" rel="noopener noreferrer"
                                            href="https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en">redux
           dev tools</a></div>
+        <div>Coordinates: <span style={{ color: 'red' }}>X </span><span style={{ color: 'green' }}>Y </span><span
+          style={{ color: 'blue' }}>Z </span> <span>!!!Z is inverted regardless to task</span></div>
         <div>Left mouse - rotate camera</div>
         <div>Mouse scroll - zoom</div>
         <div>Right mouse - pan</div>
         <div>Arrow buttons - move camera</div>
         <button onClick={() => {
-          return changeSize(mapSize + 10)
+          return changeSize(Math.min(mapSize + 10, 250))
         }}>size + 10
         </button>
         <button onClick={() => {
-          return changeSize(mapSize - 10)
+          return changeSize(Math.max(10, mapSize - 10))
         }}>size - 10
         </button>
         <button onClick={() => {
@@ -118,7 +119,7 @@ class ThreeScene extends React.PureComponent {
           for (let i = 0; i < mapSize * mapSize * mapSize / 8; ++i) {
             syncQueueWithWait.push(() => this.fillRandomVoxel())
           }
-        }}>fucking overload 1/8
+        }}>fill 1/8
         </button>
         <button onClick={() => {
           for (let i = 0; i < 10; ++i) {
@@ -137,7 +138,7 @@ class ThreeScene extends React.PureComponent {
         width={width}
         height={height}
       >
-        <scene>
+        <scene ref={(ref) => this.scene = ref} rotation={new THREE.Euler(0, 0, 0, true)}>
           <perspectiveCamera
             ref={(ref) => this.camera = ref}
             name="camera"
