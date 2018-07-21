@@ -137,8 +137,15 @@ namespace Flash.Infrastructure.Models
                    v.Y >= 0 && v.Y < R &&
                    v.Z >= 0 && v.Z < R;
         }
+		
+	    public static bool Contains(int R, Vector v)
+	    {
+		    return v.X >= 0 && v.X < R &&
+		           v.Y >= 0 && v.Y < R &&
+		           v.Z >= 0 && v.Z < R;
+	    }
 
-        private HashSet<Vector> grounded = new HashSet<Vector>();
+		private HashSet<Vector> grounded = new HashSet<Vector>();
 
         public bool IsGrounded()
         {
