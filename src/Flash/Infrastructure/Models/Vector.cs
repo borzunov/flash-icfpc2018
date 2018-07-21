@@ -71,6 +71,14 @@ namespace Flash.Infrastructure
         /// </summary>
         public bool IsNd => Mlen > 0 && Mlen <= 2 && Clen == 1;
 
+        public Vector Normalize()
+        {
+            return new Vector(X / Mlen, Y / Mlen, Z / Mlen);
+        }
+
+        public static Vector operator *(Vector v, int scalar) => new Vector(v.X * scalar, v.Y * scalar, v.Z * scalar);
+        public static Vector operator *(int scalar, Vector v) => new Vector(v.X * scalar, v.Y * scalar, v.Z * scalar);
+
         public Vector[] GetNears()
         {
             return new[]

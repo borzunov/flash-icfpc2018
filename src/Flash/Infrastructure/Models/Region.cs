@@ -7,6 +7,11 @@ namespace Flash.Infrastructure
         public readonly Vector Max;
         public readonly Vector Min;
 
+        public Region(Vector point):
+            this(point, point)
+        {
+        }
+
         public Region(Vector from, Vector to)
         {
             Min = new Vector(Math.Min(from.X, to.X), Math.Min(from.Y, to.Y), Math.Min(from.Z, to.Z));
