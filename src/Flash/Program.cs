@@ -18,7 +18,7 @@ namespace Flash
             var trackFilePath = @"..\..\..\data\track\LA001.nbt";
             var modelFilePath = @"..\..\..\data\models\";
 
-            var num = 2;
+            var num = 7;
             var list = Directory.EnumerateFiles(modelFilePath).Skip(num-1).Take(1).ToList();
             //list.Shuffle();
 
@@ -28,51 +28,38 @@ namespace Flash
                 var ai = new LineAI(resultMatrix);
 
                 var opLogWriter = new JsonOpLogWriter(new MongoJsonWriter());
-                opLogWriter.WriteLogName($"TIME TO WIN! {num}");
+                opLogWriter.WriteLogName($"TIME TO WINlol! {num}");
 
                 var simulator = new Simulator();
                 var size = resultMatrix.R;
                 var state = State.CreateInitial(size, opLogWriter);
                 opLogWriter.WriteInitialState(state);
 
-                while (true)
+                var count1 = 0;
+                try
                 {
-                    var commands = ai.NextStep(state).ToList();
-
-                    var trace = new Trace(commands);
-
-                    simulator.NextStep(state, trace);
-
-                    if (commands.Count == 1 && commands[0] is HaltCommand)
+                    while (true)
                     {
-                        break;
+                        /*count1++;
+                    if(count1 > 100)
+                        break;*/
+                        var commands = ai.NextStep(state).ToList();
+
+                        var trace = new Trace(commands);
+
+                        simulator.NextStep(state, trace);
+
+                        if (commands.Count == 1 && commands[0] is HaltCommand)
+                        {
+                            break;
+                        }
                     }
                 }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
                 opLogWriter.Save();
-
-//                var mongoOplogWriter = new JsonOpLogWriter(new ConsoleJsonWriter());
-//                mongoOplogWriter.WriteLogName($"{Path.GetFileName(file).Substring(0, 5)}");
-//
-//                var newState = State.CreateInitial(size, mongoOplogWriter);
-//                mongoOplogWriter.WriteInitialState(newState);
-//
-//                var traceBinarySerializer = TraceBinarySerializer.Create();
-//                var bytes = new List<byte>();
-//                for (var index = ans.Count - 2; index >= 0; index--)
-//                {
-//                    var trace1 = ans[index];
-//                    var newTrace = trace1.Revert();
-//                    bytes.AddRange(traceBinarySerializer.Serialize(newTrace));
-//                    simulator.NextStep(newState, newTrace);
-//                }
-//
-//                Console.WriteLine($"{Path.GetFileName(file).Substring(0, 5)}  - {newState.Energy}");
-//                var halt = new Trace(new ICommand[] { new HaltCommand() });
-//                bytes.AddRange(traceBinarySerializer.Serialize(halt));
-//                simulator.NextStep(newState, halt);
-//
-//                File.WriteAllBytes($"result_easy\\{Path.GetFileName(file).Substring(0, 5)}.nbt", bytes.ToArray());
-//                mongoOplogWriter.Save();
 
                 return 1;
             }).Take(1).Count();

@@ -22,9 +22,15 @@ namespace Flash.Infrastructure
             var bot = state.Bots[0];
             (Vector toGo, Vector toDraw) = Bfs(bot, state);
 
+
             if (state.Bots.Length > 1 && toGo.Mlen != 0)
                 throw new InvalidOperationException();
 
+            if (toGo == null)
+            {
+                yield return new HaltCommand();
+                yield break;
+            }
             if (state.Bots.Length == 1 && toGo.Mlen != 0)
             {
                 yield return new SMoveCommand(toGo);
@@ -39,7 +45,7 @@ namespace Flash.Infrastructure
                 {
                     var curMax = 0;
 
-                    for (var n = 1; n < 15; n++)
+                    for (var n = 1; n < 30; n++)
                     {
                         var adj = toDraw.GetAdjacents(n)[i];
                         if (!adj.IsGood(state.Matrix.R) || state.Matrix.IsFull(adj) || bot.Pos.Equals(adj) ||
@@ -61,7 +67,7 @@ namespace Flash.Infrastructure
 
                 if (destination == null)
                 {
-                    yield return new FillCommand(toDraw);
+                    yield return new FillCommand(toDraw - state.Bots[0].Pos);
                     if (state.Bots.Length > 1)
                         yield return new WaitCommand();
                 }
@@ -70,14 +76,21 @@ namespace Flash.Infrastructure
                     var placeToSpawn = bot.Pos.GetNears().Intersect(toDraw.GetNears())
                         .FirstOrDefault(v => state.Matrix.IsVoid(v) && !v.Equals(bot.Pos + direction));
                     if (placeToSpawn == null)
-                        yield return JumpToRandomPlace();
+                    {
+                        yield return new FillCommand(toDraw - state.Bots[0].Pos);
+                        //yield return JumpToRandomPlace();
+                    }
                     else
-                        yield return new FissionCommand(placeToSpawn, 1);
+                        yield return new FissionCommand(placeToSpawn - bot.Pos, 1);
                 }
                 else
                 {
-                    yield return new GFillCommand(toDraw, destination);
-                    yield return new GFillCommand(toDraw, destination);
+                    var nearDistance1 = toDraw - state.Bots[0].Pos;
+                    yield return new GFillCommand(nearDistance1, destination - toDraw);
+                    var nearDistance2 = toDraw - state.Bots[1].Pos;
+                    yield return new GFillCommand(nearDistance2, destination - toDraw);
+                    yield return new FusionPCommand(state.Bots[1].Pos - state.Bots[0].Pos);
+                    yield return new FusionSCommand(state.Bots[0].Pos - state.Bots[1].Pos);
                 }
             }
         }
@@ -94,7 +107,7 @@ namespace Flash.Infrastructure
             var queue = new Queue<Vector>();
             queue.Enqueue(bot.Pos);
 
-            var toDraw1 = bot.Pos.GetNears().FirstOrDefault(x => x.IsGood(state.Matrix.R) && modelToDraw.IsFull(x));
+            var toDraw1 = bot.Pos.GetNears().FirstOrDefault(x => x.IsGood(state.Matrix.R) && modelToDraw.IsFull(x) && state.Matrix.IsVoid(x));
             if (toDraw1 != null)
             {
                 return (new Vector(0,0,0), toDraw1);
@@ -117,7 +130,7 @@ namespace Flash.Infrastructure
                             queue.Enqueue(adj);
                             visited.Add(adj);
 
-                            var toDraw = adj.GetNears().FirstOrDefault(x => x.IsGood(state.Matrix.R) && modelToDraw.IsFull(x));
+                            var toDraw = adj.GetNears().FirstOrDefault(x => x.IsGood(state.Matrix.R) && modelToDraw.IsFull(x) && state.Matrix.IsVoid(x));
                             if(toDraw != null)
                             { 
                                 var curr = adj;

@@ -1,4 +1,5 @@
-﻿using Flash.Infrastructure.Models;
+﻿using System;
+using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Commands
 {

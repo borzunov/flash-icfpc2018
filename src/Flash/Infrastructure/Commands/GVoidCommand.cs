@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Commands
