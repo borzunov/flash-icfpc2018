@@ -1,6 +1,6 @@
 import { LogAction } from '../../test-logs/LogAction'
 
-export const playLog = ({ changeSize, changeVoxel, changeBot }, { size, log }, enqueue) => {
+export const playLog = ({ changeSize, changeVoxel, changeBot, changeColor }, { size, log }, enqueue) => {
   changeSize(size)
   for (let act of log) {
     switch (act.t) {
@@ -12,6 +12,9 @@ export const playLog = ({ changeSize, changeVoxel, changeBot }, { size, log }, e
         break
       case LogAction.Fill:
         enqueue(() => changeVoxel(act.p, true))
+        break
+      case LogAction.FillColor:
+        enqueue(() => changeColor(act.p, act.c))
         break
       default:
         // do nothing

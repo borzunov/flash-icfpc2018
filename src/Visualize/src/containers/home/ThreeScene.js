@@ -11,6 +11,7 @@ import FillContainer from './FillContainer'
 import { slide as Menu } from 'react-burger-menu'
 import HelpText from './HelpText'
 import LogPlayer from './LogPlayer'
+import ColorContainer from './ColorContainer'
 
 // noinspection JSUnresolvedFunction
 const OrbitControls = require('three-orbit-controls')(THREE)
@@ -56,6 +57,7 @@ class ThreeScene extends React.PureComponent {
           />
           <CoordinatesHelpers mapSize={mapSize} bigBoxSize={bigBoxSize}/>
           <FillContainer boxSize={smallBoxSize}/>
+          <ColorContainer boxSize={smallBoxSize}/>
           <BotContainer botSize={botSize} botColor={0xffa500}/>
         </scene>
       </React3>

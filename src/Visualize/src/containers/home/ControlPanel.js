@@ -4,7 +4,7 @@ import { dataStore } from '../../store'
 import { withHandlers, withProps } from 'recompose'
 import { bindActionCreators, compose } from 'redux'
 import { connect } from 'react-redux'
-import { changeBot, changeSize, changeVoxel } from '../../modules/space'
+import { changeBot, changeColor, changeSize, changeVoxel } from '../../modules/space'
 import Vector from '../../modules/Vector'
 import Queue from 'async/queue'
 import { playLog } from './playLog'
@@ -80,7 +80,8 @@ export default compose(
         {
           changeSize,
           changeVoxel,
-          changeBot
+          changeBot,
+          changeColor,
         },
         dispatch
       )
@@ -93,8 +94,8 @@ export default compose(
     }
   ),
   withHandlers({
-    doPlayLog: ({changeSize, changeVoxel, changeBot}) => ({size, log}) => {
-      playLog({ changeSize, changeVoxel, changeBot }, { size, log }, syncQueueWithWait.push);
+    doPlayLog: ({changeSize, changeVoxel, changeBot, changeColor}) => ({size, log}) => {
+      playLog({ changeSize, changeVoxel, changeBot, changeColor }, { size, log }, syncQueueWithWait.push);
     },
     fillRandomVoxel: ({ mapSize, makeRand, changeVoxel }) => () => {
       const rand = Vector(makeRand(mapSize), makeRand(mapSize), makeRand(mapSize))
