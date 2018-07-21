@@ -24,7 +24,8 @@ const reset = () => {
   syncQueueWithWait.remove(() => true)
   syncQueueWithWait.resume()
   // reset dev-tools
-  store.liftedStore.dispatch({ type: 'RESET' })
+  if (store.liftedStore)
+    store.liftedStore.dispatch({ type: 'RESET' })
   // reset our state
   store.dispatch({ type: 'RESET' })
 }
