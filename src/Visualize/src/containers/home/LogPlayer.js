@@ -6,17 +6,22 @@ import { changeBot, changeSize, changeVoxel } from '../../modules/space'
 import { playLog } from './playLog'
 import { withHandlers, compose, withProps } from 'recompose'
 import Queue from 'async/queue'
-import store, { dataStore } from '../../store'
+import { dataStore } from '../../store'
 import Loader from 'react-loaders'
 import 'loaders.css/loaders.min.css'
 
 let currentWait = 10
+
+let passed = 0
+let total = 0
 
 class LogPlayer extends React.PureComponent {
   componentDidMount() {
     this.props.refreshLogs()
     this.syncQueueWithWait = new Queue((f, callback) => {
       f()
+      passed++
+      this.forceUpdate()
       setTimeout(callback, currentWait)
     }, 1)
   }
@@ -40,14 +45,31 @@ class LogPlayer extends React.PureComponent {
   render() {
     const { latest, playLog, loading, refreshLogs } = this.props
 
-    const rednerFetched = () => {
-      return latest.map((l, i) => <button onClick={() => playLog(l, this.reset, this.syncQueueWithWait.push)}
-                                          key={i}>{i + 1}: {l.name}</button>)
-    }
+    const queueLength = this.syncQueueWithWait ? this.syncQueueWithWait.length() : 0
+    let content
+    if (loading)
+      content = <div className="flex-column">
+        <h3>Fetching logs...</h3>
+        <Loader style={{ marginTop: 30 }} type={'ball-scale-ripple-multiple'}/>
+      </div>
+    else if (queueLength > 0)
+      content = <div className="flex-column" onClick={this.reset}>
+        <h3>Playing: {passed}/{total}</h3>
+        <h4>Click to stop</h4>
+        <Loader onClick={this.reset} style={{ marginTop: 30 }} type={'pacman'}/>
+      </div>
+    else
+      content = <div className="flex-column">
+        <h3 onClick={refreshLogs}>Click here to refresh</h3>
+        <h4>Click any button to play</h4>
+        <div>
+          {latest.map((l, i) => <button onClick={() => playLog(l, this.reset, this.syncQueueWithWait.push)}
+                                        key={i}>{i + 1}: {l.name}</button>)}
+        </div>
+      </div>
 
     return <div className="log-player">
-      <h3 onClick={refreshLogs} style={{ color: 'white' }}>{loading ? 'Fetching logs...' : 'Click to play'}</h3>
-      {loading ? <Loader style={{ marginTop: 30 }} type={'ball-scale-ripple-multiple'}/> : rednerFetched()}
+      {content}
     </div>
   }
 }
@@ -74,8 +96,9 @@ export default compose(
   withHandlers({
     playLog: ({ changeSize, changeBot, changeVoxel }) => ({ log, size }, reset, push) => {
       reset()
+      passed = 0
+      total = log.length
       playLog({ changeSize, changeBot, changeVoxel }, { size, log }, push)
     }
   })
-)
-(LogPlayer)
+)(LogPlayer)

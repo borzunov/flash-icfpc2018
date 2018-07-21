@@ -1,6 +1,6 @@
 import case1 from '../../test-logs/1'
 import React from 'react'
-import store, { dataStore } from '../../store'
+import { dataStore } from '../../store'
 import { withHandlers, withProps } from 'recompose'
 import { bindActionCreators, compose } from 'redux'
 import { connect } from 'react-redux'
