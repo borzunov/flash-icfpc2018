@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Simulation
 {
@@ -6,13 +7,13 @@ namespace Flash.Infrastructure.Simulation
     {
         public static T[] Dequeue<T>(this Queue<T> queue, int count)
         {
-            var result = new T[count];
-            for (var i = 0; i < count; i++)
+            var result = new List<T>();
+            for (var i = 0; queue.Count > 0 && i < count; i++)
             {
-                result[i] = queue.Dequeue();
+                result.Add(queue.Dequeue());
             }
 
-            return result;
+            return result.ToArray();
         }
     }
 }

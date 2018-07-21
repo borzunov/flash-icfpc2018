@@ -73,12 +73,12 @@ namespace Flash.Infrastructure.Models
 
         public void WriteGroupAdd(Vector[] points)
         {
-            opLog.Add(new { p = points.Select(v => $"{v.X}/{v.Y}/{v.Z}"), t = 7 });
+            opLog.Add(new { p = points.Select(v => $"{v.X}/{v.Y}/{v.Z}").ToArray(), t = 7 });
         }
 
         public void WriteGroupRemove(Vector[] points)
         {
-            opLog.Add(new { p = points.Select(v => $"{v.X}/{v.Y}/{v.Z}"), t = 8 });
+            opLog.Add(new { p = points.Select(v => $"{v.X}/{v.Y}/{v.Z}").ToArray(), t = 8 });
         }
 
         public void Save()
