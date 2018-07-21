@@ -58,6 +58,16 @@ namespace Flash.Infrastructure.Serializers
             return EndByte(2);
         }
 
+        public BitWriter EndOfThridByte()
+        {
+            return EndByte(3);
+        }
+
+        public BitWriter EndOfFourthByte()
+        {
+            return EndByte(4);
+        }
+
         private BitWriter EndByte(int n)
         {
             if (bytePointer != n-1 || bitPointer != 0)

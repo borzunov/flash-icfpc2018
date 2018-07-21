@@ -42,7 +42,7 @@ namespace Flash.Infrastructure.Deserializers
                 return new FlipCommandDeserializer();
 
             //2
-            if((markerByte & 0b0000_0111) == 0b0000_0111)
+            if ((markerByte & 0b0000_0111) == 0b0000_0111)
                 return new FusionPCommandDeserializer();
             if ((markerByte & 0b0000_0111) == 0b0000_0110)
                 return new FusionSCommandDeserializer();
@@ -50,9 +50,15 @@ namespace Flash.Infrastructure.Deserializers
                 return new FissionCommandDeserializer();
             if ((markerByte & 0b0000_0111) == 0b0000_0011)
                 return new FillCommandDeserializer();
+            if ((markerByte & 0b0000_0111) == 0b0000_0010)
+                return new VoidCommandDeserializer();
+            if ((markerByte & 0b0000_0111) == 0b0000_0001)
+                return new GFillCommandDeserializer();
+            if ((markerByte & 0b0000_0111) == 0b0000_0000)
+                return new GVoidCommandDeserializer();
 
             //3
-            if((markerByte & 0b0000_1111) == 0b0000_0100)
+            if ((markerByte & 0b0000_1111) == 0b0000_0100)
                 return new SMoveCommandDeserializer();
             if ((markerByte & 0b0000_1111) == 0b0000_1100)
                 return new LMoveCommandDeserializer();
