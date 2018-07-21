@@ -1,4 +1,6 @@
-﻿namespace Flash.Infrastructure.Commands
+﻿using Flash.Infrastructure.Models;
+
+namespace Flash.Infrastructure.Commands
 {
     public class WaitCommand : ICommand
     {

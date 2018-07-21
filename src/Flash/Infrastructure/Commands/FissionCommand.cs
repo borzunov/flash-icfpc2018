@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Commands
 {

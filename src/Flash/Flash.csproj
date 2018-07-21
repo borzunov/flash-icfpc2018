@@ -81,6 +81,10 @@
     <Compile Include="Infrastructure\Serializers\BaseCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\BitWriter.cs" />
     <Compile Include="Infrastructure\Serializers\BitSetExtensions.cs" />
+    <Compile Include="Infrastructure\Serializers\FillCommandSerializer.cs" />
+    <Compile Include="Infrastructure\Serializers\FissionCommandSerializer.cs" />
+    <Compile Include="Infrastructure\Serializers\FusionPCommandSerializer.cs" />
+    <Compile Include="Infrastructure\Serializers\FusionSCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\LMoveCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\SMoveCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\FlipCommandSerializer.cs" />

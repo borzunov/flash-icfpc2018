@@ -1,3 +1,5 @@
+using Flash.Infrastructure.Models;
+
 namespace Flash.Infrastructure.Commands
 {
     public class FlipCommand: ICommand

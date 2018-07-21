@@ -1,7 +1,6 @@
 ﻿using System.Linq;
-using Flash.Infrastructure.Models;
 
-namespace Flash.Infrastructure
+namespace Flash.Infrastructure.Models
 {
     public class State
     {

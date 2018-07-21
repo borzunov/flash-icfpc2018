@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Flash.Infrastructure;
 using Flash.Infrastructure.Commands;
+using Flash.Infrastructure.Models;
 using FluentAssertions;
 using NUnit.Framework;
 
