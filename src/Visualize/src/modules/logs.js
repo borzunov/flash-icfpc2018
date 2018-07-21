@@ -7,7 +7,7 @@ const initialState = {
 export const refreshLogs = () => {
   return async (dispatch) => {
     try {
-      const logs = await (await fetch('http://localhost:3005/logs')).json()
+      const logs = await (await fetch('http://vm-dev-cont4:3005/logs')).json()
       dispatch({
         type: LOGS_UPDATED,
         payload: logs,
