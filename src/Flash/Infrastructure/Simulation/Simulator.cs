@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Models;
+using FluentAssertions;
+using MongoDB.Bson;
 
 namespace Flash.Infrastructure.Simulation
 {
@@ -21,16 +23,79 @@ namespace Flash.Infrastructure.Simulation
             {
                 var bots = state.Bots.ToList();
                 var commands = trace.Dequeue(bots.Count);
-                Validate(state, bots, commands);
+                Execute(state, bots.Zip(commands, (x, y) => (x, y)).ToList());
+            }
+        }
 
+        private static void Execute(State state, List<(Bot bot, ICommand command)> commands)
+        {
+            var singleCommands = new List<(Bot bot, ICommand command)>();
+            var groupCommands = new Dictionary<Region, List<(Bot bot, IGroupCommand command)>>();
 
-                for (var i = 0; i < bots.Count; i++)
+            // split commands on single and group
+            foreach (var (bot, command) in commands)
+            {
+                if (command is IGroupCommand groupCommand)
                 {
-                    var command = commands[i];
-
-                    command.Apply(state, bots[i]);
+                    var region = new Region(bot.Pos + groupCommand.NearDistance, bot.Pos + groupCommand.NearDistance + groupCommand.FarDistance);
+                    if (!groupCommands.ContainsKey(region))
+                    {
+                        groupCommands[region] = new List<(Bot bot, IGroupCommand command)>();
+                    }
+                    groupCommands[region].Add((bot, groupCommand));
+                }
+                else
+                {
+                    singleCommands.Add((bot, command));
                 }
             }
+
+            // validation
+            Validate(state, singleCommands, groupCommands);
+
+            // apply
+            foreach (var (bot, command) in singleCommands)
+            {
+                command.Apply(state, bot);
+            }
+
+            foreach (var (bot, command) in groupCommands.Values.Select(v => v.First()))
+            {
+                command.Apply(state, bot);
+            }
+        }
+
+        private static void Validate(
+            State state, 
+            List<(Bot bot, ICommand command)> singleCommands, 
+            Dictionary<Region, List<(Bot bot, IGroupCommand command)>> groupCommands)
+        {
+            foreach (var pair in groupCommands)
+            {
+                var region = pair.Key;
+                var commands = pair.Value;
+
+                if (region.Dim == 0 || (int) Math.Pow(2, region.Dim) != commands.Count)
+                {
+                    throw new Exception("Invalid group command");
+                }
+            }
+
+            var regions = singleCommands.SelectMany(c => GetRegions(c.command, c.bot))
+                .Concat(groupCommands.Values.SelectMany(GetRegions))
+                .ToList();
+
+            for (var i = 0; i < regions.Count-1; i++)
+            {
+                for (var j = i+1; j < regions.Count; j++)
+                {
+                    if (regions[i].AreIntersectsWith(regions[j]))
+                    {
+                        throw new Exception("Commands used regionst itersects");
+                    }
+                }
+            }
+
         }
 
         private static void UpdateEnergy(State state)
@@ -48,104 +113,57 @@ namespace Flash.Infrastructure.Simulation
             state.Energy += 20*state.Bots.Length;
         }
 
-        private void Validate(State state, List<Bot> bots, ICommand[] commands)
+        private static Region[] GetRegions(ICommand command, Bot bot)
         {
-            var regions = new List<Region>();
-            for (var i = 0; i < bots.Count; i++)
+            switch (command)
             {
-                switch (commands[i])
-                {
-                    case FillCommand f:
-                        regions.Add(new Region(bots[i].Pos));
-                        regions.Add(new Region(bots[i].Pos + f.NearDistance));
-                        break;
-                    case FissionCommand f:
-                        regions.Add(new Region(bots[i].Pos));
-                        regions.Add(new Region(bots[i].Pos + f.NearDistance));
-                        break;
-                    case FlipCommand f:
-                    case HaltCommand h:
-                    case WaitCommand w:
-                        regions.Add(new Region(bots[i].Pos));
-                        break;
-                    case LMoveCommand l:
-                        regions.Add(new Region(bots[i].Pos, bots[i].Pos + l.FirstDirection));
-                        regions.Add(new Region((bots[i].Pos + l.FirstDirection) + l.SecondDirection.Normalize(), bots[i].Pos + l.FirstDirection + l.SecondDirection));
-                        break;
-                    case SMoveCommand s:
-                        regions.Add(new Region(bots[i].Pos, bots[i].Pos + s.Direction));
-                        break;
-                    case FusionPCommand f:
-                        regions.Add(new Region(bots[i].Pos));
-                        regions.Add(new Region(bots[i].Pos + f.NearDistance));
-                        break;
-                }
-            }
-
-            for (var i = 0; i < regions.Count-1; i++)
-            {
-                for (var j = i+1; j < regions.Count; j++)
-                {
-                    if (Intersects(regions[i], regions[j]))
+                case FillCommand f:
+                    return new[]
                     {
-                        throw new Exception("Commands used regionst itersects");
-                    }
-                }
+                        new Region(bot.Pos),
+                        new Region(bot.Pos + f.NearDistance)
+                    };
+                case FissionCommand f:
+                    return new[]
+                    {
+                        new Region(bot.Pos),
+                        new Region(bot.Pos + f.NearDistance)
+                    };
+                case FlipCommand f:
+                case HaltCommand h:
+                case WaitCommand w:
+                    return new[]
+                    {
+                        new Region(bot.Pos)
+                    };
+                case LMoveCommand l:
+                    return new[]
+                    {
+                        new Region(bot.Pos, bot.Pos + l.FirstDirection),
+                        new Region((bot.Pos + l.FirstDirection) + l.SecondDirection.Normalize(), bot.Pos + l.FirstDirection + l.SecondDirection)
+                    };
+                case SMoveCommand s:
+                    return new[]
+                    {
+                        new Region(bot.Pos, bot.Pos + s.Direction)
+                    };
+                case FusionPCommand f:
+                    return new[]
+                    {
+                        new Region(bot.Pos),
+                        new Region(bot.Pos + f.NearDistance)
+                    };
+                default:
+                    throw new Exception($"Unknown command {command}");
             }
         }
 
-        private static bool Intersects(Region r1, Region r2)
+        private static Region[] GetRegions(List<(Bot bot, IGroupCommand command)> commands)
         {
-            int x1, y1, x2, y2, x3, y3, x4, y4;
-            if (r1.Min.X == r1.Max.X && r1.Max.X == r2.Min.X && r2.Min.X == r2.Max.X)
-            {
-                x1 = r1.Min.Y;
-                y1 = r1.Min.Z;
+            var (bot, command) = commands.First();
+            var region = new Region(bot.Pos + command.FarDistance, bot.Pos + command.FarDistance + command.NearDistance);
 
-                x2 = r1.Max.Y;
-                y2 = r1.Max.Z;
-
-                x3 = r2.Min.Y;
-                y3 = r2.Min.Z;
-
-                x4 = r2.Max.Y;
-                y4 = r2.Max.Z;
-            } 
-            else if (r1.Min.Y == r1.Max.Y && r1.Max.Y == r2.Min.Y && r2.Min.Y == r2.Max.Y)
-            {
-                x1 = r1.Min.X;
-                y1 = r1.Min.Z;
-                
-                x2 = r1.Max.X;
-                y2 = r1.Max.Z;
-                
-                x3 = r2.Min.X;
-                y3 = r2.Min.Z;
-                
-                x4 = r2.Max.X;
-                y4 = r2.Max.Z;
-            }
-            else if (r1.Min.Z == r1.Max.Z && r1.Max.Z == r2.Min.Z && r2.Min.Z == r2.Max.Z)
-            {
-                x1 = r1.Min.X;
-                y1 = r1.Min.Y;
-
-                x2 = r1.Max.X;
-                y2 = r1.Max.Y;
-
-                x3 = r2.Min.X;
-                y3 = r2.Min.Y;
-
-                x4 = r2.Max.X;
-                y4 = r2.Max.Y;
-            }
-            else
-            {
-                return false;
-            }
-
-            return x1 <= x3 && x3 <= x2 && x1 <= x4 && x4 <= x2 &&
-                   y3 <= y2 && y2 <= y4 && y3 <= y1 && y1 <= y4;
+            return commands.Select(x => new Region(bot.Pos)).Concat(new[] {region}).ToArray();
         }
     }
 }
