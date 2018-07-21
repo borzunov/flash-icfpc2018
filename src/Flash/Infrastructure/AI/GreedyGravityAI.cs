@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Models;
 
@@ -15,25 +16,19 @@ namespace Flash.Infrastructure.AI
         {
             this.targetMatrix = targetMatrix;
             var figure = new HashSet<Vector>();
+			
+	        for (var x = 0; x < targetMatrix.R; x++)
+	        for (var y = 0; y < targetMatrix.R; y++)
+	        for (var z = 0; z < targetMatrix.R; z++)
+	        {
+		        var point = new Vector(x, y, z);
+		        if (targetMatrix.IsFull(point))
+		        {
+			        figure.Add(point);
+		        }
+	        }
 
-            var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
-            mongoOplogWriter.WriteLogName("GreedyGravityAI_Expected");
-            var state = State.CreateInitial(targetMatrix.R, mongoOplogWriter);
-            mongoOplogWriter.WriteInitialState(state);
-
-            for (var x = 0; x < targetMatrix.R; x++)
-                for (var y = 0; y < targetMatrix.R; y++)
-                    for (var z = 0; z < targetMatrix.R; z++)
-                    {
-                        var point = new Vector(x, y, z);
-                        if (targetMatrix.IsFull(point))
-                        {
-                            figure.Add(point);
-                            mongoOplogWriter.WriteFill(point);
-                        }
-                    }
-            mongoOplogWriter.Save();
-            Console.WriteLine("Debug written");
+			Console.WriteLine("Debug written");
 
             var start = figure.OrderBy(p => Tuple.Create(p.Z, p.Y, p.X)).First();
             var end = figure.OrderBy(p => Tuple.Create(p.Z, p.Y, p.X)).Last();
@@ -50,9 +45,17 @@ namespace Flash.Infrastructure.AI
                 throw new ArgumentException("`figure` should contain `start` and `end`");
 
             var gravity = CalcGravity(figure, end);
-            Console.WriteLine("figure.Count = {0}", figure.Count);
+	        var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
+	        mongoOplogWriter.WriteLogName("GreedyGravityAI_Expected");
+	        var state = State.CreateInitial(targetMatrix.R, mongoOplogWriter);
+	        mongoOplogWriter.WriteInitialState(state);
+			
+
+			Console.WriteLine("figure.Count = {0}", figure.Count);
             Console.WriteLine("gravity.Count = {0}", gravity.Count);
             figure = gravity.Keys.ToHashSet(); // FIXME: It's a hack for non-connected figures
+
+	        int i = 0;
 
             var filled = new HashSet<Vector>();
             var curPoint = start;
@@ -60,21 +63,45 @@ namespace Flash.Infrastructure.AI
             var commands = new List<ICommand>();
             while (filled.Count < figure.Count)
             {
+	            var time = DateTime.UtcNow;
                 var nextPoint = curPoint.GetAdjacents()
                     .Where(p => figure.Contains(p) && !filled.Contains(p))
                     .OrderByDescending(p => gravity[p])
                     .FirstOrDefault();
-                if (nextPoint == null)
-                    nextPoint = figure.Where(p => p != curPoint && !filled.Contains(p))
-                        .OrderBy(p => (curPoint - p).Mlen)
-                        .ThenByDescending(p => gravity[p])
-                        .FirstOrDefault();
+	            if (nextPoint == null)
+				{
+					nextPoint = figure.Where(p => p != curPoint && !filled.Contains(p))
+						.OrderBy(p => (curPoint - p).Mlen)
+						.ThenByDescending(p => gravity[p])
+						.FirstOrDefault();
+					if(nextPoint != null)
+						mongoOplogWriter.WriteColor(nextPoint, "00FF00", 0.5);
+				}
+                else
+                {
+					mongoOplogWriter.WriteColor(nextPoint, "FF0000", 0.5);
+				}
                 if (nextPoint == null)
                     nextPoint = new Vector(0, 0, 0);
-
+				
                 try
                 {
-                    Move(filled, prohibited, curPoint, nextPoint, true, out var curPath, out var curCommands);
+	                List<Vector> curPath;
+	                List<ICommand> curCommands;
+					if (!curPoint.IsAdjacentTo(nextPoint))
+						Move(filled, prohibited, curPoint, nextPoint, true, out curPath, out curCommands);
+					else
+					{
+						curPath = new List<Vector>
+						{
+							nextPoint
+						};
+						curCommands = new List<ICommand>
+							{
+								new SMoveCommand(nextPoint - curPoint),
+								new FillCommand(curPoint - nextPoint),
+							};
+					}
                     filled.Add(curPoint);
                     volatiles.AddRange(curPath);
                     commands.AddRange(curCommands);
@@ -83,10 +110,13 @@ namespace Flash.Infrastructure.AI
                     Console.WriteLine("Exception, was able to draw only {0} points", filled.Count);
                     break;
                 }
-                curPoint = nextPoint;
-            }
 
-            commands.Add(new HaltCommand());
+				curPoint = nextPoint;
+			}
+			
+	        mongoOplogWriter.Save();
+
+			commands.Add(new HaltCommand());
             Console.WriteLine("Commands have been generated");
 
             return commands;
