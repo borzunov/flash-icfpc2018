@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Infrastructure\AI\FileAI.cs" />
+    <Compile Include="Infrastructure\Algorithms\ClusterMixtureBuilder.cs" />
     <Compile Include="Infrastructure\Deserializers\FillCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\FissionCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\FlipCommandDeserializer.cs" />
@@ -123,5 +124,6 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

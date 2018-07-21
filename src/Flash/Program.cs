@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Flash.Infrastructure;
+using Flash.Infrastructure.Algorithms;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Models;
 using Flash.Infrastructure.Simulation;
@@ -21,6 +22,9 @@ namespace Flash
             var simulator = new Simulator();
             var size = 30;
             var state = State.CreateInitial(size, mongoOplogWriter);
+
+			var mixture = new ClusterMixtureBuilder(state)
+
             mongoOplogWriter.WriteInitialState(state);
 
             while (true)
