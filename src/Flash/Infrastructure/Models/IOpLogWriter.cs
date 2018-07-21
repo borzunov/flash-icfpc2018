@@ -11,5 +11,7 @@
         void WriteMessage(string msg);
         void WriteHarmonic(bool high);
         void Save();
+        void WriteGroupAdd(Vector[] points);
+        void WriteGroupRemove(Vector[] points);
     }
 }
