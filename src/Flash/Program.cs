@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Flash.Infrastructure;
+using Flash.Infrastructure.AI;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Models;
 using Flash.Infrastructure.Simulation;

@@ -1,4 +1,4 @@
-﻿namespace Flash.Infrastructure
+﻿namespace Flash.Infrastructure.Models
 {
     public class Bot
     {

@@ -2,7 +2,7 @@
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Models;
 
-namespace Flash.Infrastructure
+namespace Flash.Infrastructure.AI
 {
     public interface IAI
     {

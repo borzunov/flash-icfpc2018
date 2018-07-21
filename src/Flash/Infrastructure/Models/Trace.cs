@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Flash.Infrastructure.Commands;
 
-namespace Flash.Infrastructure
+namespace Flash.Infrastructure.Models
 {
     public class Trace : Queue<ICommand>
     {
