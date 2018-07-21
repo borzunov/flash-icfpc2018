@@ -13,7 +13,7 @@ const FillContainerImpl = ({ boxSize, voxels }) => {
       .filter(([pos, exists]) => exists)
       .map(([pos]) => {
         return (<Box store={dataStore} size={boxSize} position={vecToThree(deserializeVector(pos), boxSize)} key={pos}
-                     posKey={pos}/>)
+                     showEdges posKey={pos} color={0xffffff} filled/>)
       })
     }</group>)
 }

@@ -37,5 +37,13 @@
         public void Save()
         {
         }
+
+        public void WriteGroupAdd(Vector[] points)
+        {
+        }
+
+        public void WriteGroupRemove(Vector[] points)
+        {
+        }
     }
 }

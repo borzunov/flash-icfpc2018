@@ -5,16 +5,16 @@ import { connect } from 'react-redux'
 import { dataStore } from '../../store'
 import { vecToThree } from './coords'
 import { deserializeVector } from '../../modules/Vector'
-import { BoxImpl } from './Box'
+import Box from './Box'
 
 const ColorContainerImpl = ({ boxSize, colors }) => {
   return (<group>
     {Object.entries(colors)
-      .filter(([pos, color]) => color && color !== '000000' && color !== '000')
-      .map(([pos, color]) => {
+      .filter(([pos, {color}]) => color && color !== '000000')
+      .map(([pos, {color, opacity}]) => {
         return (
-          <BoxImpl color={Number(`0x${color}`)} size={boxSize} position={vecToThree(deserializeVector(pos), boxSize)}
-                   filled={true} transparent key={pos} posKey={pos}/>)
+          <Box store={dataStore} color={Number(`0x${color}`)} size={boxSize} position={vecToThree(deserializeVector(pos), boxSize)}
+                   filled={true} opacity={opacity} key={pos} posKey={pos}/>)
       })
     }</group>)
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Driver;
 
 namespace Flash.Infrastructure.Models
@@ -22,9 +23,14 @@ namespace Flash.Infrastructure.Models
             this.name = logName;
         }
 
+        public void WriteResolution(int resolution)
+        {
+            r = resolution;
+        }
+
         public void WriteInitialState(State state)
         {
-            r = state.Matrix.R;
+            WriteResolution(state.Matrix.R);
             WriteHarmonic(state.Harmonics);
             WriteAdd(state.Bots[0].Pos);
             WriteEnergy(0);
@@ -63,6 +69,16 @@ namespace Flash.Infrastructure.Models
         public void WriteHarmonic(bool high)
         {
             opLog.Add(new { h = high, t = 5 });
+        }
+
+        public void WriteGroupAdd(Vector[] points)
+        {
+            opLog.Add(new { p = points.Select(v => $"{v.X}/{v.Y}/{v.Z}"), t = 7 });
+        }
+
+        public void WriteGroupRemove(Vector[] points)
+        {
+            opLog.Add(new { p = points.Select(v => $"{v.X}/{v.Y}/{v.Z}"), t = 8 });
         }
 
         public void Save()

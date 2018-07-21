@@ -1,13 +1,20 @@
 export const SIZE_CHANGED = 'space/SIZE_CHANGED'
 export const VOXEL_CHANGED = 'space/VOXEL_CHANGED'
+export const VOXEL_CHANGED_BATCH = 'space/VOXEL_CHANGED_BATCH'
 export const BOT_CHANGED = 'space/BOT_CHANGED'
 export const COLOR_CHANGED = 'space/COLOR_CHANGED'
+export const ENERGY_CHANGED = 'space/ENERGY_CHANGED'
+export const HARMONIC_CHANGED = 'space/HARMONIC_CHANGED'
+export const MESSAGE_CHANGED = 'space/MESSAGE_CHANGED'
 
 const initialState = {
   size: 30,
   voxels: {},
   colors: {},
-  bots: {}
+  bots: {},
+  energy: 0,
+  harmonic: false,
+  message: ''
 }
 
 export default (state = initialState, action) => {
@@ -17,6 +24,21 @@ export default (state = initialState, action) => {
         ...state,
         size: action.payload.size
       }
+    case ENERGY_CHANGED:
+      return {
+        ...state,
+        energy: action.payload
+      }
+    case MESSAGE_CHANGED:
+      return {
+        ...state,
+        message: action.payload
+      }
+    case HARMONIC_CHANGED:
+      return {
+        ...state,
+        harmonic: action.payload
+      }
     case VOXEL_CHANGED:
       return {
         ...state,
@@ -25,12 +47,27 @@ export default (state = initialState, action) => {
           [action.payload.position]: action.payload.filled
         }
       }
+    case VOXEL_CHANGED_BATCH:
+      let newVoxels = {};
+      for (let pos of action.payload.positions) {
+        newVoxels[pos] = action.payload.value;
+      }
+      return {
+        ...state,
+        voxels: {
+          ...state.voxels,
+          ...newVoxels
+        }
+      }
     case COLOR_CHANGED:
       return {
         ...state,
         colors: {
           ...state.colors,
-          [action.payload.position]: action.payload.color
+          [action.payload.position]: {
+            color: action.payload.color,
+            opacity: action.payload.opacity
+          }
         }
       }
     case BOT_CHANGED:
@@ -59,13 +96,53 @@ export const changeSize = (newSize) => {
   }
 }
 
-export const changeColor = (position, color) => {
+export const changeHarmonic = (newHar) => {
+  return dispatch => {
+    dispatch({
+      type: HARMONIC_CHANGED,
+      payload: newHar
+    })
+  }
+}
+
+export const changeEnergy = (newEn) => {
+  return dispatch => {
+    dispatch({
+      type: ENERGY_CHANGED,
+      payload: newEn
+    })
+  }
+}
+
+export const changeMessage = (newM) => {
+  return dispatch => {
+    dispatch({
+      type: MESSAGE_CHANGED,
+      payload: newM
+    })
+  }
+}
+
+export const changeColor = (position, color, opacity = 0.5) => {
   return dispatch => {
     dispatch({
       type: COLOR_CHANGED,
       payload: {
         position,
-        color
+        color,
+        opacity
+      }
+    })
+  }
+}
+
+export const changeVoxelBatch = (positions, value) => {
+  return dispatch => {
+    dispatch({
+      type: VOXEL_CHANGED_BATCH,
+      payload: {
+        positions,
+        value
       }
     })
   }

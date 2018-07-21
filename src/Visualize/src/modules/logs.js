@@ -5,7 +5,7 @@ const initialState = {
   loading: true,
 }
 
-export const refreshLogs = () => {
+export const refreshLogs = (bd = 'logs') => {
   return async (dispatch) => {
     let logs = [];
     try {
@@ -14,7 +14,7 @@ export const refreshLogs = () => {
         payload: [],
         loading: true,
       })
-      logs = await (await fetch('http://vm-dev-cont4:3005/logs')).json()
+      logs = await (await fetch(`http://vm-dev-cont4:3005/${bd}`)).json()
     }
     catch(e) {
       console.error(e);
