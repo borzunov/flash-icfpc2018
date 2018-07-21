@@ -74,11 +74,24 @@ namespace Flash.Infrastructure.Algorithms
 				if (VectorComponents.TryGetValue(node, out var component) && unvisitedAreas.Contains(component))
 				{
 					unvisitedAreas.Remove(component);
-					
-					//var branch
+
+					var branch = new SkeletonNode
+					{
+						Vector = node,
+						InputPoint = component
+					};
+
+					while (dads[branch.Vector] != null)
+					{
+						var dadNode = dads[branch.Vector];
+						var dad = skeletons.TryGetValue(dadNode, out var dadBranch) 
+							? dadBranch 
+							: new SkeletonNode{Vector = dads[branch.Vector]};
+						dad.Childs[component] = branch;
+						branch = dad;
+					}
 				}
-
-
+				
 				foreach (var adj in node.GetAdjacents().Where(adj => !dads.ContainsKey(adj) && IsMoveable(adj)))
 				{
 					dads[adj] = node;
@@ -90,6 +103,7 @@ namespace Flash.Infrastructure.Algorithms
 
 	class SkeletonNode
 	{
+		public int InputPoint = -1;
 		public Vector Vector;
 		public Dictionary<int, SkeletonNode> Childs = new Dictionary<int, SkeletonNode>();
 	}

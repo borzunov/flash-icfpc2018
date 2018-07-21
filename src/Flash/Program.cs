@@ -15,7 +15,7 @@ namespace Flash
         public static void Main(string[] args)
         {
             var trackFilePath = @"..\..\..\data\track\LA001.nbt";
-            var modelFilePath = @"..\..\..\data\models\LA100_tgt.mdl";
+            var modelFilePath = @"..\..\..\data\models\LA008_tgt.mdl";
 
             var ai = new FileAI(trackFilePath);
 
@@ -89,7 +89,7 @@ namespace Flash
 			}
 	        mongoOplogWriter.WriteInitialState(state);
 
-	        mongoOplogWriter.Save();
+			mongoOplogWriter.Save();
 			return;
 
 			mongoOplogWriter.WriteInitialState(state);
