@@ -1,18 +1,21 @@
 ﻿using System.Linq;
+using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure
 {
     public class State
     {
-        public State(long energy, bool harmonics, Matrix matrix, Bot[] bots, Trace trace)
+        public State(long energy, bool harmonics, Matrix matrix, Bot[] bots, Trace trace, IOpLogWriter opLogWriter=null)
         {
             Energy = energy;
             Harmonics = harmonics;
             Matrix = matrix;
             Bots = bots;
             Trace = trace;
+            OpLogWriter = opLogWriter;
         }
 
+        public IOpLogWriter OpLogWriter { get; set; }
         public Trace Trace { get; }
         public Matrix Matrix { get; }
         public long Energy { get; set; }

@@ -5,6 +5,8 @@ namespace Flash.Infrastructure.Commands
         public void Apply(State state, Bot bot)
         {
             state.Harmonics = !state.Harmonics;
+
+            state.OpLogWriter.WriteHarmonic(state.Harmonics);
         }
     }
 }

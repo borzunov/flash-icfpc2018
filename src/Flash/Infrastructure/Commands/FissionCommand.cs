@@ -25,6 +25,9 @@ namespace Flash.Infrastructure.Commands
 
             state.Bots = state.Bots.Concat(new[] {newBot}).OrderBy(b => b.Bid).ToArray();
             state.Energy += 24;
+
+            state.OpLogWriter.WriteAdd(newBot.Pos);
+            state.OpLogWriter.WriteEnergy(state.Energy);
         }
     }
 }

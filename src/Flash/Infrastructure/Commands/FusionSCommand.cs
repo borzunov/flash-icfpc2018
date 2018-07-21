@@ -6,7 +6,7 @@
 
         public FusionSCommand(Vector nearDistance)
         {
-            this.NearDistance = nearDistance;
+            NearDistance = nearDistance;
         }
         public void Apply(State state, Bot bot)
         {

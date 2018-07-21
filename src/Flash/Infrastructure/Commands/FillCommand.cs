@@ -24,6 +24,9 @@ namespace Flash.Infrastructure.Commands
                 state.Energy += 12;
                 state.Matrix.Fill(voxel);
             }
+
+            state.OpLogWriter.WriteFill(voxel);
+            state.OpLogWriter.WriteEnergy(state.Energy);
         }
     }
 }

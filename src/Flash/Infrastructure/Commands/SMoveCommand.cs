@@ -11,10 +11,14 @@
 
         public void Apply(State state, Bot bot)
         {
-            var newPositon = bot.Pos + Direction;
+            var oldPosition = bot.Pos;
+            var newPosition = bot.Pos + Direction;
             
-            bot.Pos = newPositon;
+            bot.Pos = newPosition;
             state.Energy += 2*Direction.Mlen;
+
+            state.OpLogWriter.WriteRemove(oldPosition);
+            state.OpLogWriter.WriteAdd(newPosition);
         }
     }
 }
