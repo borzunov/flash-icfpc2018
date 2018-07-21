@@ -5,7 +5,7 @@ namespace Flash.Infrastructure.Simulation
 {
     public class Simulator
     {
-        public State NextStep(State state, Trace trace)
+        public void NextStep(State state, Trace trace)
         {
             if (state.Bots.Length != trace.Count)
                 throw new Exception("Commands count should be equal to bots count");
@@ -26,8 +26,6 @@ namespace Flash.Infrastructure.Simulation
                     command.Apply(state, bots[i]);
                 }
             }
-
-            return state;
         }
 
         private static void UpdateEnergy(State state)

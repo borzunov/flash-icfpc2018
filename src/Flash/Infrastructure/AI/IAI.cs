@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Windows.Input;
+using Flash.Infrastructure.Commands;
 
 namespace Flash.Infrastructure
 {

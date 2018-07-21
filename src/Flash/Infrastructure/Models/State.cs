@@ -12,7 +12,12 @@ namespace Flash.Infrastructure
             Matrix = matrix;
             Bots = bots;
             Trace = trace;
-            OpLogWriter = opLogWriter;
+            OpLogWriter = opLogWriter ?? new FakeOpLog();
+        }
+
+        public static State CreateInitial(int r, IOpLogWriter opLogWriter=null)
+        {
+            return new State(0, false, new Matrix(r), new [] {new Bot(1, new Vector(0, 0, 0), Enumerable.Range(2, 19).ToArray())}, null,  opLogWriter);
         }
 
         public IOpLogWriter OpLogWriter { get; set; }

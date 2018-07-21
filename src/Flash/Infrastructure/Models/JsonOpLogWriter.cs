@@ -19,6 +19,9 @@ namespace Flash.Infrastructure.Models
         public void WriteInitialState(State state)
         {
             r = state.Matrix.R;
+            WriteHarmonic(state.Harmonics);
+            WriteAdd(state.Bots[0].Pos);
+            WriteEnergy(0);
         }
 
         public void WriteFill(Vector v)
