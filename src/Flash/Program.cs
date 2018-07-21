@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Flash.Infrastructure;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Models;
@@ -16,7 +15,7 @@ namespace Flash
 
             var ai = new FileAI(trackFilePath);
 
-            var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
+            var mongoOplogWriter = new JsonOpLogWriter(new ConsoleJsonWriter());
             mongoOplogWriter.WriteLogName("MY_BEST_ALGO");
 
             var simulator = new Simulator();

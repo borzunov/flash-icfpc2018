@@ -23,6 +23,7 @@ namespace Flash.Infrastructure.Commands
 
             state.OpLogWriter.WriteRemove(oldPosition);
             state.OpLogWriter.WriteAdd(newPosition);
+            state.OpLogWriter.WriteEnergy(state.Energy);
         }
     }
 }
