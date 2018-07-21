@@ -1,6 +1,6 @@
 import { LogAction } from '../../test-logs/LogAction'
 
-const MAX = 5000;
+const MAX = 15000;
 export const playLog = ({ changeSize, changeVoxel, changeBot, changeColor, changeEnergy, changeHarmonic, changeMessage }, { size, log, name }, enqueue) => {
   changeSize(size)
   if (log.length > MAX) {

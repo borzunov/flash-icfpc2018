@@ -12,6 +12,8 @@ import HelpText from './HelpText'
 import LogPlayer from './LogPlayer'
 import ColorContainer from './ColorContainer'
 import InfoContainer from './InfoContainer'
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
+import 'react-tabs/style/react-tabs.css'
 
 // noinspection JSUnresolvedFunction
 const OrbitControls = require('three-orbit-controls')(THREE)
