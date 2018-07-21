@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Flash.Infrastructure;
@@ -15,7 +16,7 @@ namespace Flash
         public static void Main(string[] args)
         {
             var trackFilePath = @"..\..\..\data\track\LA001.nbt";
-            var modelFilePath = @"..\..\..\data\models\LA008_tgt.mdl";
+            var modelFilePath = @"..\..\..\data\models\LA020_tgt.mdl";
 
             var ai = new FileAI(trackFilePath);
 
@@ -23,10 +24,9 @@ namespace Flash
             mongoOplogWriter.WriteLogName("MixtureTest_1");
 
 			var simulator = new Simulator();
-            var size = 30;
-            var state = State.CreateInitial(size, mongoOplogWriter);
-
 	        var matrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(modelFilePath));
+			var state = State.CreateInitial(matrix.R, mongoOplogWriter);
+
 	        var mixtureBuilder = new ClusterMixtureBuilder(matrix, 10);
 	        var mix = mixtureBuilder.BuildClusterMixture();
 
@@ -75,8 +75,38 @@ namespace Flash
 		        "ff7373",
 		        "ffe4e1"
 	        };
+			
+			var skeletonBuilder = new SkeletonBuilder(matrix.R, mix);
+	        var skeleton = skeletonBuilder.FindSkeleton();
 
-	        var rand = new Random();
+	        var queue = new Queue<SkeletonNode>();
+			queue.Enqueue(skeleton);
+	        while (queue.Count > 0)
+	        {
+		        var i = queue.Dequeue();
+				mongoOplogWriter.WriteFill(i.Vector);
+
+		        foreach (var skeletonNode in i.Childs.Select(pair => pair.Value).Distinct())
+		        {
+			        queue.Enqueue(skeletonNode);
+		        }
+	        }
+	        var skeleton2 = skeletonBuilder.FindSkeleton();
+
+	        queue = new Queue<SkeletonNode>();
+	        queue.Enqueue(skeleton2);
+	        while (queue.Count > 0)
+	        {
+		        var i = queue.Dequeue();
+		        mongoOplogWriter.WriteFill(i.Vector);
+
+		        foreach (var skeletonNode in i.Childs.Select(pair => pair.Value).Distinct())
+		        {
+			        queue.Enqueue(skeletonNode);
+		        }
+	        }
+
+			var rand = new Random();
 
 	        foreach (var group in mix)
 	        {
@@ -84,10 +114,11 @@ namespace Flash
 
 		        foreach (var vertex in group)
 		        {
-					mongoOplogWriter.WriteColor(vertex, color);
-				}
-			}
-	        mongoOplogWriter.WriteInitialState(state);
+			        mongoOplogWriter.WriteColor(vertex, color);
+		        }
+	        }
+
+			mongoOplogWriter.WriteInitialState(state);
 
 			mongoOplogWriter.Save();
 			return;

@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="Infrastructure\AI\FileAI.cs" />
     <Compile Include="Infrastructure\Algorithms\ClusterMixtureBuilder.cs" />
+    <Compile Include="Infrastructure\Algorithms\PriorityQueue.cs" />
     <Compile Include="Infrastructure\Algorithms\SkeletonBuilder.cs" />
     <Compile Include="Infrastructure\Deserializers\FillCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\FissionCommandDeserializer.cs" />
