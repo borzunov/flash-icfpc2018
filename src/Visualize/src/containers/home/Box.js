@@ -26,9 +26,8 @@ export const BoxImpl = ({ position, color, size, filled = false, contoured = fal
         depth={size.z}
       />
       <meshBasicMaterial
-        //wireframe={true}
         transparent={transparent}
-        opacity={0.5}
+        opacity={0.2}
         color={color}
       />
     </mesh>
