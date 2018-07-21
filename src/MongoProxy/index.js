@@ -8,7 +8,7 @@ app.get('/logs', async (req, res) => {
   try {
     const db = await MongoClient.connect(url);
     const dbo = db.db("local");
-    const logs = await dbo.collection('logs').find().sort({createdAt: -1}).toArray();
+    const logs = await dbo.collection('logs').find().sort({createdAt: -1}).limit(10).toArray();
     res.status(200);
     res.type('application/json');
     res.header('Access-Control-Allow-Origin', '*')
