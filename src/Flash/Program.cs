@@ -14,7 +14,7 @@ namespace Flash
         public static void Main(string[] args)
         {
             //var trackFilePath = @"..\..\..\data\track\LA001.nbt";
-            var modelFilePath = @"..\..\..\data\models\LA040_tgt.mdl";
+            var modelFilePath = @"..\..\..\data\models\LA060_tgt.mdl";
 
             var matrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(modelFilePath));
             var ai = new GreedyGravityAI(matrix);
@@ -23,8 +23,7 @@ namespace Flash
             mongoOplogWriter.WriteLogName("GreedyGravityAI");
 
             var simulator = new Simulator();
-            var size = 30;
-            var state = State.CreateInitial(size, mongoOplogWriter);
+            var state = State.CreateInitial(matrix.R, mongoOplogWriter);
             mongoOplogWriter.WriteInitialState(state);
 
             while (true)

@@ -35,17 +35,17 @@ namespace Flash.Infrastructure.AI
             var end = figure.OrderBy(p => Tuple.Create(p.Z, p.Y, p.X)).Last();
             Move(new HashSet<Vector> { }, new HashSet<Vector> { },
                 new Vector(0, 0, 0), start, false, out var tmpPath, out commands);
-            commands.AddRange(FillFigure(figure, new HashSet<Vector>(), start, end));
+            commands.AddRange(FillFigure(figure, new HashSet<Vector>(), start));
         }
 
         private List<ICommand> FillFigure(HashSet<Vector> figure, HashSet<Vector> prohibited,
-                                Vector start, Vector end) {
+                                Vector start) {
             if (figure.Intersect(prohibited).Count() > 0)
                 throw new ArgumentException("`figure` should not intersect `prohibited`");
-            if (!(figure.Contains(start) && figure.Contains(end)))
+            if (!figure.Contains(start))
                 throw new ArgumentException("`figure` should contain `start` and `end`");
 
-            var gravity = CalcGravity(figure, end);
+            var gravity = CalcGravity(figure, start);
 	        var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
 	        mongoOplogWriter.WriteLogName("GreedyGravityAI_Expected");
 	        var state = State.CreateInitial(targetMatrix.R, mongoOplogWriter);
@@ -58,6 +58,7 @@ namespace Flash.Infrastructure.AI
 
 	        int i = 0;
 
+			var removeFills = new Queue<Vector>();
             var filled = new HashSet<Vector>();
             var curPoint = start;
             var volatiles = new List<Vector>();
@@ -74,8 +75,12 @@ namespace Flash.Infrastructure.AI
 						.OrderBy(p => (curPoint - p).Mlen)
 						.ThenByDescending(p => gravity[p])
 						.FirstOrDefault();
-					if(nextPoint != null)
+					if (nextPoint != null)
+					{
+						mongoOplogWriter.WriteColor(curPoint, "0000FF", 0.5);
 						mongoOplogWriter.WriteColor(nextPoint, "00FF00", 0.5);
+					}
+
 				}
                 else
                 {
@@ -88,23 +93,30 @@ namespace Flash.Infrastructure.AI
                 {
 	                List<Vector> curPath;
 	                List<ICommand> curCommands;
-					if (!curPoint.IsAdjacentTo(nextPoint))
-						Move(filled, prohibited, curPoint, nextPoint, true, out curPath, out curCommands);
+	                if (!curPoint.IsAdjacentTo(nextPoint))
+					{
+						Move(figure, prohibited, curPoint, nextPoint, true, out curPath, out curCommands);
+					}
 					else
 					{
 						curPath = new List<Vector>
-						{
-							nextPoint
-						};
+							{
+								nextPoint
+							};
 						curCommands = new List<ICommand>
 							{
 								new SMoveCommand(nextPoint - curPoint),
-								new FillCommand(curPoint - nextPoint),
+								new FillCommand(curPoint - nextPoint, curPoint),
 							};
 					}
-                    filled.Add(curPoint);
+	                foreach (var vector in curPath.Where(vector => filled.Contains(vector)))
+	                {
+		                removeFills.Enqueue(vector);
+		                mongoOplogWriter.WriteColor(vector, "FFFF00", 0.5);
+	                }
+					filled.Add(curPoint);
                     volatiles.AddRange(curPath);
-                    commands.AddRange(curCommands);
+					commands.AddRange(curCommands);
                 } catch (ArgumentException)
                 {
                     Console.WriteLine("Exception, was able to draw only {0} points", filled.Count);
@@ -119,7 +131,23 @@ namespace Flash.Infrastructure.AI
 			commands.Add(new HaltCommand());
             Console.WriteLine("Commands have been generated");
 
-            return commands;
+
+	        var fillCommandsCount = commands.OfType<FillCommand>().Count();
+
+			commands = commands.Where(command =>
+            {
+	            var fillCommand = command as FillCommand;
+	            if (fillCommand == null)
+		            return true;
+	            if (!fillCommand.RealFill.Equals(removeFills.Peek()))
+		            return true;
+	            removeFills.Dequeue();
+	            return false;
+            }).ToList();
+
+	        fillCommandsCount = commands.OfType<FillCommand>().Count();
+
+	        return commands;
         }
 
         private Dictionary<Vector, int> CalcGravity(HashSet<Vector> figure, Vector end)
@@ -142,7 +170,7 @@ namespace Flash.Infrastructure.AI
             return dist;
         }
 
-        private void Move(HashSet<Vector> filled, HashSet<Vector> prohibited,
+        private bool Move(HashSet<Vector> figure, HashSet<Vector> prohibited,
                           Vector start, Vector end, bool doFill,
                           out List<Vector> path, out List<ICommand> commands)
         {
@@ -151,7 +179,7 @@ namespace Flash.Infrastructure.AI
             path = new List<Vector>();
             commands = new List<ICommand>();
             if (start.Equals(end))
-                return;
+                return true;
 
             var prev = new Dictionary<Vector, Tuple<Vector, ICommand>>();
             var order = new Queue<Vector>();
@@ -162,11 +190,11 @@ namespace Flash.Infrastructure.AI
             {
                 var cur = order.Dequeue();
 
-                var neighs = cur.GetLongLinearNeighs();
+                var neighs = cur.GetAdjacents();
                 foreach (var neigh in neighs)
                 {
                     if (!targetMatrix.Contains(neigh) || prev.ContainsKey(neigh) ||
-                        GetPointsTowards(cur, neigh).Any(p => filled.Contains(p) || prohibited.Contains(p)))
+                        GetPointsTowards(cur, neigh).Any(prohibited.Contains))
                         continue;
 
                     prev[neigh] = Tuple.Create(cur, (ICommand) new SMoveCommand(neigh - cur));
@@ -181,20 +209,25 @@ namespace Flash.Infrastructure.AI
 					break;
             }
             if (!found)
-                throw new ArgumentException("`end` is unreachable from `start`");
+                return false;
 
             var point = end;
             while (point != start)
             {
                 path.Add(point);
-                commands.Add(prev[point].Item2);
-                point = prev[point].Item1;
+	            var prevPoint = prev[point];
+
+				if (doFill && figure.Contains(prevPoint.Item1))
+	            {
+		            commands.Add(new FillCommand(prevPoint.Item1 - point, prevPoint.Item1));
+	            }
+				commands.Add(prevPoint.Item2);
+                point = prevPoint.Item1;
             }
             path.Reverse();
             commands.Reverse();
 
-            if (doFill)
-                commands.Insert(1, new FillCommand(start - path[0]));
+	        return true;
         }
 
         private IEnumerable<Vector> GetPointsTowards(Vector start, Vector end)
