@@ -1,7 +1,7 @@
 import React from 'react'
 
 export default function HelpText() {
-  return <div>
+  return <div style={{opacity: 0.7, textAlign: 'right', position: 'absolute', right: 20, top: 20, color: 'white'}}>
     <div>Open in chrome and install <a target="_blank" rel="noopener noreferrer"
                                        href="https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en">redux
       dev tools</a></div>

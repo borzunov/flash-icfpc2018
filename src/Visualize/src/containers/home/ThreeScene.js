@@ -6,11 +6,8 @@ import store from '../../store'
 import BotContainer from './BotContainer'
 import { vecToThree } from './coords'
 import { withSize } from 'react-sizeme'
-import HelpText from './HelpText'
 import CoordinatesHelpers from './CoordinatesHelpers'
-
-
-import case1 from '../../test-logs/1.js'
+import ControlPanel from './ControlPanel'
 import { LogAction } from '../../test-logs/LogAction'
 import FillContainer from './FillContainer'
 import Queue from 'async/queue'
@@ -57,43 +54,6 @@ const playLog = ({ changeSize, changeVoxel, changeBot }, { size, log }) => {
   }
 }
 
-function renderControlPanel(changeSize, mapSize) {
-  return <div style={{ position: 'absolute', left: 0, top: 0, color: 'white' }}>
-    <HelpText/>
-    <button onClick={() => {
-      return changeSize(Math.min(mapSize + 10, 250))
-    }}>size + 10
-    </button>
-    <button onClick={() => {
-      return changeSize(Math.max(10, mapSize - 10))
-    }}>size - 10
-    </button>
-    <button onClick={() => {
-      reset()
-    }}>reset
-    </button>
-    <button onClick={this.fillRandomVoxel}>fill random voxel
-    </button>
-    <button onClick={() => {
-      for (let i = 0; i < mapSize * mapSize * mapSize / 8; ++i) {
-        syncQueueWithWait.push(() => this.fillRandomVoxel())
-      }
-    }}>fill 1/8
-    </button>
-    <button onClick={() => {
-      for (let i = 0; i < 10; ++i) {
-        syncQueueWithWait.push(() => this.addRandomBot())
-      }
-    }}>add some bots
-    </button>
-    <button onClick={() => {
-      reset()
-      playLog(this.props, case1)
-    }}>play test 1
-    </button>
-  </div>
-}
-
 class ThreeScene extends React.PureComponent {
   componentDidMount() {
     this.controls = new OrbitControls(this.camera)
@@ -130,7 +90,19 @@ class ThreeScene extends React.PureComponent {
     const botSize = new THREE.Vector3(0.75, 0.75, 0.75)
 
     return (<div style={{ width: '100%', height: '100%' }}>
-      {renderControlPanel.call(this, changeSize, mapSize)}
+      <ControlPanel
+        {...
+          {
+            changeSize,
+            mapSize,
+            fillRandomVoxel: this.fillRandomVoxel,
+            addRandomBot: this.addRandomBot,
+            doPlayLog: (testCase) => playLog(this.props, testCase),
+            doReset: reset,
+            enqueue: (task, cb) => syncQueueWithWait.push(task, cb),
+          }
+        }
+      />
       <React3
         mainCamera="camera" // this points to the perspectiveCamera which has the name set to "camera" below
         width={width}
