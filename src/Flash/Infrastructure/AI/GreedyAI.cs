@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Flash.Infrastructure.AI;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Models;
 

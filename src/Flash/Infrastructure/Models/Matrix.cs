@@ -177,20 +177,22 @@ namespace Flash.Infrastructure.Models
             var used = new HashSet<Vector>();
             var queue = new Queue<Vector>();
             queue.Enqueue(point);
+	        used.Add(point);
 
-            while (queue.Count != 0)
+			while (queue.Count != 0)
             {
                 var v = queue.Dequeue();
-
-                used.Add(v);
 
                 if (v.Y == 0)
                     return true;
 
                 foreach (var adj in GetAdjacents(v))
                 {
-                    if (IsFull(adj) && !used.Contains(adj))
-                        queue.Enqueue(adj);
+	                if (IsFull(adj) && !used.Contains(adj))
+	                {
+		                used.Add(adj);
+						queue.Enqueue(adj);
+	                }
                 }
             }
 
