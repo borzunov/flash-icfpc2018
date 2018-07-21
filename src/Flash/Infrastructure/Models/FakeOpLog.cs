@@ -2,6 +2,10 @@
 {
     public class FakeOpLog : IOpLogWriter
     {
+        public void WriteLogName(string name)
+        {
+        }
+
         public void WriteInitialState(State state)
         {
         }

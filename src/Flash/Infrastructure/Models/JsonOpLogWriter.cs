@@ -8,12 +8,18 @@ namespace Flash.Infrastructure.Models
     {
         private readonly IJsonWriter jsonWriter;
         private int r;
+        private string name;
 
         private List<object> opLog = new List<object>();
 
         public JsonOpLogWriter(IJsonWriter jsonWriter)
         {
             this.jsonWriter = jsonWriter;
+        }
+
+        public void WriteLogName(string logName)
+        {
+            this.name = logName;
         }
 
         public void WriteInitialState(State state)
@@ -60,7 +66,8 @@ namespace Flash.Infrastructure.Models
             {
                 size = r,
                 createdAt = DateTime.Now.Ticks,
-                log = opLog
+                log = opLog,
+                name
             };
 
             jsonWriter.Write(result);

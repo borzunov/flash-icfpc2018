@@ -1,21 +1,25 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Flash.Infrastructure.Commands;
+using Flash.Infrastructure.Deserializers;
 using Flash.Infrastructure.Models;
+using Flash.Infrastructure.Simulation;
 
 namespace Flash.Infrastructure
 {
     public class FileAI : IAI
     {
-        private readonly string filePath;
+        private readonly Trace commands;
 
         public FileAI(string filePath)
         {
-            this.filePath = filePath; //TODO Add deserializer
+            var desserializer = new TraceBinaryDeserializer();
+            commands = desserializer.Deserialize(File.ReadAllBytes(filePath));
         }
 
         public IEnumerable<ICommand> NextStep(State state)
         {
-            return new List<ICommand>();
+            return commands.Dequeue(state.Bots.Length);
         }
     }
 }

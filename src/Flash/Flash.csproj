@@ -44,6 +44,10 @@
     <Reference Include="MongoDB.Driver.Core, Version=2.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\MongoDB.Driver.Core.2.7.0\lib\net45\MongoDB.Driver.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Buffers.4.3.0\lib\netstandard1.1\System.Buffers.dll</HintPath>
@@ -68,6 +72,7 @@
     <Compile Include="Infrastructure\Deserializers\FusionPCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\FusionSCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\HaltCommandDeserializer.cs" />
+    <Compile Include="Infrastructure\Deserializers\ICommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\LMoveCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\SMoveCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\TraceBinaryDeserializer.cs" />
@@ -96,7 +101,6 @@
     <Compile Include="Infrastructure\Serializers\FissionCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\FusionPCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\FusionSCommandSerializer.cs" />
-    <Compile Include="Infrastructure\Deserializers\ICommandDeserializer.cs" />
     <Compile Include="Infrastructure\Serializers\LMoveCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\SMoveCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\FlipCommandSerializer.cs" />

@@ -1,10 +1,19 @@
-﻿using MongoDB.Driver;
+﻿using System;
+using MongoDB.Driver;
 
 namespace Flash.Infrastructure.Models
 {
     public interface IJsonWriter
     {
         void Write(object obj);
+    }
+
+    public class ConsoleJsonWriter : IJsonWriter
+    {
+        public void Write(object obj)
+        {
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(obj));
+        }
     }
 
     public class MongoJsonWriter : IJsonWriter

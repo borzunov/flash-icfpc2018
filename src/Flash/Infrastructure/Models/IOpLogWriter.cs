@@ -2,6 +2,7 @@
 {
     public interface IOpLogWriter
     {
+        void WriteLogName(string name);
         void WriteInitialState(State state);
         void WriteFill(Vector v);
         void WriteEnergy(long energy);
