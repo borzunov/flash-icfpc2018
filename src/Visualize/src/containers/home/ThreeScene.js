@@ -11,22 +11,21 @@ import { withSize } from 'react-sizeme'
 import case1 from '../../test-logs/1.js'
 import { LogAction } from '../../test-logs/LogAction'
 import FillContainer from './FillContainer'
-import Queue from 'async/queue';
+import Queue from 'async/queue'
 
-let currentWait = 10;
+let currentWait = 10
 const syncQueueWithWait = new Queue((f, callback) => {
-  f();
-  setTimeout(callback, currentWait);
-}, 1);
+  f()
+  setTimeout(callback, currentWait)
+}, 1)
 
-const SPEED_CONST = 4;
+const SPEED_CONST = 4
 
 const reset = () => {
   // clear queue to avoid more actions that are not finished
-  syncQueueWithWait.pause();
-  syncQueueWithWait.remove(() => true);
-  syncQueueWithWait.resume();
-  let currentSize = store.getState().space.size;
+  syncQueueWithWait.pause()
+  syncQueueWithWait.remove(() => true)
+  syncQueueWithWait.resume()
   // reset dev-tools
   store.liftedStore.dispatch({ type: 'RESET' })
   // reset our state
@@ -85,14 +84,14 @@ class ThreeScene extends React.PureComponent {
 
   render() {
     const { mapSize, changeSize } = this.props
-    currentWait = mapSize / SPEED_CONST;
+    currentWait = mapSize / SPEED_CONST
     const { width, height } = this.props.size
 
     const smallBoxSize = new THREE.Vector3(1, 1, 1)
     const bigBoxSize = new THREE.Vector3(mapSize, mapSize, mapSize)
     const botSize = new THREE.Vector3(0.75, 0.75, 0.75)
 
-    return (<div style={{width: '100%', height: '100%'}}>
+    return (<div style={{ width: '100%', height: '100%' }}>
       <div style={{ position: 'absolute', left: 0, top: 0, color: 'red' }}>
         <div>Open in chrome and install <a target="_blank" rel="noopener noreferrer"
                                            href="https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en">redux
@@ -110,7 +109,7 @@ class ThreeScene extends React.PureComponent {
         }}>size - 10
         </button>
         <button onClick={() => {
-          reset();
+          reset()
         }}>reset
         </button>
         <button onClick={this.fillRandomVoxel}>fill random voxel
@@ -148,6 +147,12 @@ class ThreeScene extends React.PureComponent {
             far={1000}
             position={vecToThree(Vector(mapSize * 0.75, mapSize * 0.75, mapSize * 2.5), bigBoxSize)}
           />
+          <axisHelper size={mapSize + 10} position={new THREE.Vector3(0, 0, 0)}/>
+          <gridHelper size={mapSize} position={vecToThree(Vector(0, -mapSize * 0.5, 0), bigBoxSize)} step={mapSize}/>
+          <gridHelper size={mapSize} position={vecToThree(Vector(0, 0, -mapSize * 0.5), bigBoxSize)} step={mapSize}
+                      rotation={new THREE.Euler(Math.PI / 2, 0, 0)}/>
+          <gridHelper size={mapSize} position={vecToThree(Vector(-mapSize * 0.5, 0, 0), bigBoxSize)} step={mapSize}
+                      rotation={new THREE.Euler(0, 0, Math.PI / 2)}/>
           <Box store={store} color={0xffffff} position={vecToThree(Vector(0, 0, 0), bigBoxSize)} size={bigBoxSize}
                contoured/>
           <FillContainer boxSize={smallBoxSize}/>
