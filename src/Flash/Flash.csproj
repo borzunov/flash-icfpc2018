@@ -75,6 +75,7 @@
     <Compile Include="Infrastructure\Deserializers\HaltCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\ICommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\LMoveCommandDeserializer.cs" />
+    <Compile Include="Infrastructure\Deserializers\MatrixDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\SMoveCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\TraceBinaryDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\VectorDeserializer.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="Infrastructure\Models\State.cs" />
     <Compile Include="Infrastructure\Models\Trace.cs" />
     <Compile Include="Infrastructure\Models\Vector.cs" />
+    <Compile Include="Infrastructure\Tools\BitReader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
