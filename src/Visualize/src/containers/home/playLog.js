@@ -1,10 +1,10 @@
 import { LogAction } from '../../test-logs/LogAction'
 
-const MAX = 15000;
+const MAX = 25000;
 export const playLog = ({ changeSize, changeVoxel, changeBot, changeColor, changeEnergy, changeHarmonic, changeMessage }, { size, log, name }, enqueue) => {
   changeSize(size)
   if (log.length > MAX) {
-    console.error(`log is longer than ${MAX} and will crash app. Won't play`)
+    console.error(`log is longer (${log.length}) than ${MAX} and will crash app. Won't play`)
     return
   }
   else if (window.showLog) {
