@@ -65,10 +65,12 @@ namespace Flash.Infrastructure.AI
                     .OrderByDescending(p => gravity[p])
                     .FirstOrDefault();
                 if (nextPoint == null)
-                    nextPoint = figure.Where(p => !filled.Contains(p))
+                    nextPoint = figure.Where(p => p != curPoint && !filled.Contains(p))
                         .OrderBy(p => (curPoint - p).Mlen)
                         .ThenByDescending(p => gravity[p])
-                        .First();
+                        .FirstOrDefault();
+                if (nextPoint == null)
+                    nextPoint = new Vector(0, 0, 0);
 
                 try
                 {
