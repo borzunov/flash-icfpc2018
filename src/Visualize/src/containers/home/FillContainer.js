@@ -8,6 +8,7 @@ import { deserializeVector } from '../../modules/Vector'
 import Box from './Box'
 
 const FillContainerImpl = ({ boxSize, voxels }) => {
+  console.log(boxSize);
   return (<group>
     {Object.entries(voxels)
       .filter(([pos, exists]) => exists)

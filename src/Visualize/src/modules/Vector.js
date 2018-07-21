@@ -17,7 +17,7 @@ class VectorImpl {
   }
 
   static deserialize(str) {
-    return Vector(...str.split('/'));
+    return Vector(...str.split('/').map(Number));
   }
 }
 
