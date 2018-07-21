@@ -1,7 +1,7 @@
 import React from 'react'
 import * as THREE from 'three'
 import { connect } from 'react-redux'
-import { compose, pure, withProps } from 'recompose'
+import { compose, pure, shouldUpdate, withProps } from 'recompose'
 import { dataStore } from '../../store'
 
 export const BoxImpl = ({ position, color, size, filled = false, contoured = false, opacity = 1, showEdges = false }) => {
@@ -56,6 +56,7 @@ const Box = compose(
         color
       }
     })
-  ), pure)(BoxImpl)
+  ), shouldUpdate(() => false))
+(BoxImpl)
 
 export default Box
