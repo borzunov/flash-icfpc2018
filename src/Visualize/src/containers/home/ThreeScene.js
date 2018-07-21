@@ -32,10 +32,10 @@ class ThreeScene extends React.PureComponent {
   updateCamera = () => {
     let mapSize = this.props.mapSize
     const ms2 = mapSize / 2
+    this.controls.reset()
     let target = new THREE.Vector3(ms2, ms2, ms2)
     this.controls.target = target
     this.camera.lookAt(target)
-    this.controls.reset()
   }
 
   componentDidUpdate() {
