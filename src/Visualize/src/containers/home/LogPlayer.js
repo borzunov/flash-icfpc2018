@@ -40,6 +40,7 @@ class LogPlayer extends React.PureComponent {
       dataStore.liftedStore.dispatch({ type: 'RESET' })
     // reset our state
     dataStore.dispatch({ type: 'RESET' })
+    this.forceUpdate();
   }
 
   render() {

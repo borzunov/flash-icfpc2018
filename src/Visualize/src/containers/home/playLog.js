@@ -2,6 +2,11 @@ import { LogAction } from '../../test-logs/LogAction'
 
 export const playLog = ({ changeSize, changeVoxel, changeBot, changeColor }, { size, log }, enqueue) => {
   changeSize(size)
+  if (log.length > 5000)
+  {
+    console.error(`log is longer than 5000 and will crash app. Won't play`);
+    return;
+  }
   for (let act of log) {
     switch (act.t) {
       case LogAction.Add:
