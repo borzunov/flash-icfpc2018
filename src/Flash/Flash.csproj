@@ -82,6 +82,7 @@
     <Compile Include="Infrastructure\Deserializers\TraceBinaryDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\VectorDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\WaitCommandDeserializer.cs" />
+    <Compile Include="Infrastructure\ModelsVisualizer.cs" />
     <Compile Include="Infrastructure\Models\Bot.cs" />
     <Compile Include="Infrastructure\Commands\FillCommand.cs" />
     <Compile Include="Infrastructure\Commands\FissionCommand.cs" />
