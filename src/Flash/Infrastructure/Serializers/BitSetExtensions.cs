@@ -22,5 +22,12 @@ namespace Flash.Infrastructure.Serializers
 
             return bs;
         }
+
+        public static BitWriter WriteNearDifference(this BitWriter bs, Vector vector)
+        {
+            VectorSerializer.SerializeNearDifference(vector, bs);
+
+            return bs;
+        }
     }
 }

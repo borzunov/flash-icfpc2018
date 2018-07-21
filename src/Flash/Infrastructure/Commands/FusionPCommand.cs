@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System;
 
 namespace Flash.Infrastructure.Commands
 {
@@ -12,12 +12,7 @@ namespace Flash.Infrastructure.Commands
         }
         public void Apply(State state, Bot bot)
         {
-            var secondaryBot = state.Bots.First(b => Equals(b.Pos, bot.Pos + NearDistance));
-            var newSeeds = bot.Seeds.Concat(secondaryBot.Seeds).Concat(new[] {bot.Bid});
-            bot.Seeds = newSeeds.OrderBy(s => s).ToArray();
-
-            state.Bots = state.Bots.Where(b => b.Bid != secondaryBot.Bid).ToArray();
-            state.Energy -= 24;
+            throw new NotImplementedException();
         }
     }
 }

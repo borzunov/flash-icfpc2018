@@ -40,6 +40,27 @@ namespace FunctionalTests
                     Trace.From(new LMoveCommand(new Vector(0, -2, 0), new Vector(0, 0, 2))),
                     new byte[] { 0b1110_1100, 0b0111_0011 })
                 .SetName("LMove 2");
+
+            yield return new TestCaseData(
+                    Trace.From(new FusionPCommand(new Vector(-1, 1, 0))),
+                    new byte[] { 0b0011_1111 })
+                .SetName("FusionP");
+
+            yield return new TestCaseData(
+                    Trace.From(new FusionSCommand(new Vector(1, -1, 0))),
+                    new byte[] { 0b1001_1110 })
+                .SetName("FusionS");
+
+            yield return new TestCaseData(
+                    Trace.From(new FissionCommand(new Vector(0, 0, 1), 5)),
+                    new byte[] { 0b0111_0101, 0b0000_0101 })
+                .SetName("Fission");
+
+            yield return new TestCaseData(
+                    Trace.From(new FillCommand(new Vector(0, -1, 0))),
+                    new byte[] { 0b0101_0011 })
+                .SetName("Fill");
+
         }
 
         [TestCaseSource(nameof(GetSerializeTest))]
