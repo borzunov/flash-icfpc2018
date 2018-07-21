@@ -19,7 +19,7 @@ export const playLog = ({ changeSize, changeVoxel, changeBot, changeColor }, { s
         enqueue(() => changeVoxel(act.p, true))
         break
       case LogAction.FillColor:
-        enqueue(() => changeColor(act.p, act.c))
+        enqueue(() => changeColor(act.p, act.c, act.o))
         break
       default:
         // do nothing

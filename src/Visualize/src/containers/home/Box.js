@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { compose, pure, withProps } from 'recompose'
 import { dataStore } from '../../store'
 
-export const BoxImpl = ({ position, color, size, filled = false, contoured = false, transparent = false, showEdges = false }) => {
+export const BoxImpl = ({ position, color, size, filled = false, contoured = false, opacity = 1, showEdges = false }) => {
   const box = new THREE.BoxBufferGeometry(size.x, size.y, size.z)
   if (!filled && !contoured) {
     return null
@@ -31,8 +31,8 @@ export const BoxImpl = ({ position, color, size, filled = false, contoured = fal
           depth={size.z * 0.95}
         />
         <meshBasicMaterial
-          transparent={transparent}
-          opacity={0.2}
+          transparent={opacity < 1}
+          opacity={opacity}
           color={color}
         />
       </mesh>

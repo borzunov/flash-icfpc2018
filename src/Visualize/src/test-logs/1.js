@@ -11,7 +11,7 @@ for (let i = 0; i < 10; ++i) {
   log.push(makeLog(`${i}/1/0`, LogAction.Remove));
   if (i !== 9) {
     log.push(makeLog(`${i + 1}/1/0`, LogAction.Add));
-    log.push(makeLog(`${i + 1}/3/0`, LogAction.FillColor, {c: 'ff0000'}));
+    log.push(makeLog(`${i + 1}/3/0`, LogAction.FillColor, {c: 'ff0000', o: i / 10}));
   }
 }
 export default {

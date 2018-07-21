@@ -10,11 +10,11 @@ import { BoxImpl } from './Box'
 const ColorContainerImpl = ({ boxSize, colors }) => {
   return (<group>
     {Object.entries(colors)
-      .filter(([pos, color]) => color && color !== '000000' && color !== '000')
-      .map(([pos, color]) => {
+      .filter(([pos, {color}]) => color && color !== '000000' && color !== '000')
+      .map(([pos, {color, opacity}]) => {
         return (
           <BoxImpl color={Number(`0x${color}`)} size={boxSize} position={vecToThree(deserializeVector(pos), boxSize)}
-                   filled={true} transparent key={pos} posKey={pos}/>)
+                   filled={true} opacity={opacity} key={pos} posKey={pos}/>)
       })
     }</group>)
 }

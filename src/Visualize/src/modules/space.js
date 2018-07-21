@@ -30,7 +30,10 @@ export default (state = initialState, action) => {
         ...state,
         colors: {
           ...state.colors,
-          [action.payload.position]: action.payload.color
+          [action.payload.position]: {
+            color: action.payload.color,
+            opacity: action.payload.opacity
+          }
         }
       }
     case BOT_CHANGED:
@@ -59,13 +62,14 @@ export const changeSize = (newSize) => {
   }
 }
 
-export const changeColor = (position, color) => {
+export const changeColor = (position, color, opacity = 0.5) => {
   return dispatch => {
     dispatch({
       type: COLOR_CHANGED,
       payload: {
         position,
-        color
+        color,
+        opacity
       }
     })
   }
