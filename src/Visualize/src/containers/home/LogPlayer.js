@@ -20,6 +20,7 @@ import 'loaders.css/loaders.min.css'
 import case1 from '../../test-logs/1'
 import case2 from '../../test-logs/2'
 import case3 from '../../test-logs/3'
+import case4 from '../../test-logs/4'
 
 let currentWait = 10
 
@@ -61,7 +62,7 @@ class LogPlayer extends React.PureComponent {
 
   render() {
     let { latest, playLog, loading, refreshLogs } = this.props
-    latest = latest.concat([case1, case2, case3])
+    latest = latest.concat([case1, case2, case3, case4])
     const queueLength = this.syncQueueWithWait ? this.syncQueueWithWait.length() : 0
     let content
     if (loading)
