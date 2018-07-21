@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Flash.Infrastructure.Commands
+﻿namespace Flash.Infrastructure.Commands
 {
     public class FusionSCommand : ICommand
     {
@@ -12,7 +10,6 @@ namespace Flash.Infrastructure.Commands
         }
         public void Apply(State state, Bot bot)
         {
-            throw new NotImplementedException();
         }
     }
 }
