@@ -19,8 +19,8 @@ namespace Flash
             mongoOplogWriter.WriteLogName("MY_BEST_ALGO");
 
             var simulator = new Simulator();
-            var size = 100;
-            var state = State.CreateInitial(100, mongoOplogWriter);
+            var size = 30;
+            var state = State.CreateInitial(size, mongoOplogWriter);
             mongoOplogWriter.WriteInitialState(state);
 
             while (true)
