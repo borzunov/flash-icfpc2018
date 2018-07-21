@@ -29,7 +29,7 @@ namespace Flash.Infrastructure
         {
             var r = layers.Length;
             matrix = new bool[r,r,r];
-            for (var y=0; y< layers.Length; y++)
+            for (var y = 0; y< layers.Length; y++)
             {
                 var lines = layers[y].Split(new[] {'\n', '\r'}, StringSplitOptions.RemoveEmptyEntries);
                 for (var z = R - 1; z > -1; z--)
@@ -68,8 +68,15 @@ namespace Flash.Infrastructure
                    v.Y >= 0 && v.Y < R &&
                    v.Z >= 0 && v.Z < R;
         }
+		
+	    public static bool Contains(int R, Vector v)
+	    {
+		    return v.X >= 0 && v.X < R &&
+		           v.Y >= 0 && v.Y < R &&
+		           v.Z >= 0 && v.Z < R;
+	    }
 
-        private HashSet<Vector> grounded = new HashSet<Vector>();
+		private HashSet<Vector> grounded = new HashSet<Vector>();
         
         public bool IsGrounded()
         {

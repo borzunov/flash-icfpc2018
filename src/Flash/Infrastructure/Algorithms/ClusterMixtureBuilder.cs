@@ -20,34 +20,33 @@ namespace Flash.Infrastructure.Algorithms
 
 		public HashSet<Vector> Voxels;
 
-		public ClusterMixtureBuilder(State state)
-		{
-			R = state.Matrix.R;
+		public List<double[]> VoxelsWeights => Voxels.Select(voxel => Weights[voxel.X, voxel.Y, voxel.Z]).ToList();
+		public List<double[]> VoxelsNormalizedWeights => Voxels.Select(voxel => NormalizedWeights[voxel.X, voxel.Y, voxel.Z]).ToList();
 
-			BotsCount = state.Bots.Sum(bot => 1 + bot.Seeds.Length);
+		public ClusterMixtureBuilder(Matrix matrix, int botsCount)
+		{
+			R = matrix.R;
+
+			BotsCount = botsCount;
 			Clusters = new Cluster[BotsCount];
-			Weights = new double[state.Matrix.R, state.Matrix.R, state.Matrix.R][];
-			NormalizedWeights = new double[state.Matrix.R, state.Matrix.R, state.Matrix.R][];
-			
+			Weights = new double[R, R, R][];
+			NormalizedWeights = new double[R, R, R][];
+			Distances = new double[R, R, R][];
+
 			var voxels = new List<Vector>();
 
-			for (int x = 0; x < state.Matrix.R; x++)
+			for (int x = 0; x < R; x++)
 			{
-				for (int y = 0; y < state.Matrix.R; y++)
+				for (int y = 0; y < R; y++)
 				{
-					for (int z = 0; z < state.Matrix.R; z++)
+					for (int z = 0; z < R; z++)
 					{
-						if (state.Matrix.IsFull(new Vector(x, y, z)))
+						if (matrix.IsFull(new Vector(x, y, z)))
 						{
-							var array = Weights[x, y, z] = Clusters.Select(c => 0.0).ToArray();
+							Weights[x, y, z] = Clusters.Select(c => 0.0).ToArray();
 							NormalizedWeights[x, y, z] = Clusters.Select(c => 0.0).ToArray();
 							Distances[x,y,z] = Clusters.Select(c => 0.0).ToArray();
-
-							var sum = array.Sum();
-							for (int i = 0; i < array.Length; i++)
-							{
-								array[i] /= sum;
-							}
+							
 							voxels.Add(new Vector(x, y, z));
 						}
 					}
@@ -58,10 +57,11 @@ namespace Flash.Infrastructure.Algorithms
 
 			var rand = new Random();
 
-			foreach (var cluster in Clusters)
+			for (var index = 0; index < Clusters.Length; index++)
 			{
+				var cluster = Clusters[index] = new Cluster();
 				var newCenter = voxels[rand.Next(voxels.Count)];
-				while(Clusters.Any(cluster1 => cluster1.Center.Equals(newCenter)))
+				while (Clusters.Any(cluster1 => cluster1?.Center != null && cluster1.Center.Equals(newCenter)))
 					newCenter = voxels[rand.Next(voxels.Count)];
 				cluster.Center = newCenter;
 			}
@@ -71,14 +71,16 @@ namespace Flash.Infrastructure.Algorithms
 
 		public TreeNode[] ClusterRoots;
 
-		public void CountWeights()
+		public void CountWeights(int penalty)
 		{
 			Random rand = new Random();
+			ClusterRoots = new TreeNode[Clusters.Length];
 
 			for (int i = 0; i < Clusters.Length; i++)
 			{
 				var distCount = new Dictionary<int, int>();
-				var count = ClustersSizes[i];
+				var clusterSize = ClustersSizes[i];
+				var count = 0;
 
 				ClusterRoots[i] = new TreeNode(Clusters[i].Center);
 
@@ -90,12 +92,9 @@ namespace Flash.Infrastructure.Algorithms
 				while (queue.Count > 0)
 				{
 					var node = queue.Dequeue();
-					count--;
+					count++;
 					distCount[node.Item2] = count;
-					Weights[node.Item1.X, node.Item1.Y, node.Item1.Z][i] =
-						node.Item2 == 0 
-							? count 
-							: distCount[node.Item2 - 1] / node.Item2;
+					Weights[node.Item1.X, node.Item1.Y, node.Item1.Z][i] = Math.Max(clusterSize - count, 1.0 / (node.Item2+1));
 
 					foreach (var near in node.Item1.GetAdjacents()
 						.OrderBy(_ => rand.NextDouble())
@@ -103,7 +102,7 @@ namespace Flash.Infrastructure.Algorithms
 					{
 
 						queue.Enqueue(Tuple.Create(near, node.Item2 + 1, node.Item3.AddChild(near)));
-						usedPoints.Add(node.Item1);
+						usedPoints.Add(near);
 					}
 				}
 			}
@@ -156,12 +155,40 @@ namespace Flash.Infrastructure.Algorithms
 
 		public void UpdateCenters()
 		{
+			var components = GetComponents();
 			for (var index = 0; index < ClusterRoots.Length; index++)
 			{
-				var clusterRoot = ClusterRoots[index];
-				clusterRoot.UpdateForces(NormalizedWeights, index);
-				clusterRoot.UpdateSummaryForces(0);
-				Clusters[index].Center = clusterRoot.GetMinimumForceNode().Node;
+				var sum = 0.0;
+				var sumX = 0.0;
+				var sumY = 0.0;
+				var sumZ = 0.0;
+
+				foreach (var voxel in components[index])
+				{
+					var weight = 1.0;// Weights[voxel.X, voxel.Y, voxel.Z][index];
+					sum += weight;
+					sumX += weight * voxel.X;
+					sumY += weight * voxel.Y;
+					sumZ += weight * voxel.Z;
+				}
+
+				sumX /= sum;
+				sumY /= sum;
+				sumZ /= sum;
+
+				var minDist = double.MaxValue;
+				Vector center = null;
+				foreach (var voxel in Voxels)
+				{
+					var dist = Math.Abs(voxel.X - sumX) + Math.Abs(voxel.Y - sumY) + Math.Abs(voxel.Z - sumZ);
+					if (dist < minDist)
+					{
+						minDist = dist;
+						center = voxel;
+					}
+				}
+			
+				Clusters[index].Center = center;
 			}
 		}
 
@@ -196,9 +223,12 @@ namespace Flash.Infrastructure.Algorithms
 
 		public List<Vector>[] BuildClusterMixture()
 		{
-			for (int i = 0; i < 20; i++)
+			List<Vector>[] maxMixture = null;
+			var mixMax = int.MaxValue;
+
+			for (int i = 0; i < 100; i++)
 			{
-				CountWeights();
+				CountWeights(i/5+1);
 				NormalizeWeights();
 				Console.WriteLine(CountMetric());
 				var res = GetComponents();
@@ -206,10 +236,18 @@ namespace Flash.Infrastructure.Algorithms
 				{
 					Console.WriteLine($"coponent {j}: {res[j].Count} nodes");
 				}
+
+				var max = res.Max(c => c.Count);
+				if (max < mixMax)
+				{
+					maxMixture = res;
+					mixMax = max;
+				}
+
 				UpdateCenters();
 			}
 
-			return GetComponents();
+			return maxMixture;
 		}
 	}
 
@@ -245,9 +283,10 @@ namespace Flash.Infrastructure.Algorithms
 		public void UpdateSummaryForces(double dadForce)
 		{
 			var maxForce = dadForce;
-			var minForce = dadForce;
+			var minForce = AggregatedForce;
 			foreach (var child in Children)
 			{
+				child.UpdateSummaryForces(Children.Where(c => c != child).Select(c => c.AggregatedForce).Concat(new []{dadForce}).Sum());
 				maxForce = Math.Max(child.AggregatedForce, maxForce);
 				minForce = Math.Min(child.AggregatedForce, minForce);
 			}

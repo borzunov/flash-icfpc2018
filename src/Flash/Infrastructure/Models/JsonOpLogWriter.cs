@@ -44,8 +44,13 @@ namespace Flash.Infrastructure.Models
         {
             opLog.Add(new { p = $"{v.X}/{v.Y}/{v.Z}", t = 1 });
         }
+		
+	    public void WriteColor(Vector v, string color)
+	    {
+		    opLog.Add(new { p = $"{v.X}/{v.Y}/{v.Z}", t = 6, c = color });
+	    }
 
-        public void WriteRemove(Vector v)
+		public void WriteRemove(Vector v)
         {
             opLog.Add(new { p = $"{v.X}/{v.Y}/{v.Z}", t = 2 });
         }
