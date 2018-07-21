@@ -19,7 +19,7 @@ namespace Flash.Infrastructure.Simulation
 
             while (trace.Any())
             {
-                var bots = state.Bots.OrderBy(b => b.Bid).ToList();
+                var bots = state.Bots.ToList();
                 var commands = trace.Dequeue(bots.Count);
                 Validate(state, bots, commands);
 
