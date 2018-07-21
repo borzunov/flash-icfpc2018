@@ -1,11 +1,9 @@
 import case1 from '../../test-logs/1'
 import React from 'react'
-import HelpText from './HelpText'
 
 export default function ControlPanel({ changeSize, mapSize, fillRandomVoxel, addRandomBot, doPlayLog, doReset, enqueue }) {
-  return <div>
-    <HelpText/>
-    <div style={{ position: 'absolute', left: 0, top: 0, color: 'white' }}>
+  return <div className="control-panel">
+      <h3>Debug controls</h3>
       <button onClick={() => {
         return changeSize(Math.min(mapSize + 10, 250))
       }}>size + 10
@@ -38,5 +36,4 @@ export default function ControlPanel({ changeSize, mapSize, fillRandomVoxel, add
       }}>play test 1
       </button>
     </div>
-  </div>
 }

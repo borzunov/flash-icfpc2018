@@ -11,6 +11,8 @@ import ControlPanel from './ControlPanel'
 import { LogAction } from '../../test-logs/LogAction'
 import FillContainer from './FillContainer'
 import Queue from 'async/queue'
+import { slide as Menu } from 'react-burger-menu'
+import HelpText from './HelpText'
 
 let currentWait = 10
 const syncQueueWithWait = new Queue((f, callback) => {
@@ -90,19 +92,22 @@ class ThreeScene extends React.PureComponent {
     const botSize = new THREE.Vector3(0.75, 0.75, 0.75)
 
     return (<div style={{ width: '100%', height: '100%' }}>
-      <ControlPanel
-        {...
-          {
-            changeSize,
-            mapSize,
-            fillRandomVoxel: this.fillRandomVoxel,
-            addRandomBot: this.addRandomBot,
-            doPlayLog: (testCase) => playLog(this.props, testCase),
-            doReset: reset,
-            enqueue: (task, cb) => syncQueueWithWait.push(task, cb),
+      <Menu isOpen={true} noOverlay closeButton={false}>
+        <ControlPanel
+          {...
+            {
+              changeSize,
+              mapSize,
+              fillRandomVoxel: this.fillRandomVoxel,
+              addRandomBot: this.addRandomBot,
+              doPlayLog: (testCase) => playLog(this.props, testCase),
+              doReset: reset,
+              enqueue: (task, cb) => syncQueueWithWait.push(task, cb)
+            }
           }
-        }
-      />
+        />
+      </Menu>
+      <HelpText/>
       <React3
         mainCamera="camera" // this points to the perspectiveCamera which has the name set to "camera" below
         width={width}
