@@ -31,7 +31,6 @@ const syncQueueWithWait = new Queue((f, callback) => {
 class LogPlayer extends React.PureComponent {
   componentDidMount() {
     this.props.refreshLogs();
-    this.refresher = window.setInterval(() => this.props.refreshLogs(), 5000)
   }
 
   componentWillUnmount() {
