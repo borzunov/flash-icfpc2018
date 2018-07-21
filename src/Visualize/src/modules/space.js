@@ -2,12 +2,16 @@ export const SIZE_CHANGED = 'space/SIZE_CHANGED'
 export const VOXEL_CHANGED = 'space/VOXEL_CHANGED'
 export const BOT_CHANGED = 'space/BOT_CHANGED'
 export const COLOR_CHANGED = 'space/COLOR_CHANGED'
+export const ENERGY_CHANGED = 'space/ENERGY_CHANGED'
+export const HARMONIC_CHANGED = 'space/HARMONIC_CHANGED'
 
 const initialState = {
   size: 30,
   voxels: {},
   colors: {},
-  bots: {}
+  bots: {},
+  energy: 0,
+  harmonic: false
 }
 
 export default (state = initialState, action) => {
@@ -16,6 +20,16 @@ export default (state = initialState, action) => {
       return {
         ...state,
         size: action.payload.size
+      }
+    case ENERGY_CHANGED:
+      return {
+        ...state,
+        energy: action.payload
+      }
+    case HARMONIC_CHANGED:
+      return {
+        ...state,
+        harmonic: action.payload
       }
     case VOXEL_CHANGED:
       return {
@@ -58,6 +72,24 @@ export const changeSize = (newSize) => {
       payload: {
         size: newSize
       }
+    })
+  }
+}
+
+export const changeHarmonic = (newHar) => {
+  return dispatch => {
+    dispatch({
+      type: HARMONIC_CHANGED,
+      payload: newHar
+    })
+  }
+}
+
+export const changeEnergy = (newEn) => {
+  return dispatch => {
+    dispatch({
+      type: ENERGY_CHANGED,
+      payload: newEn
     })
   }
 }

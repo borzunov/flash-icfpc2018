@@ -2,13 +2,15 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { refreshLogs } from '../../modules/logs'
 import { bindActionCreators } from 'redux'
-import { changeBot, changeSize, changeVoxel, changeColor } from '../../modules/space'
+import { changeBot, changeSize, changeVoxel, changeColor, changeHarmonic, changeEnergy } from '../../modules/space'
 import { playLog } from './playLog'
 import { withHandlers, compose, withProps } from 'recompose'
 import Queue from 'async/queue'
 import { dataStore } from '../../store'
 import Loader from 'react-loaders'
 import 'loaders.css/loaders.min.css'
+import case1 from '../../test-logs/1'
+import case2 from '../../test-logs/2'
 
 let currentWait = 10
 
@@ -19,7 +21,12 @@ class LogPlayer extends React.PureComponent {
   componentDidMount() {
     this.props.refreshLogs()
     this.syncQueueWithWait = new Queue((f, callback) => {
-      f()
+      try {
+        f()
+      }
+      catch(e) {
+        console.error(e);
+      }
       passed++
       this.forceUpdate()
       setTimeout(callback, currentWait)
@@ -44,8 +51,8 @@ class LogPlayer extends React.PureComponent {
   }
 
   render() {
-    const { latest, playLog, loading, refreshLogs } = this.props
-
+    let { latest, playLog, loading, refreshLogs } = this.props
+    latest = latest.concat([case1, case2])
     const queueLength = this.syncQueueWithWait ? this.syncQueueWithWait.length() : 0
     let content
     if (loading)
@@ -81,7 +88,9 @@ export default compose(
       changeSize,
       changeVoxel,
       changeBot,
-      changeColor
+      changeColor,
+      changeHarmonic,
+      changeEnergy
     }, dataStore.dispatch)
   }),
   connect(
@@ -96,11 +105,11 @@ export default compose(
     }, dispatch)
   ),
   withHandlers({
-    playLog: ({ changeSize, changeBot, changeVoxel, changeColor }) => ({ log, size }, reset, push) => {
+    playLog: ({ changeSize, changeBot, changeVoxel, changeColor, changeEnergy, changeHarmonic }) => ({ log, size }, reset, push) => {
       reset()
       passed = 0
       total = log.length
-      playLog({ changeSize, changeBot, changeVoxel, changeColor }, { size, log }, push)
+      playLog({ changeSize, changeBot, changeVoxel, changeColor, changeHarmonic, changeEnergy }, { size, log }, push)
     }
   })
 )(LogPlayer)

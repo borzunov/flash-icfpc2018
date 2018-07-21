@@ -16,5 +16,6 @@ for (let i = 0; i < 10; ++i) {
 }
 export default {
   size: 10,
-  log
+  log,
+  name: 'static test case 1'
 }

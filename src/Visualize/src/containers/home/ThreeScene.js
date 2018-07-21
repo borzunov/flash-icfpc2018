@@ -6,12 +6,12 @@ import BotContainer from './BotContainer'
 import { vecToThree } from './coords'
 import { withSize } from 'react-sizeme'
 import CoordinatesHelpers from './CoordinatesHelpers'
-import ControlPanel from './ControlPanel'
 import FillContainer from './FillContainer'
 import { slide as Menu } from 'react-burger-menu'
 import HelpText from './HelpText'
 import LogPlayer from './LogPlayer'
 import ColorContainer from './ColorContainer'
+import InfoContainer from './InfoContainer'
 
 // noinspection JSUnresolvedFunction
 const OrbitControls = require('three-orbit-controls')(THREE)
@@ -37,9 +37,9 @@ class ThreeScene extends React.PureComponent {
     return (<div style={{ width: '100%', height: '100%' }}>
       <Menu isOpen={true} noOverlay closeButton={false}>
         <LogPlayer/>
-        <ControlPanel/>
       </Menu>
       <HelpText/>
+      <InfoContainer/>
       <React3
         mainCamera="camera" // this points to the perspectiveCamera which has the name set to "camera" below
         width={width}
