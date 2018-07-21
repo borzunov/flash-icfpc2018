@@ -12,10 +12,8 @@ namespace Flash.Infrastructure.Simulation
     {
         public void NextStep(State state, Trace trace)
         {
-            if (state.Bots.Length != trace.Count)
-                throw new Exception("Commands count should be equal to bots count");
-
-           
+            //if (state.Bots.Length != trace.Count)
+            //    throw new Exception("Commands count should be equal to bots count");
 
             UpdateEnergy(state);
 
@@ -153,6 +151,10 @@ namespace Flash.Infrastructure.Simulation
                         new Region(bot.Pos),
                         new Region(bot.Pos + f.NearDistance)
                     };
+                case FusionSCommand f:
+                    return new Region[]
+                    {
+                    };
                 default:
                     throw new Exception($"Unknown command {command}");
             }
@@ -163,7 +165,7 @@ namespace Flash.Infrastructure.Simulation
             var (bot, command) = commands.First();
             var region = new Region(bot.Pos + command.FarDistance, bot.Pos + command.FarDistance + command.NearDistance);
 
-            return commands.Select(x => new Region(bot.Pos)).Concat(new[] {region}).ToArray();
+            return commands.Select(x => new Region(x.bot.Pos)).Concat(new[] {region}).ToArray();
         }
     }
 }

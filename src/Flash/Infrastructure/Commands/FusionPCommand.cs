@@ -15,7 +15,7 @@ namespace Flash.Infrastructure.Commands
         public void Apply(State state, Bot bot)
         {
             var secondaryBot = state.Bots.First(b => Equals(b.Pos, bot.Pos + NearDistance));
-            var newSeeds = bot.Seeds.Concat(secondaryBot.Seeds).Concat(new[] {bot.Bid});
+            var newSeeds = bot.Seeds.Concat(secondaryBot.Seeds).Concat(new[] { secondaryBot.Bid});
             bot.Seeds = newSeeds.OrderBy(s => s).ToArray();
 
             state.Bots = state.Bots.Where(b => b.Bid != secondaryBot.Bid).ToArray();
