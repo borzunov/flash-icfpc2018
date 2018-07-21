@@ -29,6 +29,22 @@ namespace Flash.Infrastructure.Models
                           (Min.Y == Max.Y ? 0 : 1) +
                           (Min.Z == Max.Z ? 0 : 1);
 
+        public (int Begin, int End) ProjectionX => (Min.X, Min.X + (Max - Min).X);
+        public (int Begin, int End) ProjectionY => (Min.Y, Min.Y + (Max - Min).Y);
+        public (int Begin, int End) ProjectionZ => (Min.Z, Min.Z + (Max - Min).Z);
+
+        public bool AreIntersectsWith(Region region)
+        {
+            return SegmentsIntersects(ProjectionX, region.ProjectionX)
+                   && SegmentsIntersects(ProjectionY, region.ProjectionY)
+                   && SegmentsIntersects(ProjectionZ, region.ProjectionZ);
+        }
+
+        private static bool SegmentsIntersects((int Begin, int End) first, (int Begin, int End) second)
+        {
+            return Math.Max(first.Begin, second.Begin) <= Math.Min(first.End, second.End);
+        }
+
         #region equality members
         
         protected bool Equals(Region other)

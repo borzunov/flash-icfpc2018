@@ -1,5 +1,4 @@
-﻿using System;
-using Flash.Infrastructure.Models;
+﻿using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Commands
 {
@@ -14,7 +13,17 @@ namespace Flash.Infrastructure.Commands
 
         public void Apply(State state, Bot bot)
         {
-            throw new NotImplementedException();
+            var vector = bot.Pos + NearDistance;
+            if (state.Matrix.IsFull(vector))
+            {
+                state.OpLogWriter.WriteRemove(vector);
+                state.Matrix.Fill(vector);
+                state.Energy -= 12;
+            }
+            else
+            {
+                state.Energy += 3;
+            }
         }
     }
 }
