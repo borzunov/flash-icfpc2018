@@ -10,5 +10,10 @@ namespace Flash.Infrastructure.Commands
 
             state.OpLogWriter.WriteHarmonic(state.Harmonics);
         }
+
+	    public ICommand Revert()
+	    {
+		    throw new System.NotImplementedException();
+	    }
     }
 }

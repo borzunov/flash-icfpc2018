@@ -23,5 +23,10 @@ namespace Flash.Infrastructure.Commands
             state.OpLogWriter.WriteAdd(newPosition);
             state.OpLogWriter.WriteEnergy(state.Energy);
         }
+
+	    public ICommand Revert()
+	    {
+		    return new SMoveCommand(new Vector(0, 0, 0) - Direction);
+	    }
     }
 }

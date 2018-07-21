@@ -3,37 +3,36 @@ using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Commands
 {
-    public class FillCommand : ICommand
+    public class ClearCommand : ICommand
     {
         public readonly Vector NearDistance;
 
-        public FillCommand(Vector nearDistance)
+        public ClearCommand(Vector nearDistance)
         {
             NearDistance = nearDistance;
         }
 
-	    public void Apply(State state, Bot bot)
+        public void Apply(State state, Bot bot)
         {
             var voxel = bot.Pos + NearDistance;
 
-            if (state.Matrix.IsFull(voxel))
+            if (!state.Matrix.IsFull(voxel))
             {
                 state.Energy += 6;
             }
             else
             {
                 state.Energy += 12;
-                state.Matrix.Fill(voxel);
+                state.Matrix.Clear(voxel);
             }
 
-	       
-		    state.OpLogWriter?.WriteFill(voxel);
-		    state.OpLogWriter?.WriteEnergy(state.Energy);
+           // state.OpLogWriter.WriteFill(voxel);
+           // state.OpLogWriter.WriteEnergy(state.Energy);
         }
 
 	    public ICommand Revert()
 	    {
-		    throw new NotImplementedException();
+		    return new FillCommand(NearDistance);
 	    }
     }
 }

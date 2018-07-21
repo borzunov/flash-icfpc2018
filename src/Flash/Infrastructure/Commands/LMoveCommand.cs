@@ -25,5 +25,10 @@ namespace Flash.Infrastructure.Commands
             state.OpLogWriter.WriteAdd(newPosition);
             state.OpLogWriter.WriteEnergy(state.Energy);
         }
+
+	    public ICommand Revert()
+	    {
+		    throw new System.NotImplementedException();
+	    }
     }
 }

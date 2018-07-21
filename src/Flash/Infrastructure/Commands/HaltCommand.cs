@@ -11,5 +11,10 @@ namespace Flash.Infrastructure.Commands
             state.OpLogWriter.WriteRemove(bot.Pos);
             state.OpLogWriter.WriteMessage("Game over!");
         }
+
+	    public ICommand Revert()
+	    {
+		    throw new System.NotImplementedException();
+	    }
     }
 }

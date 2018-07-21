@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="BitReaderTests.cs" />
     <Compile Include="BitWriterTests.cs" />
+    <Compile Include="GreedyAiTest.cs" />
     <Compile Include="MatrixDesirializerTests.cs" />
     <Compile Include="MatrixTests.cs" />
     <Compile Include="CommandsSerializersTests.cs" />

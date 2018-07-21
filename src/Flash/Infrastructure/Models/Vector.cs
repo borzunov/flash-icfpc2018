@@ -41,19 +41,45 @@ namespace Flash.Infrastructure.Models
         {
             return new[]
             {
-                new Vector(X, Y-1, Z), // ORDER is very important for check grounded
-                new Vector(X+1, Y, Z),
-                new Vector(X, Y, Z+1),
-                new Vector(X-1, Y, Z),
-                new Vector(X, Y, Z-1),
-                new Vector(X, Y+1, Z)
-            };
+				//                new Vector(X, Y-1, Z), // ORDER is very important for check grounded
+				//                new Vector(X+1, Y, Z),
+				//                new Vector(X, Y, Z+1),
+				//                new Vector(X-1, Y, Z),
+				//                new Vector(X, Y, Z-1),
+				//                new Vector(X, Y+1, Z)
+
+	            new Vector(X, Y+1, Z), // ORDER is very important for check grounded
+	            new Vector(X, Y, Z-1),
+	            new Vector(X-1, Y, Z),
+	            new Vector(X, Y, Z+1),
+	            new Vector(X+1, Y, Z),
+	            new Vector(X, Y-1, Z)
+
+			};
         }
 
-        /// <summary>
-        /// is linear difference
-        /// </summary>
-        public bool IsLd => Mlen == Clen && Mlen != 0;
+	    public Vector[] GetAdjacents(int n)
+	    {
+		    return new[]
+		    {
+			    new Vector(X, Y-n, Z), // ORDER is very important for check grounded
+			    new Vector(X+n, Y, Z),
+			    new Vector(X, Y, Z+n),
+			    new Vector(X-n, Y, Z),
+			    new Vector(X, Y, Z-n),
+			    new Vector(X, Y+n, Z)
+		    };
+	    }
+
+	    public Vector GetAdjacent(int s, int n)
+	    {
+		    return GetAdjacents(n)[s];
+	    }
+
+		/// <summary>
+		/// is linear difference
+		/// </summary>
+		public bool IsLd => Mlen == Clen && Mlen != 0;
 
         /// <summary>
         /// is short linear difference
@@ -116,6 +142,11 @@ namespace Flash.Infrastructure.Models
 
             throw new InvalidOperationException("There is no non zero component");
         }
+
+	    public bool IsGood(int r)
+	    {
+		    return !(X < 0 || Y < 0 || Z < 0 || X >= r || Y >= r || Z >= r);
+	    }
 
         #region equality members
         protected bool Equals(Vector other)

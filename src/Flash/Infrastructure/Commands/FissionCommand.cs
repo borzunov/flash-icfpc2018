@@ -30,5 +30,10 @@ namespace Flash.Infrastructure.Commands
             state.OpLogWriter.WriteAdd(newBot.Pos);
             state.OpLogWriter.WriteEnergy(state.Energy);
         }
+
+	    public ICommand Revert()
+	    {
+		    throw new NotImplementedException();
+	    }
     }
 }

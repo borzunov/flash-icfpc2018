@@ -72,6 +72,8 @@
     <Compile Include="Infrastructure\Alghorithms\BridgesFinder.cs" />
     <Compile Include="Infrastructure\Algorithms\ClusterMixtureBuilder.cs" />
     <Compile Include="Infrastructure\Algorithms\SkeletonBuilder.cs" />
+    <Compile Include="Infrastructure\AI\GreedyAI.cs" />
+    <Compile Include="Infrastructure\Commands\ClearCommand.cs" />
     <Compile Include="Infrastructure\Commands\GVoidCommand.cs" />
     <Compile Include="Infrastructure\Commands\GFillCommand.cs" />
     <Compile Include="Infrastructure\Commands\IGroupCommand.cs" />

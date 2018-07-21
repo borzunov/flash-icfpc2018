@@ -23,7 +23,7 @@ namespace Flash.Infrastructure.Models
 
         public IOpLogWriter OpLogWriter { get; set; }
         public Trace Trace { get; }
-        public Matrix Matrix { get; }
+        public Matrix Matrix { get; set; }
         public long Energy { get; set; }
         public bool Harmonics { get; set; }
         public Bot[] Bots { get; set; } // always sorted by id

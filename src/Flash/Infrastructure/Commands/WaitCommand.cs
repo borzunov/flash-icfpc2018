@@ -7,5 +7,10 @@ namespace Flash.Infrastructure.Commands
         public void Apply(State state, Bot bot)
         {
         }
+
+	    public ICommand Revert()
+	    {
+		    return this;
+	    }
     }
 }

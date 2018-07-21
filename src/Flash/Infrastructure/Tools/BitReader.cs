@@ -1,6 +1,6 @@
 ﻿namespace Flash.Infrastructure.Tools
 {
-    public  class BitReader
+    public class BitReader
     {
         private readonly byte[] bytes;
 

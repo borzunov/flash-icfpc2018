@@ -11,6 +11,7 @@ namespace Flash.Infrastructure.Commands
         {
             NearDistance = nearDistance;
         }
+
         public void Apply(State state, Bot bot)
         {
             var secondaryBot = state.Bots.First(b => Equals(b.Pos, bot.Pos + NearDistance));
@@ -23,5 +24,10 @@ namespace Flash.Infrastructure.Commands
             state.OpLogWriter.WriteRemove(secondaryBot.Pos);
             state.OpLogWriter.WriteEnergy(state.Energy);
         }
+
+	    public ICommand Revert()
+	    {
+		    throw new System.NotImplementedException();
+	    }
     }
 }
