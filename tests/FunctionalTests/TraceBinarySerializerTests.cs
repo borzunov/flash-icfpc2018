@@ -60,7 +60,6 @@ namespace FunctionalTests
                     Trace.From(new FillCommand(new Vector(0, -1, 0))),
                     new byte[] { 0b0101_0011 })
                 .SetName("Fill");
-
         }
 
         [TestCaseSource(nameof(GetSerializeTest))]

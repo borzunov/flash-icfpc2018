@@ -13,9 +13,7 @@ namespace Flash.Infrastructure.Serializers
 
         public static BitWriter Start()
         {
-            var bitWriter = new BitWriter();
-
-            return bitWriter;
+            return new BitWriter();
         }
 
         public BitWriter WriteByte(byte value, int offset, int length)
