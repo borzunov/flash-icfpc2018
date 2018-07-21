@@ -25,5 +25,10 @@ namespace Flash.Infrastructure.Commands
                 state.Energy += 3;
             }
         }
+
+        public ICommand Revert()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

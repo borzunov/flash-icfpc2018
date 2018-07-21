@@ -44,5 +44,10 @@ namespace Flash.Infrastructure.Commands
 
             state.OpLogWriter.WriteGroupAdd(added.ToArray());
         }
+
+        public ICommand Revert()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

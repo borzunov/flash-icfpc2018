@@ -68,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Infrastructure\AI\LineAI.cs" />
     <Compile Include="Infrastructure\AI\FileAI.cs" />
     <Compile Include="Infrastructure\AI\EasyAI.cs" />
     <Compile Include="Infrastructure\Alghorithms\BridgesFinder.cs" />

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Flash.Infrastructure.AI;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Models;
@@ -16,7 +17,7 @@ namespace Flash.Infrastructure
 
         public IEnumerable<ICommand> NextStep(State state)
         {
-            
+            throw new NotImplementedException();
         }
     }
 }

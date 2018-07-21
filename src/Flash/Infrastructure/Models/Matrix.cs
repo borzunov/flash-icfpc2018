@@ -71,7 +71,14 @@ namespace Flash.Infrastructure.Models
 			return !IsFull(v);
 		}
 
-		public bool Contains(Vector v)
+	    public static bool Contains(int radius, Vector v)
+	    {
+	        return v.X >= 0 && v.X < radius &&
+	               v.Y >= 0 && v.Y < radius &&
+	               v.Z >= 0 && v.Z < radius;
+        }
+
+	    public bool Contains(Vector v)
 		{
 			return v.X >= 0 && v.X < R &&
 				   v.Y >= 0 && v.Y < R &&
