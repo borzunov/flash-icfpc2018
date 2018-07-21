@@ -62,8 +62,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Infrastructure\AI\FileAI.cs" />
+    <Compile Include="Infrastructure\Deserializers\FillCommandDeserializer.cs" />
+    <Compile Include="Infrastructure\Deserializers\FissionCommandDeserializer.cs" />
+    <Compile Include="Infrastructure\Deserializers\FlipCommandDeserializer.cs" />
+    <Compile Include="Infrastructure\Deserializers\FusionPCommandDeserializer.cs" />
+    <Compile Include="Infrastructure\Deserializers\FusionSCommandDeserializer.cs" />
+    <Compile Include="Infrastructure\Deserializers\HaltCommandDeserializer.cs" />
+    <Compile Include="Infrastructure\Deserializers\LMoveCommandDeserializer.cs" />
+    <Compile Include="Infrastructure\Deserializers\SMoveCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\TraceBinaryDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\VectorDeserializer.cs" />
+    <Compile Include="Infrastructure\Deserializers\WaitCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Models\Bot.cs" />
     <Compile Include="Infrastructure\Commands\FillCommand.cs" />
     <Compile Include="Infrastructure\Commands\FissionCommand.cs" />
