@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Bingo.Graph;
+using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Algorithms
 {
