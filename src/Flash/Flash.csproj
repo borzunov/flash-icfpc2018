@@ -68,6 +68,7 @@
     <Compile Include="Infrastructure\AI\FileAI.cs" />
     <Compile Include="Infrastructure\AI\GreedyGravityAI.cs" />
     <Compile Include="Infrastructure\Alghorithms\BridgesFinder.cs" />
+    <Compile Include="Infrastructure\Algorithms\Clipping.cs" />
     <Compile Include="Infrastructure\Algorithms\ClusterMixtureBuilder.cs" />
     <Compile Include="Infrastructure\Algorithms\FigureDecomposer.cs" />
     <Compile Include="Infrastructure\Algorithms\RandomExtensions.cs" />

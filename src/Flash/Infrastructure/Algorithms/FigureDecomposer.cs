@@ -30,7 +30,11 @@ namespace Flash.Infrastructure.Algorithms
             double initialTemp = EvaluateDifferenceFrom(curMatrix) / 10.0;
             for (var i = 0; i < RegionCount; i++)
             {
-                Console.WriteLine($"Points to change: {(curMatrix ^ targetMatrix).CountFulls()}\n");
+                var remPoints = (curMatrix ^ targetMatrix).CountFulls();
+                if (remPoints <= 1)
+                    break;
+                Console.WriteLine($"Points to change: {remPoints}\n");
+
                 var state = GenerateState();
                 var fitness = Evaluate(state);
 
@@ -102,6 +106,8 @@ namespace Flash.Infrastructure.Algorithms
 
             return Math.Exp(-(newFitness - fitness) / temp);
         }
+        
+        const int MaxRegionCLen = 30;
 
         private class State
         {
@@ -110,6 +116,9 @@ namespace Flash.Infrastructure.Algorithms
 
             public State(bool fill, Region region)
             {
+                if ((region.Max - region.Min).Clen > MaxRegionCLen - 1)
+                    throw new ArgumentException("Region is too big to build in one operation");
+
                 Fill = fill;
                 Region = region;
             }
@@ -117,15 +126,26 @@ namespace Flash.Infrastructure.Algorithms
 
         private State GenerateState()
         {
-            return new State(rand.Next(1) == 1,
-                new Region(GenerateInitialVector(), GenerateInitialVector()));
+            var region = new Region(GenerateInitialVector(), GenerateInitialVector());
+            return new State(rand.Next(1) == 1, ClipRegion(region));
         }
 
         private State MutateState(State state)
         {
-            var newFill = (rand.NextDouble() < 0.1 ? !state.Fill : state.Fill);
-            return new State(newFill,
-                new Region(MutateVector(state.Region.Min), MutateVector(state.Region.Max)));
+            var newFill = rand.NextDouble() < 0.1 ? !state.Fill : state.Fill;
+            var newRegion = new Region(MutateVector(state.Region.Min), MutateVector(state.Region.Max));
+            return new State(newFill, ClipRegion(newRegion));
+        }
+
+        private Region ClipRegion(Region region)
+        {
+            if ((region.Max - region.Min).Clen <= MaxRegionCLen - 1)
+                return region;
+
+            var diff = Clipping.Clip(region.Max - region.Min, MaxRegionCLen - 1);
+            return rand.NextDouble() < 0.5
+                ? new Region(region.Min, region.Min + diff)
+                : new Region(region.Max - diff, region.Max);
         }
 
         private Vector GenerateInitialVector()
@@ -136,19 +156,9 @@ namespace Flash.Infrastructure.Algorithms
         public Vector MutateVector(Vector v)
         {
             return new Vector(
-                Clip(v.X + GenerateMutateDiff(), 1, R - 1),
-                Clip(v.Y + GenerateMutateDiff(), 0, R - 1),
-                Clip(v.Z + GenerateMutateDiff(), 1, R - 1));
-        }
-
-        private static int Clip(int value, int min, int max)
-        {
-            if (value < min)
-                value = min;
-            else
-            if (value > max)
-                value = max;
-            return value;
+                Clipping.Clip(v.X + GenerateMutateDiff(), 1, R - 1),
+                Clipping.Clip(v.Y + GenerateMutateDiff(), 0, R - 1),
+                Clipping.Clip(v.Z + GenerateMutateDiff(), 1, R - 1));
         }
 
         private int GenerateMutateDiff()
