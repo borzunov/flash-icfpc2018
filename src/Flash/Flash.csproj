@@ -98,14 +98,11 @@
     <Compile Include="Infrastructure\Commands\VoidCommand.cs" />
     <Compile Include="Infrastructure\Deserializers\GFillCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\GVoidCommandDeserializer.cs" />
-    <Compile Include="Infrastructure\Deserializers\VoidCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\FillCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\FissionCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\FlipCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\FusionPCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\FusionSCommandDeserializer.cs" />
-    <Compile Include="Infrastructure\Deserializers\GFillCommandDeserializer.cs" />
-    <Compile Include="Infrastructure\Deserializers\GVoidCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\HaltCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\ICommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\LMoveCommandDeserializer.cs" />
@@ -136,9 +133,6 @@
     <Compile Include="Infrastructure\Serializers\BaseCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\BitWriter.cs" />
     <Compile Include="Infrastructure\Serializers\BitSetExtensions.cs" />
-    <Compile Include="Infrastructure\Serializers\GVoidCommandSerializer.cs" />
-    <Compile Include="Infrastructure\Serializers\GFillCommandSerializer.cs" />
-    <Compile Include="Infrastructure\Serializers\VoidCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\FillCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\FissionCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\FusionPCommandSerializer.cs" />
