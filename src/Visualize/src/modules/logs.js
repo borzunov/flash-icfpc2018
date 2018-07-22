@@ -1,7 +1,7 @@
 export const LOGS_UPDATED = 'logs/LOGS_UPDATED'
 export const CURRENT_LOG_CHANGED = 'logs/CURRENT_LOG_CHANGED'
 
-const mongoTopology = `http://vm-dev-cont4:3005`
+const mongoTopology = `http://vm-dev-cont4.dev.kontur.ru:3005`
 
 const initialState = {
   latest: [],
