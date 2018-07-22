@@ -23,7 +23,7 @@ namespace Flash.Infrastructure.Algorithms
         {
             for (var i = 0; i < RegionCount; i++)
             {
-                Console.WriteLine($"Initial energy: {(curMatrix ^ targetMatrix).CountFulls() * 3 * R * R * R}\n");
+                Console.WriteLine($"Points to change: {(curMatrix ^ targetMatrix).CountFulls()}\n");
                 var state = GenerateState();
                 var fitness = Evaluate(state);
 
@@ -56,6 +56,7 @@ namespace Flash.Infrastructure.Algorithms
                     curMatrix.Clear(state.Region);
             }
 
+            Console.WriteLine($"Points to change: {(curMatrix ^ targetMatrix).CountFulls()}\n");
             Console.ReadLine();
         }
 
@@ -119,7 +120,7 @@ namespace Flash.Infrastructure.Algorithms
 
         private int GenerateMutateDiff()
         {
-            var sigma = R / 20;
+            var sigma = R / 20.0;
             return (int) Math.Round(rand.NextNormal(0, sigma));
         }
 
