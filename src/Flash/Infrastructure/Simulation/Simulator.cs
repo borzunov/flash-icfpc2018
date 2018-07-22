@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Models;
-using FluentAssertions;
-using MongoDB.Bson;
 
 namespace Flash.Infrastructure.Simulation
 {
