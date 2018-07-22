@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using evaller;
 using Flash.Infrastructure.Simulation;
 using FluentAssertions;
@@ -16,8 +17,9 @@ namespace FunctionalTests
         [OneTimeSetUp]
         public void Setup()
         {
-
-            string ethalonSimPath = @"C:\icfpc\flash-icfpc2018\src\evaller\js\exec-trace-novis_files\exec-trace-node.js";
+            var currentAssemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase).Replace(@"file:\", string.Empty);
+            var projectPath = Directory.GetParent(currentAssemblyPath).Parent.Parent.FullName;
+            string ethalonSimPath = Path.Combine(projectPath, @"src\evaller\js\exec-trace-novis_files\exec-trace-node.js");
             comparator = new SimulationsComaprator(new Simulator(), ethalonSimPath);
         }
 
@@ -32,9 +34,12 @@ namespace FunctionalTests
 
         public static IEnumerable<TestCaseData> GetTestCases()
         {
-            var list = Directory.EnumerateFiles(@"C:\icfpc\flash-icfpc2018\data\track").ToList();
+            var currentAssemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).Replace(@"file:\", string.Empty);
+            var projectPath = Directory.GetParent(currentAssemblyPath).Parent.Parent.FullName;
+            var trackPath = Path.Combine(projectPath, @"data\track");
+            var list = Directory.EnumerateFiles(trackPath).ToList();
 
-            foreach (var tgtModelPath in Directory.EnumerateFiles(@"C:\icfpc\flash-icfpc2018\data\models"))
+            foreach (var tgtModelPath in Directory.EnumerateFiles(Path.Combine(projectPath, @"data\models")))
             {
                 var prefix = Path.GetFileName(tgtModelPath).Substring(0, 5);
                 Console.WriteLine(prefix);
