@@ -7,14 +7,22 @@ namespace Flash.Infrastructure.Algorithms
     public class FigureDecomposer
     {
         private readonly int R;
+        private readonly long costPerStep;
         private readonly Matrix curMatrix, targetMatrix;
+        private PointCounter curSums, xorSums;
+        private readonly PointCounter targetSums;
         private readonly Random rand;
 
         public FigureDecomposer(Matrix targetMatrix)
         {
             R = targetMatrix.R;
+            costPerStep = 3 * R * R * R;
+
             curMatrix = new Matrix(R);
             this.targetMatrix = targetMatrix;
+            curSums = new PointCounter(curMatrix);
+            xorSums = new PointCounter(curMatrix ^ targetMatrix);
+            targetSums = new PointCounter(targetMatrix);
             rand = new Random(42);
         }
 
@@ -30,10 +38,9 @@ namespace Flash.Infrastructure.Algorithms
             double initialTemp = EvaluateDifferenceFrom(curMatrix) / 10.0;
             for (var i = 0; i < RegionCount; i++)
             {
-                var remPoints = (curMatrix ^ targetMatrix).CountFulls();
-                if (remPoints <= 1)
+                if (xorSums.TotalFulls <= 1)
                     break;
-                Console.WriteLine($"Points to change: {remPoints}\n");
+                Console.WriteLine($"Points to change: {xorSums.TotalFulls}\n");
 
                 var state = GenerateState();
                 var fitness = Evaluate(state);
@@ -71,6 +78,8 @@ namespace Flash.Infrastructure.Algorithms
                     curMatrix.Fill(state.Region);
                 else
                     curMatrix.Clear(state.Region);
+                curSums = new PointCounter(curMatrix);
+                xorSums = new PointCounter(curMatrix ^ targetMatrix);
 
                 var points = new List<Vector>();
                 for (var x = state.Region.Min.X; x <= state.Region.Max.X; x++)
@@ -95,7 +104,7 @@ namespace Flash.Infrastructure.Algorithms
 
             mongoOplogWriter.Save();
 
-            Console.WriteLine($"Points to change: {(curMatrix ^ targetMatrix).CountFulls()}\n");
+            Console.WriteLine($"Points to change: {xorSums.TotalFulls}\n");
             Console.ReadLine();
         }
 
@@ -169,9 +178,7 @@ namespace Flash.Infrastructure.Algorithms
 
         private long Evaluate(State state)
         {
-            long costPerStep = 3 * R * R * R;
-
-            var wasFull = curMatrix.CountFulls(state.Region);
+            var wasFull = curSums.CountFulls(state.Region);
             var wasVoid = state.Region.Volume - wasFull;
             long spentForRect = costPerStep;
             if (state.Fill)
@@ -180,19 +187,17 @@ namespace Flash.Infrastructure.Algorithms
                 spentForRect += wasVoid * (long) 3;
             spentForRect += (state.Region.Max - state.Region.Min).Mlen * costPerStep;
 
-            var nextMatrix = curMatrix.Clone();
+            var diffOutside = xorSums.TotalFulls - xorSums.CountFulls(state.Region);
+            var diffInside = targetSums.CountFulls(state.Region);
             if (state.Fill)
-                nextMatrix.Fill(state.Region);
-            else
-                nextMatrix.Clear(state.Region);
-            long spentForRem = EvaluateDifferenceFrom(nextMatrix);
+                diffInside = state.Region.Volume - diffInside;
+            long spentForRem = 2 * (diffInside + diffOutside) * costPerStep;
 
             return spentForRect + spentForRem;
         }
 
         private long EvaluateDifferenceFrom(Matrix matrix)
         {
-            long costPerStep = 3 * R * R * R;
             return 2 * (matrix ^ targetMatrix).CountFulls() * costPerStep;
         }
     }
