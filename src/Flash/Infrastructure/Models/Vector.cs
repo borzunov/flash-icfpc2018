@@ -180,5 +180,10 @@ namespace Flash.Infrastructure.Models
         {
             return $"({X},{Y},{Z})";
         }
+
+	    public Vector Abs()
+	    {
+		    return new Vector(Math.Abs(X), Math.Abs(Y), Math.Abs(Z));
+	    }
     }
 }

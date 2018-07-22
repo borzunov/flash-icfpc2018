@@ -20,13 +20,14 @@ namespace Flash.Infrastructure.Algorithms
 
 		private Dictionary<Tuple<Vector, bool>, AStarState> MinStates = new Dictionary<Tuple<Vector, bool>, AStarState>();
 
-		public BotMoveSearcher(Matrix matrix, Vector botPosition, Func<Vector, bool> isForbiddenArea, int botsCount, Vector end)
+		public BotMoveSearcher(Matrix matrix, Vector botPosition, Func<Vector, bool> isForbiddenArea, int botsCount, Vector end, IsGroundedChecker groundedChecker)
 		{
 			Matrix = matrix;
 			BotPosition = botPosition;
 			IsForbiddenArea = isForbiddenArea;
 			BotsCount = botsCount;
 			End = end;
+			GroundedChecker = groundedChecker;
 		}
 
 		public bool FindPath(out List<Vector> movePositions, out List<ICommand> commands)
@@ -45,21 +46,23 @@ namespace Flash.Infrastructure.Algorithms
 			while (!priorityQueue.Empty)
 			{
 				var state = priorityQueue.Dequeue();
+				if(MinStates.TryGetValue(Tuple.Create(state.EndPosition, state.DestroyedCell != null), out var minState) && minState.Weight < state.Weight)
+					continue;
 				
 				foreach (var newState in GetSJumps(state).Concat(GetLJumps(state)).Concat(GetJumpsIntoFills(state)))
 				{
 					if(MinStates.TryGetValue(Tuple.Create(newState.EndPosition, newState.DestroyedCell != null), out var oldState) && oldState.Weight <= newState.Weight)
 						continue;
 
-					if (state.EndPosition == End)
+					if (newState.EndPosition == End)
 					{
-						result = state;
+						result = newState;
 						isEnd = true;
 						break;
 					}
 
 					MinStates[Tuple.Create(newState.EndPosition, newState.DestroyedCell != null)] = newState;
-					priorityQueue.Enqueue(newState.MaxPotentialWeight, newState);
+					priorityQueue.Enqueue(-newState.MaxPotentialWeight, newState);
 				}
 
 				if(isEnd)
@@ -76,6 +79,7 @@ namespace Flash.Infrastructure.Algorithms
 			var states = result.GetStates().Reverse().ToList();
 			commands = states.SelectMany(state => state.GetCommands()).ToList();
 			movePositions = states.SelectMany(state => state.GetUsedVectors()).ToList();
+			
 			return true;
 		}
 
@@ -93,7 +97,7 @@ namespace Flash.Infrastructure.Algorithms
 
 					var move = vector * i;
 					var position = botPosition + move;
-					if(Matrix.IsFull(position) || IsForbiddenArea(position))
+					if(!Matrix.Contains(position) || Matrix.IsFull(position) || IsForbiddenArea(position))
 						break;
 					var weight = currentWeight + GetSMoveWeight(i);
 					yield return new AStarState
@@ -101,6 +105,7 @@ namespace Flash.Infrastructure.Algorithms
 						LastDestroyedCell = botState.DestroyedCell,
 						Move1 = move,
 						Dad = botState,
+						StartPosition = botState.EndPosition,
 						EndPosition = position,
 						Weight = weight,
 						MaxPotentialWeight = weight + GetPotentialOptimalWeight(position, End)
@@ -111,6 +116,8 @@ namespace Flash.Infrastructure.Algorithms
 
 		public IEnumerable<AStarState> GetLJumps(AStarState botState)
 		{
+			var ss = new[] {-1, 1, -2, 2, -3, 3, -4, 4, -5, 5};
+
 			if (botState.DestroyedCell!= null)
 				yield break;
 
@@ -130,43 +137,56 @@ namespace Flash.Infrastructure.Algorithms
 				{
 					if(i == j)
 						continue;
-					for (int x = -5; x <= 5; x++)
+					bool bannedNX = false;
+					bool bannedPX = false;
+
+					foreach (var x in ss)
 					{
-						if (x == 0)
-							continue;
-
 						var move1 = moveVectors[i] * x;
-						if (Matrix.IsFull(botPosition + move1) || IsForbiddenArea(botPosition + move1))
-							if(x < 0)
-								continue;
-							else
-								break;
-						
-						for (int y = -5; y <= 5; y++)
+						if(x < 0 && bannedNX || x > 0 && bannedPX)
+							continue;
+						if (!Matrix.Contains(botPosition + move1) || Matrix.IsFull(botPosition + move1) ||
+						    IsForbiddenArea(botPosition + move1))
 						{
-							if(y == 0)
-								continue;
+							if (x < 0)
+								bannedNX = true;
+							else
+								bannedPX = true;
+							continue;
+						}
 
+						bool bannedNY = false;
+						bool bannedPY = false;
+
+						foreach (var y in ss)
+						{
 							var move2 = moveVectors[j] * y;
-							if (Matrix.IsFull(botPosition + move1 + move2) || IsForbiddenArea(botPosition + move1 + move2))
+							if (y < 0 && bannedNY || y > 0 && bannedPY)
+								continue;
+							if (!Matrix.Contains(botPosition + move1 + move2) || Matrix.IsFull(botPosition + move1 + move2) ||
+							    IsForbiddenArea(botPosition + move1 + move2))
+							{
 								if (y < 0)
-									continue;
+									bannedNY = true;
 								else
-									break;
+									bannedPY = true;
+								continue;
+							}
 							
 							var position = botPosition + move1 + move2;
-							if (Matrix.IsFull(position) || IsForbiddenArea(position))
-								break;
 							var weight = currentWeight + GetLMoveWeight(x, y);
-							yield return new AStarState
+							var state = new AStarState
 							{
 								Move1 = move1,
 								Move2 = move2,
 								Dad = botState,
+								StartPosition = botState.EndPosition,
 								EndPosition = position,
 								Weight = weight,
 								MaxPotentialWeight = weight + GetPotentialOptimalWeight(position, End)
 							};
+							
+							yield return state;
 						}
 					}
 				}
@@ -178,16 +198,17 @@ namespace Flash.Infrastructure.Algorithms
 			var currentWeight = botState.Weight;
 			foreach (var adjacent in botState.EndPosition.GetAdjacents())
 			{
-				if(Matrix.IsVoid(adjacent))
+				if(!Matrix.Contains(adjacent) || Matrix.IsVoid(adjacent))
 					continue;
 				var weight = currentWeight + GetInFillWeight();
-
-				if(!GroundedChecker.CanRemove(new[] {adjacent, botState.DestroyedCell}.Where(c => c != null).ToList()))
+				
+				if (!GroundedChecker.CanRemove(new[] { adjacent, botState.DestroyedCell }.Where(c => c != null).ToHashSet()))
 					continue;
 
 				yield return new AStarState
 				{
 					Move1 = adjacent - botState.EndPosition,
+					StartPosition = botState.EndPosition,
 					EndPosition = adjacent,
 					DestroyedCell = adjacent,
 					LastDestroyedCell = botState.DestroyedCell,
@@ -217,6 +238,7 @@ namespace Flash.Infrastructure.Algorithms
 		public long GetPotentialOptimalWeight(Vector start, Vector end)
 		{
 			var move = start - end;
+			move = move.Abs();
 			var axisesCount = AxisesCount(move);
 			var movesCount = axisesCount + (move.X + move.Y + move.Z - 10 * axisesCount) / 15;
 			return axisesCount * 2 + move.X * 2 + move.Y * 2 + move.Z * 2 + 3 * (long)Matrix.R * Matrix.R * Matrix.R * movesCount / BotsCount;
@@ -243,7 +265,7 @@ namespace Flash.Infrastructure.Algorithms
 		public IEnumerable<ICommand> GetCommands()
 		{
 			if (DestroyedCell != null)
-				yield return new FillCommand(EndPosition - StartPosition);
+				yield return new VoidCommand(EndPosition - StartPosition);
 			if (Move1 != null && Move2 == null)
 				yield return new SMoveCommand(Move1);
 			if (Move1 != null && Move2 != null)
@@ -256,6 +278,8 @@ namespace Flash.Infrastructure.Algorithms
 		{
 			var pos = StartPosition;
 
+			if (Move1 == null)
+				yield break;
 			var normalizedMove1 = Move1.Normalize();
 			for (int i = 1; i <= Move1.Mlen; i++)
 			{
