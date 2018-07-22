@@ -99,7 +99,7 @@ namespace Flash.Infrastructure.Algorithms
 			}
 		}
 
-		public void UpdateWithFill(Vector vector)
+		public void UpdateWithFill(Vector vector, bool lowHarmonic = true)
 		{
 			if(Matrix.IsFull(vector))
 				return;
@@ -109,7 +109,7 @@ namespace Flash.Infrastructure.Algorithms
 
 			LinkWithAdjancents(vector);
 
-			if (!ConnectivityChecker.IsConnected(code, UnderGroundCode))
+			if (!ConnectivityChecker.IsConnected(code, UnderGroundCode) && lowHarmonic)
 			{
 				throw new Exception($"Вектор {vector} не заземлен. Используйте CanFill!");
 			}
@@ -165,7 +165,7 @@ namespace Flash.Infrastructure.Algorithms
 			return canPlace;
 		}
 
-		public bool CanRemove(Vector vector)
+		public bool CanRemove(Vector vector, bool lowHarmonic = true)
 		{
 			if (Matrix.IsVoid(vector))
 				return true;
@@ -189,7 +189,7 @@ namespace Flash.Infrastructure.Algorithms
 				ConnectivityChecker.Link(code, dstCode);
 			}
 
-			return canRemove;
+			return canRemove || !lowHarmonic;
 		}
 
 		public bool CanRemove(ICollection<Vector> vectors)
@@ -228,7 +228,7 @@ namespace Flash.Infrastructure.Algorithms
 			return canRemove;
 		}
 
-		public void UpdateWithClear(Vector vector)
+		public void UpdateWithClear(Vector vector, bool lowHarmonic = true)
 		{
 			if (Matrix.IsVoid(vector))
 				return;
@@ -242,7 +242,7 @@ namespace Flash.Infrastructure.Algorithms
 			{
 				var dstCode = Encode(adj);
 				ConnectivityChecker.Cut(code, dstCode);
-				if(!ConnectivityChecker.IsConnected(UnderGroundCode, dstCode))
+				if(!ConnectivityChecker.IsConnected(UnderGroundCode, dstCode) && lowHarmonic)
 					throw new Exception($"Вектор {vector} - мост. Вершина {adj} полетела вниз. Используйте CanClear!");
 
 			}
