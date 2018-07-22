@@ -40,32 +40,7 @@ namespace Flash.Infrastructure.Algorithms
                     break;
                 Console.WriteLine($"Points to change: {xorSums.TotalFulls}\n");
 
-                var state = GenerateState();
-                var fitness = Evaluate(state);
-
-                for (var j = 1; j <= 10000; j++)
-                {
-                    double temp = initialTemp / j;
-                    var newState = MutateState(state);
-                    var newFitness = Evaluate(newState);
-
-                    if (j % 10000 == 0)
-                    {
-                        Console.WriteLine($"Region {i}, iteration {j}:");
-                        Console.WriteLine($"    state.Fill = {state.Fill}, fitness = {fitness}");
-                        Console.WriteLine($"    state.Region = {state.Region}");
-                        Console.WriteLine($"    newState.Fill = {newState.Fill}, newFitness = {newFitness}");
-                        Console.WriteLine($"    newState.Region = {newState.Region}\n");
-                    }
-
-                    var proba = GetTransitionProba(fitness, newFitness, temp);
-                    if (rand.NextDouble() < proba)
-                    {
-                        state = newState;
-                        fitness = newFitness;
-                    }
-                }
-
+                var state = FindNextRectangle(i, initialTemp);
                 if (state.Region.Dim == 0)
                 {
                     Console.WriteLine("Got 1x1x1 region, it will be skipped");
@@ -83,21 +58,40 @@ namespace Flash.Infrastructure.Algorithms
                 tasks.Add(new BuildingTask(type, state.Region));
             }
 
-            for (var i = 0; i < R; i++)
-                for (var j = 0; j < R; j++)
-                    for (var k = 0; k < R; k++)
-                    {
-                        var point = new Vector(i, j, k);
-                        if (curMatrix.IsVoid(point) && targetMatrix.IsFull(point))
-                            tasks.Add(new BuildingTask(BuildingTaskType.Fill, new Region(point)));
-                        else
-                        if (curMatrix.IsFull(point) && targetMatrix.IsVoid(point))
-                            tasks.Add(new BuildingTask(BuildingTaskType.Void, new Region(point)));
-                    }
-
             Console.WriteLine($"Points to change: {xorSums.TotalFulls}");
+            tasks.AddRange(CreatePointwiseTasks());
+
             Console.WriteLine("FigureDecomposer.Decompose() complete");
             return tasks;
+        }
+
+        private State FindNextRectangle(int regionNo, double initialTemp)
+        {
+            var state = GenerateState();
+            var fitness = Evaluate(state);
+            for (var j = 1; j <= 10000; j++)
+            {
+                double temp = initialTemp / j;
+                var newState = MutateState(state);
+                var newFitness = Evaluate(newState);
+
+                if (j % 10000 == 0)
+                {
+                    Console.WriteLine($"Region {regionNo}, iteration {j}:");
+                    Console.WriteLine($"    state.Fill = {state.Fill}, fitness = {fitness}");
+                    Console.WriteLine($"    state.Region = {state.Region}");
+                    Console.WriteLine($"    newState.Fill = {newState.Fill}, newFitness = {newFitness}");
+                    Console.WriteLine($"    newState.Region = {newState.Region}\n");
+                }
+
+                var proba = GetTransitionProba(fitness, newFitness, temp);
+                if (rand.NextDouble() < proba)
+                {
+                    state = newState;
+                    fitness = newFitness;
+                }
+            }
+            return state;
         }
 
         double GetTransitionProba(long fitness, long newFitness, double temp)
@@ -106,6 +100,23 @@ namespace Flash.Infrastructure.Algorithms
                 return 1;
 
             return Math.Exp(-(newFitness - fitness) / temp);
+        }
+
+        private IEnumerable<BuildingTask> CreatePointwiseTasks()
+        {
+            var result = new List<BuildingTask>();
+            for (var i = 0; i < R; i++)
+            for (var j = 0; j < R; j++)
+            for (var k = 0; k < R; k++)
+            {
+                var point = new Vector(i, j, k);
+                if (curMatrix.IsVoid(point) && targetMatrix.IsFull(point))
+                    result.Add(new BuildingTask(BuildingTaskType.Fill, new Region(point)));
+                else
+                if (curMatrix.IsFull(point) && targetMatrix.IsVoid(point))
+                    result.Add(new BuildingTask(BuildingTaskType.Void, new Region(point)));
+            }
+            return result;
         }
         
         const int MaxRegionCLen = 30;
