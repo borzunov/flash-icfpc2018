@@ -27,7 +27,12 @@ namespace Flash.Infrastructure.Models
         /// </summary>
         public int Clen => Math.Max(Math.Max(Math.Abs(X), Math.Abs(Y)), Math.Abs(Z));
 
-        public static Vector operator +(Vector v1, Vector v2) => new Vector(v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z);
+		/// <summary>
+		/// Euclid length
+		/// </summary>
+		public double Euclidlen => Math.Sqrt(X*X + Y*Y + Z*Z);
+
+		public static Vector operator +(Vector v1, Vector v2) => new Vector(v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z);
 	    public static Vector operator -(Vector v1, Vector v2) => new Vector(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
 		public static Vector operator -(Vector v) => new Vector(-v.X, -v.Y, -v.Z);
 

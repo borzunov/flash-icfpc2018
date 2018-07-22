@@ -29,19 +29,31 @@ namespace Flash.Infrastructure.Algorithms
 			End = end;
 			GroundedChecker = groundedChecker;
 		}
-
-		public bool FindPath(out List<Vector> movePositions, out List<ICommand> commands)
+		private static Random rand = new Random();
+		public bool FindPath(out List<Vector> movePositions, out List<ICommand> commands, out int iterationsCount)
 		{
 			var priorityQueue = new PriorityQueue<AStarState>();
 			var startState = new AStarState
 			{
-				EndPosition = BotPosition
+				EndPosition = BotPosition,
+				Straight = true
+			};
+			var endState = new AStarState
+			{
+				EndPosition = End,
+				Straight = false
 			};
 			priorityQueue.Enqueue(0, startState);
+			priorityQueue.Enqueue(0, endState);
 			MinStates[Tuple.Create(startState.EndPosition, false)] = startState;
+			MinStates[Tuple.Create(endState.EndPosition, false)] = endState;
 
 			bool isEnd = false;
 			AStarState result = null;
+			AStarState endResult = null;
+
+			iterationsCount = 0;
+			var bestWeight = long.MaxValue;
 
 			while (!priorityQueue.Empty)
 			{
@@ -51,18 +63,34 @@ namespace Flash.Infrastructure.Algorithms
 				
 				foreach (var newState in GetSJumps(state).Concat(GetLJumps(state)).Concat(GetJumpsIntoFills(state)))
 				{
-					if(MinStates.TryGetValue(Tuple.Create(newState.EndPosition, newState.DestroyedCell != null), out var oldState) && oldState.Weight <= newState.Weight)
+					if(MinStates.TryGetValue(Tuple.Create(newState.EndPosition, newState.DestroyedCell != null), out var oldState) && oldState.Weight <= newState.Weight && newState.Straight == oldState.Straight)
 						continue;
 
-					if (newState.EndPosition == End)
+					if (oldState != null && newState.Straight != oldState.Straight)
 					{
-						result = newState;
-						isEnd = true;
-						break;
+						if (newState.Straight)
+						{
+							result = newState;
+							endResult = oldState;
+						}
+						else
+						{
+							result = oldState;
+							endResult = newState;
+						}
+
+						if (newState.DestroyedCell == null)
+						{
+							isEnd = true;
+							break;
+						}
 					}
 
 					MinStates[Tuple.Create(newState.EndPosition, newState.DestroyedCell != null)] = newState;
-					priorityQueue.Enqueue(-newState.MaxPotentialWeight, newState);
+					priorityQueue.Enqueue(-newState.MaxPotentialWeight + (newState.Straight 
+						                      ? (End - newState.EndPosition).Euclidlen 
+						                      : (BotPosition - newState.EndPosition).Euclidlen ) / Matrix.R / 3, newState);
+					iterationsCount++;
 				}
 
 				if(isEnd)
@@ -76,9 +104,9 @@ namespace Flash.Infrastructure.Algorithms
 				return false;
 			}
 
-			var states = result.GetStates().Reverse().ToList();
+			var states = result.GetStates().Reverse().Concat(endResult.GetStates()).ToList();
 			commands = states.SelectMany(state => state.GetCommands()).ToList();
-			movePositions = states.SelectMany(state => state.GetUsedVectors()).ToList();
+			movePositions = states.SelectMany(state => state.Straight ? state.GetUsedVectors() : state.GetUsedVectors().Reverse()).ToList();
 			
 			return true;
 		}
@@ -108,7 +136,8 @@ namespace Flash.Infrastructure.Algorithms
 						StartPosition = botState.EndPosition,
 						EndPosition = position,
 						Weight = weight,
-						MaxPotentialWeight = weight + GetPotentialOptimalWeight(position, End)
+						MaxPotentialWeight = weight + GetPotentialOptimalWeight(position, botState.Straight),
+						Straight = botState.Straight
 					};
 				}
 			}
@@ -183,7 +212,8 @@ namespace Flash.Infrastructure.Algorithms
 								StartPosition = botState.EndPosition,
 								EndPosition = position,
 								Weight = weight,
-								MaxPotentialWeight = weight + GetPotentialOptimalWeight(position, End)
+								MaxPotentialWeight = weight + GetPotentialOptimalWeight(position, botState.Straight),
+								Straight = botState.Straight
 							};
 							
 							yield return state;
@@ -214,7 +244,8 @@ namespace Flash.Infrastructure.Algorithms
 					LastDestroyedCell = botState.DestroyedCell,
 					Weight = weight,
 					Dad = botState,
-					MaxPotentialWeight = weight + GetPotentialOptimalWeight(adjacent, End)
+					MaxPotentialWeight = weight + GetPotentialOptimalWeight(adjacent, botState.Straight),
+					Straight = botState.Straight
 				};
 			}
 
@@ -235,9 +266,9 @@ namespace Flash.Infrastructure.Algorithms
 			return 2 + 4 + 9 * Matrix.R * Matrix.R * Matrix.R / BotsCount;
 		}
 
-		public long GetPotentialOptimalWeight(Vector start, Vector end)
+		public long GetPotentialOptimalWeight(Vector start, bool straight)
 		{
-			var move = start - end;
+			var move = start - (straight ? End : BotPosition); 
 			move = move.Abs();
 			var axisesCount = AxisesCount(move);
 			var movesCount = axisesCount + (move.X + move.Y + move.Z - 10 * axisesCount) / 15;
@@ -262,21 +293,39 @@ namespace Flash.Infrastructure.Algorithms
 		public long Weight;
 		public long MaxPotentialWeight;
 
+		public bool Straight;
+
 		public IEnumerable<ICommand> GetCommands()
 		{
-			if (DestroyedCell != null)
-				yield return new VoidCommand(EndPosition - StartPosition);
-			if (Move1 != null && Move2 == null)
-				yield return new SMoveCommand(Move1);
-			if (Move1 != null && Move2 != null)
-				yield return new LMoveCommand(Move1, Move2);
-			if (LastDestroyedCell != null)
-				yield return new FillCommand(LastDestroyedCell - EndPosition);
+			if (Straight)
+			{
+				if (DestroyedCell != null)
+					yield return new VoidCommand(EndPosition - StartPosition);
+				if (Move1 != null && Move2 == null)
+					yield return new SMoveCommand(Move1);
+				if (Move1 != null && Move2 != null)
+					yield return new LMoveCommand(Move1, Move2);
+				if (LastDestroyedCell != null)
+					yield return new FillCommand(LastDestroyedCell - EndPosition);
+			}
+			else
+			{
+				if (LastDestroyedCell != null)
+					yield return new VoidCommand(LastDestroyedCell - EndPosition);
+				if (Move1 != null && Move2 == null)
+					yield return new SMoveCommand(-Move1);
+				if (Move1 != null && Move2 != null)
+					yield return new LMoveCommand(-Move2, -Move1);
+				if (DestroyedCell != null)
+					yield return new FillCommand(EndPosition - StartPosition);
+			}
 		}
 
 		public IEnumerable<Vector> GetUsedVectors()
 		{
 			var pos = StartPosition;
+			if (Move1 != null && !Straight)
+				yield return StartPosition;
 
 			if (Move1 == null)
 				yield break;
@@ -287,15 +336,18 @@ namespace Flash.Infrastructure.Algorithms
 				yield return pos;
 			}
 
-			if(Move2 == null)
+			if (Move2 == null)
 				yield break;
 
 			var normalizedMove2 = Move2.Normalize();
-			for (int i = 1; i <= Move2.Mlen; i++)
+			for (int i = 1; i < Move2.Mlen; i++)
 			{
 				pos += normalizedMove2;
 				yield return pos;
 			}
+
+			if (Straight)
+				yield return EndPosition;
 		}
 
 		public IEnumerable<AStarState> GetStates()
@@ -306,6 +358,11 @@ namespace Flash.Infrastructure.Algorithms
 				yield return node;
 				node = node.Dad;
 			}
+		}
+
+		public override string ToString()
+		{
+			return Straight.ToString();
 		}
 	}
 }

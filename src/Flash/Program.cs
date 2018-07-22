@@ -18,11 +18,13 @@ namespace Flash
         public static void Main(string[] args)
         {
             //var trackFilePath = @"..\..\..\data\track\LA001.nbt";
-            var modelFilePath = @"..\..\..\data\models\LA006_tgt.mdl";
+            var modelFilePath = @"..\..\..\data\models\LA180_tgt.mdl";
 
             var matrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(modelFilePath));
-            //var ai = new GreedyGravityAI(matrix);
-	        
+			//var ai = new GreedyGravityAI(matrix);
+
+			Console.WriteLine("matrix loaded");
+
 			var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
             mongoOplogWriter.WriteLogName("GreedyGravityAI_IsGrounded");
 	        var state = State.CreateInitial(matrix.R, mongoOplogWriter);
@@ -45,21 +47,29 @@ namespace Flash
 				}
 			}
 
-			var rand = new Random(13);
+
+	        Console.WriteLine("matrix inited");
+
+			var rand = new Random(15);
 			var forbidden = new HashSet<Vector>();
-	        for (int i = 0; i < 1000; i++)
+	        Console.WriteLine("start");
+			for (int i = 0; i <1002; i++)
 	        {
 		        var endPosition = new Vector(rand.Next(matrix.R), rand.Next(matrix.R), rand.Next(matrix.R));
-				while(forbidden.Contains(endPosition))
+				while(forbidden.Contains(endPosition) || matrix.IsFull(endPosition))
 					endPosition = new Vector(rand.Next(matrix.R), rand.Next(matrix.R), rand.Next(matrix.R));
 
 				mongoOplogWriter.WriteColor(endPosition, "00FF00", 1);
+		        DateTime d = DateTime.UtcNow;
 				var pathBuilder = new BotMoveSearcher(matrix, startPosition, vector => forbidden.Contains(vector), 39, endPosition, groundedChecker);
-		        pathBuilder.FindPath(out var movePath, out var commands);
-
+		        pathBuilder.FindPath(out var movePath, out var commands, out var iterations);
+				
 				if (movePath == null)
 					break;
-		        movePath.ForEach(c => forbidden.Add(c));
+				
+		        Console.WriteLine($"{commands.Count}: {d - DateTime.UtcNow} - {iterations}");
+				
+				movePath.ForEach(c => forbidden.Add(c));
 
 
 				foreach (var vector in movePath)
@@ -71,7 +81,8 @@ namespace Flash
 				startPosition = endPosition;
 	        }
 
-	        mongoOplogWriter.Save();
+
+			mongoOplogWriter.Save();
 
 			return;
 			/*
