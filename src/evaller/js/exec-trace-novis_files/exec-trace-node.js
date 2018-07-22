@@ -1,3 +1,110 @@
+var jsdom = require("jsdom");
+var fs = require('fs');
+var argv = require('optimist').argv;
+var { JSDOM } = jsdom;
+
+function bdataLength (data) {
+    return data.length;
+}
+function bdataSub (data, i) {
+    return data[i];
+}
+
+var run = null;
+
+function loadData(path){
+    return path == null ? null : Uint8Array.from(fs.readFileSync(path));
+}
+
+var tgtModelBData = loadData(argv.tgtModelPath);
+var traceBData = loadData(argv.tracePath);
+var srcModelBData = loadData(argv.srcModelPath);
+
+var dom = new JSDOM(`<!DOCTYPE html>
+<html lang="en-US">
+    <link type="text/css" id="dark-mode" rel="stylesheet" href="https://icfpcontest2018.github.io/full/exec-trace-novis.html">
+        <style type="text/css" id="dark-mode-custom-style"></style>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                <body>
+                    <div id="content-wrapper">
+                        <div class="wide-inner clearfix">
+                            <section id="main-content" style="width: 100%;">
+                                <h1 id="execute-trace-full-no-visualizer">Execute Trace (Full, No Visualizer)</h1>
+                                <form>
+                                    <input type="hidden" id="full" value="true">
+                                        <p>
+                                            <label for="srcModelFileIn">Source Model:</label>
+                                            <input type="checkbox" id="srcModelEmpty">
+                                                <label for="srcModelEmpty">empty</label>
+                                                <br>
+                                                    <input type="file" accept=".mdl" id="srcModelFileIn">
+                                                    </p>
+                                                    <p>
+                                                        <label for="tgtModelFileIn">Target Model:</label>
+                                                        <input type="checkbox" id="tgtModelEmpty">
+                                                            <label for="tgtModelEmpty">empty</label>
+                                                            <br>
+                                                                <input accept=".mdl" type="file" id="tgtModelFileIn">
+                                                                </p>
+
+                                                                <p>
+                                                                    <label for="traceFileIn">Trace:</label>
+                                                                    <input accept=".nbt" type="file" id="traceFileIn">
+                                                                    </p>
+
+
+                                                                    <p>
+                                                                        <label for="stepsPerFrame">Steps per Refresh:</label>
+                                                                        <br>
+                                                                            <select id="stepsPerFrame">
+                                                                                <option value="-60">1/60</option>
+                                                                                <option value="-30">1/30</option>
+                                                                                <option value="1">1</option>
+                                                                                <option value="100">100</option>
+                                                                                <option value="500">500</option>
+                                                                                <option value="1000">1000</option>
+                                                                                <option selected="" value="2000">2000</option>
+                                                                                <option value="3000">3000</option>
+                                                                                <option value="4000">4000</option>
+                                                                            </select>
+                                                                        </p>
+
+
+                                                                        <p>
+                                                                            <input type="button" id="execTrace" value="Execute Trace" disabled="">
+                                                                            </p>
+
+                                                                        </form>
+
+                                                                        <hr>
+
+                                                                            <pre id="stdout"></pre>
+
+
+                                                                            <!--
+<script src="./exec-trace-novis_files/load-file-utils.js"></script>
+
+
+
+                                                                            <script src="./exec-trace-novis_files/exec-trace.js"></script>
+-->
+
+                                                                        </section>
+                                                                    </div>
+                                                                    <div id='aaa'>Some div</div>
+                                                                </div>
+
+
+
+
+
+
+                                                            </body>
+                                                        </html>`);
+var document = dom.window.document;
+var vis = null;
+
 CompilerInitial = {}
 
 CompilerInitial.en$Bind$42 = new String("Bind");
@@ -20843,7 +20950,8 @@ if ((typeof(model$0model$1)) == "undefined") {
         };
     };
     model$0model$1.loadBin$297 = function(v$314, v$312, v$313) {
-        return basis$0either$1.bind$217(loadBinAux$104([false], [v$314, v$312, v$313]),
+        var lr = loadBinAux$104([false], [v$314, v$312, v$313]);
+        return basis$0either$1.bind$217(lr,
             function(v$309) {
                 var v$310 = v$309[0];
                 return [1, v$310];
@@ -24388,9 +24496,10 @@ if ((typeof(js$0Js$1)) == "undefined") {
         return (function(e) { return SmlPrims.option(e.previousSibling); })(e$167);
     };
     js$0Js$1.innerHTML$171 = function(e$174, s$177) {
-        return (function(e, s) { e.innerHTML = s; })(e$174, s$177);
+        return (function(e, s) { e.innerHTML = s; console.log(s); })(e$174, s$177);
     };
-    js$0Js$1.installEventHandler$188 = function(e$191, et$194, f$197) {
+    js$0Js$1.installEventHandler$188 = function (e$191, et$194, f$197) {
+        run = f$197;
         var t$1706;
         switch (et$194) {
         case 4:
@@ -24976,7 +25085,7 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
     exec$3trace$3web$0exec$3trace$3web$1.stdout$119 = basis$0General$1.valOf$123(
         (function(d, id) { return SmlPrims.option(d.getElementById(id)); })(js$0Js$1.document$79, "stdout"));
     exec$3trace$3web$0exec$3trace$3web$1.setStdout$120 = function(ss$123) {
-        return (function(e, s) { e.innerHTML = s; })(exec$3trace$3web$0exec$3trace$3web$1.stdout$119,
+        return (function(e, s) { e.innerHTML = s; console.log(s);})(exec$3trace$3web$0exec$3trace$3web$1.stdout$119,
             (basis$0String$1.concatWith$173("\n", ss$123)) + "\n");
     };
     exec$3trace$3web$0exec$3trace$3web$1.mkChain$124 = function(onR$127, v$131) {
@@ -25119,7 +25228,7 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
         4,
         function(v$189) {
             exec$3trace$3web$0exec$3trace$3web$1.disableIn$65(0);
-            (function(e, s) { e.innerHTML = s; })(exec$3trace$3web$0exec$3trace$3web$1.stdout$119, "");
+            (function(e, s) { e.innerHTML = s;console.log(s); })(exec$3trace$3web$0exec$3trace$3web$1.stdout$119, "");
             v$481(8);
             var startTime$193 = SmlPrims.getrealtime();
             var srcModelEmpty$194;
@@ -25131,9 +25240,9 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
             }
             default:
             {
-                srcModelEmpty$194 =
-                ((function(fp, s) { return fp[s]; })(exec$3trace$3web$0exec$3trace$3web$1.srcModelEmpty$53[1],
-                    "checked"));
+                srcModelEmpty$194 = srcModelBData === null;
+                //((function(fp, s) { return fp[s]; })(exec$3trace$3web$0exec$3trace$3web$1.srcModelEmpty$53[1],
+                //    "checked"));
             }
             };
             var tgtModelEmpty$201;
@@ -25145,15 +25254,16 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
             }
             default:
             {
-                tgtModelEmpty$201 =
-                ((function(fp, s) { return fp[s]; })(exec$3trace$3web$0exec$3trace$3web$1.tgtModelEmpty$58[1],
-                    "checked"));
+                tgtModelEmpty$201 = tgtModelBData === null;
+                //((function(fp, s) { return fp[s]; })(exec$3trace$3web$0exec$3trace$3web$1.tgtModelEmpty$58[1],
+                //    "checked"));
             }
             };
             var chain$223 = function(v$228, v$229) {
                 switch (v$228[0]) {
                 case 1:
                 {
+                    
                     var v$797 = v$228[1];
                     (function(i, f) { return setTimeout(f, i); })(0,
                         function(v$800) {
@@ -25164,6 +25274,7 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
                 }
                 default:
                 {
+                    console.log('Failure 1');
                     var v$801 = v$228[1];
                     var v$1060 = v$801[1];
                     var v$1061 = v$801[0];
@@ -25185,7 +25296,10 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
                     };
                     t$1123 = [t$1122, t$1121];
                     ss$1062 = t$1123;
-                    (function(e, s) { e.innerHTML = s; })(exec$3trace$3web$0exec$3trace$3web$1.stdout$119,
+                    (function(e, s) { 
+                        e.innerHTML = s; 
+                        console.log(s);
+                    })(exec$3trace$3web$0exec$3trace$3web$1.stdout$119,
                         (basis$0String$1.concatWith$173("\n", ss$1062)) + "\n");
                     return exec$3trace$3web$0exec$3trace$3web$1.enableIn$92(0);
                 }
@@ -25198,7 +25312,7 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
                         ? [1, 0]
                         : [
                             1,
-                            (function(e, s) { e.innerHTML = s; })(exec$3trace$3web$0exec$3trace$3web$1.stdout$119,
+                            (function(e, s) { e.innerHTML = s;console.log(s); })(exec$3trace$3web$0exec$3trace$3web$1.stdout$119,
                                 "Loading src model ...")
                         ],
                         function(v$239) {
@@ -25235,7 +25349,7 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
                                         ? [1, 0]
                                         : [
                                             1,
-                                            (function(e, s) { e.innerHTML = s; })(
+                                            (function(e, s) { e.innerHTML = s;console.log(s); })(
                                                 exec$3trace$3web$0exec$3trace$3web$1.stdout$119,
                                                 "Loading tgt model ...")
                                         ],
@@ -25243,8 +25357,10 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
                                             var t$1154 = chain$223;
                                             var t$1153;
                                             if (tgtModelEmpty$201) {
+                                                
                                                 t$1153 = [1, [1]];
                                             } else {
+                                                
                                                 var t$1152 = basis$0either$1.mapLeft$126;
                                                 var t$1151 = function(v$258) {
                                                     return [0, v$258];
@@ -25343,7 +25459,7 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
                                                             var v$476 = v$292[1];
                                                             var t$1147 = chain$223;
                                                             var t$1146;
-                                                            (function(e, s) { e.innerHTML = s; })(
+                                                            (function(e, s) { e.innerHTML = s; console.log(s);})(
                                                                 exec$3trace$3web$0exec$3trace$3web$1.stdout$119,
                                                                 "Executing... ");
                                                             t$1146 = [1, 0];
@@ -25494,7 +25610,7 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
                                                                                     ]
                                                                                 ]
                                                                             ];
-                                                                            (function(e, s) { e.innerHTML = s; })(
+                                                                            (function(e, s) { e.innerHTML = s;console.log(s); })(
                                                                                 exec$3trace$3web$0exec$3trace$3web$1
                                                                                 .stdout$119,
                                                                                 (basis$0String$1.concatWith$173("\n",
@@ -25511,6 +25627,7 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
                                                                                     switch (v$460[0]) {
                                                                                     case 1:
                                                                                     {
+                                                                                        console.log('Success');
                                                                                         var ss$851;
                                                                                         var t$1139;
                                                                                         var t$1138 = "Success::";
@@ -25540,7 +25657,9 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
                                                                                         t$1139 = [t$1138, t$1137];
                                                                                         ss$851 = t$1139;
                                                                                         (function(e, s) {
+                                                                                            
                                                                                             e.innerHTML = s;
+                                                                                            console.log(s);
                                                                                         }
                                                                                         )(
                                                                                             exec$3trace$3web$0exec$3trace$3web$1
@@ -25747,6 +25866,7 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
                                                                                     }
                                                                                     default:
                                                                                     {
+                                                                                        console.log('Failure 2');
                                                                                         var v$456 = v$460[1];
                                                                                         var v$457 = v$456[0];
                                                                                         var v$1011 = [
@@ -25788,6 +25908,7 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
                                                                                         ss$920 = t$1145;
                                                                                         (function(e, s) {
                                                                                             e.innerHTML = s;
+                                                                                            console.log(s);
                                                                                         }
                                                                                         )(
                                                                                             exec$3trace$3web$0exec$3trace$3web$1
@@ -25827,3 +25948,5 @@ if ((typeof(exec$3trace$3web$0exec$3trace$3web$1)) == "undefined") {
         });
     return 0;
 })();
+
+run();

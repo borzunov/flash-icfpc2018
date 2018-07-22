@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <link type="text/css" id="dark-mode" rel="stylesheet" href="https://icfpcontest2018.github.io/full/exec-trace-novis.html">
+        <style type="text/css" id="dark-mode-custom-style"></style>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                <body>
+                    <div id="content-wrapper">
+                        <div class="wide-inner clearfix">
+                            <section id="main-content" style="width: 100%;">
+                                <h1 id="execute-trace-full-no-visualizer">Execute Trace (Full, No Visualizer)</h1>
+                                <form>
+                                    <input type="hidden" id="full" value="true">
+                                        <p>
+                                            <label for="srcModelFileIn">Source Model:</label>
+                                            <input type="checkbox" id="srcModelEmpty">
+                                                <label for="srcModelEmpty">empty</label>
+                                                <br>
+                                                    <input type="file" accept=".mdl" id="srcModelFileIn">
+                                                    </p>
+                                                    <p>
+                                                        <label for="tgtModelFileIn">Target Model:</label>
+                                                        <input type="checkbox" id="tgtModelEmpty">
+                                                            <label for="tgtModelEmpty">empty</label>
+                                                            <br>
+                                                                <input accept=".mdl" type="file" id="tgtModelFileIn">
+                                                                </p>
+
+                                                                <p>
+                                                                    <label for="traceFileIn">Trace:</label>
+                                                                    <input accept=".nbt" type="file" id="traceFileIn">
+                                                                    </p>
+
+
+                                                                    <p>
+                                                                        <label for="stepsPerFrame">Steps per Refresh:</label>
+                                                                        <br>
+                                                                            <select id="stepsPerFrame">
+                                                                                <option value="-60">1/60</option>
+                                                                                <option value="-30">1/30</option>
+                                                                                <option value="1">1</option>
+                                                                                <option value="100">100</option>
+                                                                                <option value="500">500</option>
+                                                                                <option value="1000">1000</option>
+                                                                                <option selected="" value="2000">2000</option>
+                                                                                <option value="3000">3000</option>
+                                                                                <option value="4000">4000</option>
+                                                                            </select>
+                                                                        </p>
+
+
+                                                                        <p>
+                                                                            <input type="button" id="execTrace" value="Execute Trace" disabled="">
+                                                                            </p>
+
+                                                                        </form>
+
+                                                                        <hr>
+
+                                                                            <pre id="stdout"></pre>
+
+
+                                                                            <!--
+<script src="./exec-trace-novis_files/load-file-utils.js"></script>
+
+
+
+                                                                            <script src="./exec-trace-novis_files/exec-trace.js"></script>
+-->
+
+                                                                        </section>
+                                                                    </div>
+                                                                </div>
+
+
+
+
+
+
+                                                            </body>
+                                                        </html>
