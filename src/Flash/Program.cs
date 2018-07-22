@@ -50,7 +50,7 @@ namespace Flash
 
 	        Console.WriteLine("matrix inited");
 
-			var rand = new Random(14);
+			var rand = new Random(15);
 			var forbidden = new HashSet<Vector>();
 	        Console.WriteLine("start");
 			for (int i = 0; i <1002; i++)

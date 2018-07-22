@@ -87,7 +87,9 @@ namespace Flash.Infrastructure.Algorithms
 					}
 
 					MinStates[Tuple.Create(newState.EndPosition, newState.DestroyedCell != null)] = newState;
-					priorityQueue.Enqueue(-newState.MaxPotentialWeight, newState);
+					priorityQueue.Enqueue(-newState.MaxPotentialWeight + (newState.Straight 
+						                      ? (End - newState.EndPosition).Euclidlen 
+						                      : (BotPosition - newState.EndPosition).Euclidlen ) / Matrix.R / 3, newState);
 					iterationsCount++;
 				}
 
