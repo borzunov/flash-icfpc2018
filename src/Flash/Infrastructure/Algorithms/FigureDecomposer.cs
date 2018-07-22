@@ -1,6 +1,7 @@
 ﻿using Flash.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Flash.Infrastructure.Algorithms
 {
@@ -34,6 +35,8 @@ namespace Flash.Infrastructure.Algorithms
             var tasks = new List<BuildingTask>();
             ConvergenceStopper.Run(regionNo =>
             {
+                var stopwatch = Stopwatch.StartNew();
+
                 if (xorSums.TotalFulls <= 2)
                     return null;
                 Console.WriteLine($"Points to change: {xorSums.TotalFulls}\n");
@@ -49,11 +52,13 @@ namespace Flash.Infrastructure.Algorithms
                     curMatrix.Fill(state.Region);
                 else
                     curMatrix.Clear(state.Region);
-                curSums = new PointCounter(curMatrix);
-                xorSums = new PointCounter(curMatrix ^ targetMatrix);
+                curSums.Update(curMatrix, state.Region.Min);
+                xorSums.Update(curMatrix ^ targetMatrix, state.Region.Min);
 
                 var type = state.Fill ? BuildingTaskType.GFill : BuildingTaskType.GVoid;
                 tasks.Add(new BuildingTask(type, state.Region));
+
+                Console.WriteLine($"Elapsed {stopwatch.ElapsedMilliseconds} ms");
                 return xorSums.TotalFulls;
             }, 0.001, 20);
 

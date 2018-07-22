@@ -273,5 +273,7 @@ namespace Flash.Infrastructure.Models
                         result.matrix[i, j, k] ^= b.matrix[i, j, k];
             return result;
         }
+
+        public bool[,,] GetContent() => matrix; // For optimization
     }
 }
