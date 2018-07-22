@@ -19,6 +19,7 @@ namespace Flash.Infrastructure.Algorithms
             costPerStep = 3 * R * R * R;
 
             curMatrix = new Matrix(R);
+            // TODO: Clone sourceMatrix here
             this.targetMatrix = targetMatrix;
             curSums = new PointCounter(curMatrix);
             xorSums = new PointCounter(curMatrix ^ targetMatrix);
@@ -26,25 +27,23 @@ namespace Flash.Infrastructure.Algorithms
             rand = new Random(42);
         }
 
-        private const int RegionCount = 20;
-
         public List<BuildingTask> Decompose()
         {
             Console.WriteLine("FigureDecomposer.Decompose() started");
 
             double initialTemp = EvaluateDifferenceFrom(curMatrix) / 10.0;
             var tasks = new List<BuildingTask>();
-            for (var i = 0; i < RegionCount; i++)
+            ConvergenceStopper.Run(regionNo =>
             {
-                if (xorSums.TotalFulls <= 1)
-                    break;
+                if (xorSums.TotalFulls <= 2)
+                    return null;
                 Console.WriteLine($"Points to change: {xorSums.TotalFulls}\n");
 
-                var state = FindNextRectangle(i, initialTemp);
-                if (state.Region.Dim == 0)
+                var state = FindNextRectangle(regionNo, initialTemp);
+                if ((state.Region.Max - state.Region.Min).Clen <= 2)
                 {
-                    Console.WriteLine("Got 1x1x1 region, it will be skipped");
-                    continue;
+                    Console.WriteLine("Too small region, it will be skipped");
+                    return xorSums.TotalFulls;
                 }
 
                 if (state.Fill)
@@ -56,7 +55,8 @@ namespace Flash.Infrastructure.Algorithms
 
                 var type = state.Fill ? BuildingTaskType.GFill : BuildingTaskType.GVoid;
                 tasks.Add(new BuildingTask(type, state.Region));
-            }
+                return xorSums.TotalFulls;
+            }, 0.001, 20);
 
             Console.WriteLine($"Points to change: {xorSums.TotalFulls}");
             tasks.AddRange(CreatePointwiseTasks());
@@ -69,19 +69,17 @@ namespace Flash.Infrastructure.Algorithms
         {
             var state = GenerateState();
             var fitness = Evaluate(state);
-            for (var j = 1; j <= 10000; j++)
+            ConvergenceStopper.Run(iter =>
             {
-                double temp = initialTemp / j;
+                double temp = initialTemp / iter;
                 var newState = MutateState(state);
                 var newFitness = Evaluate(newState);
 
-                if (j % 10000 == 0)
+                if (iter % 10000 == 0)
                 {
-                    Console.WriteLine($"Region {regionNo}, iteration {j}:");
+                    Console.WriteLine($"Region {regionNo}, iteration {iter}:");
                     Console.WriteLine($"    state.Fill = {state.Fill}, fitness = {fitness}");
                     Console.WriteLine($"    state.Region = {state.Region}");
-                    Console.WriteLine($"    newState.Fill = {newState.Fill}, newFitness = {newFitness}");
-                    Console.WriteLine($"    newState.Region = {newState.Region}\n");
                 }
 
                 var proba = GetTransitionProba(fitness, newFitness, temp);
@@ -90,7 +88,8 @@ namespace Flash.Infrastructure.Algorithms
                     state = newState;
                     fitness = newFitness;
                 }
-            }
+                return fitness;
+            }, 0.01, 10000);
             return state;
         }
 

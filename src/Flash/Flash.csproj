@@ -123,6 +123,7 @@
     <Compile Include="Infrastructure\Models\IOpLogWriter.cs" />
     <Compile Include="Infrastructure\Models\JsonOpLogWriter.cs" />
     <Compile Include="Infrastructure\Models\Matrix.cs" />
+    <Compile Include="Infrastructure\Algorithms\ConvergenceStopper.cs" />
     <Compile Include="Infrastructure\Models\Region.cs" />
     <Compile Include="Infrastructure\Commands\FlipCommand.cs" />
     <Compile Include="Infrastructure\Commands\SMoveCommand.cs" />
