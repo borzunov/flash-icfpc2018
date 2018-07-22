@@ -164,7 +164,6 @@ namespace Flash.Infrastructure.AI
             var state = State.CreateInitial(targetMatrix.R, mongoOplogWriter);
             mongoOplogWriter.WriteInitialState(state);
 
-
             Console.WriteLine("figure.Count = {0}", figure.Count);
             int i = 0;
 
@@ -176,14 +175,16 @@ namespace Flash.Infrastructure.AI
             while (cleared.Count < figure.Count)
             {
                 var nextPoint = curPoint.GetAdjacents()
-                    .Where(p => figure.Contains(p) && !cleared.Contains(p))
+                    .Where(p => figure.Contains(p) && !cleared.Contains(p) && targetMatrix.CanVoid(p))
                     .OrderBy(p => (curPoint - p).Mlen)
                     .FirstOrDefault();
+                targetMatrix.Clear(nextPoint);
                 if (nextPoint == null)
                 {
-                    nextPoint = figure.Where(p => p != curPoint && !cleared.Contains(p))
+                    nextPoint = figure.Where(p => p != curPoint && !cleared.Contains(p) && targetMatrix.CanVoid(p))
                         .OrderBy(p => (curPoint - p).Mlen)
                         .FirstOrDefault();
+                    targetMatrix.Clear(nextPoint);
                     if (nextPoint != null)
                     {
                         mongoOplogWriter.WriteColor(curPoint, "0000FF", 0.5);
