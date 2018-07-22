@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { refreshLogs } from '../../modules/logs'
+import { refreshLogs, tryGetLogs } from '../../modules/logs'
 import { bindActionCreators } from 'redux'
 import {
   changeBot,
@@ -10,7 +10,7 @@ import {
   changeHarmonic,
   changeEnergy,
   changeMessage,
-  changeVoxelBatch,
+  changeVoxelBatch
 } from '../../modules/space'
 import { playLog } from './playLog'
 import { withHandlers, compose, withProps, mapProps } from 'recompose'
@@ -30,7 +30,7 @@ let total = 0
 
 class LogPlayer extends React.PureComponent {
   componentDidMount() {
-    this.props.refreshLogs()
+    this.props.tryGetLogs(this.props.bd)
     this.syncQueueWithWait = new Queue((f, callback) => {
       try {
         f()
@@ -61,10 +61,30 @@ class LogPlayer extends React.PureComponent {
     this.forceUpdate()
   }
 
+  bindFocus() {
+    if (this.logList && !this.bound) {
+      this.bound = true
+      this.logList.addEventListener('mouseenter', () => {
+        this.logList.focus()
+        console.log('zoom disabled')
+        window.controls.enableZoom = false
+      })
+      this.logList.addEventListener('mouseleave', () => {
+        console.log('zoom enabled')
+        window.controls.enableZoom = true
+      })
+    }
+  }
+
+  componentDidUpdate() {
+    this.bindFocus()
+  }
+
   render() {
     let { latest, playLog, loading, refreshLogs, bd } = this.props
-    if (bd === 'logs')
+    if (bd === 'logs') {
       latest = latest.concat([case1, case2, case3, case4])
+    }
     if (bd === 'models')
       latest = latest.concat([]) // TODO
     const queueLength = this.syncQueueWithWait ? this.syncQueueWithWait.length() : 0
@@ -84,7 +104,8 @@ class LogPlayer extends React.PureComponent {
       content = <div className="flex-column">
         <h3 onClick={refreshLogs}>Click here to refresh</h3>
         <h4>Click any button to play</h4>
-        <div style={{overflow: 'auto'}}>
+        <div ref={(logList) => this.logList = logList}
+             style={{ overflow: 'auto', minHeight: 0, WebkitFlex: '1 1 auto' }}>
           {latest.map((l, i) => <button onClick={() => playLog(l, this.reset, this.syncQueueWithWait.push)}
                                         key={i}>{i + 1}: {l.name}</button>)}
         </div>
@@ -106,7 +127,7 @@ export default compose(
       changeHarmonic,
       changeEnergy,
       changeMessage,
-      changeVoxelBatch
+      changeVoxelBatch,
     }, dataStore.dispatch)
   }),
   connect(
@@ -117,7 +138,9 @@ export default compose(
       }
     },
     dispatch => bindActionCreators({
-      refreshLogs
+      refreshLogs,
+      tryGetLogs,
+
     }, dispatch)
   ),
   withHandlers({
@@ -133,7 +156,7 @@ export default compose(
         changeHarmonic,
         changeEnergy,
         changeMessage,
-        changeVoxelBatch
+        changeVoxelBatch,
       }, {
         size,
         log

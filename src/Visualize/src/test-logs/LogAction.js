@@ -8,4 +8,5 @@ export const LogAction = {
   FillColor: 6,
   FillBatch: 7,
   VoidBatch: 8,
+  ColorBatch: 9,
 }

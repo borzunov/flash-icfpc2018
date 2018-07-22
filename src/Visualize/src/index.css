@@ -42,6 +42,7 @@ html, body, #root, main, #root > div, #root > div > div {
     align-items: center;
     justify-content: center;
     width: 100%;
+    height: 100%;
 }
 
 .log-player {
@@ -62,4 +63,8 @@ html, body, #root, main, #root > div, #root > div > div {
 
 .bm-menu {
     padding: 0 !important;
+}
+
+.react-tabs-main, .react-tabs__tab-panel {
+    height: 100%;
 }

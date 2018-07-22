@@ -30,7 +30,7 @@ class ThreeScene extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.controls = new OrbitControls(this.camera)
+    window.controls = this.controls = new OrbitControls(this.camera)
     this.updateCamera()
     this.bindKeys(true)
   }
@@ -74,7 +74,7 @@ class ThreeScene extends React.PureComponent {
     const bigBoxSize = new THREE.Vector3(mapSize, mapSize, mapSize)
 
     return (<div style={{ width: '100%', height: '100%' }}>
-      <Menu isOpen={this.state.menuOpen} noOverlay closeButton={false} width={300}
+      <Menu isOpen={this.state.menuOpen} noOverlay closeButton={false} width={400}
             onStateChange={({ isOpen }) => this.setState({ menuOpen: isOpen })}
             styles={{
               bmMenuWrap: {
@@ -82,8 +82,8 @@ class ThreeScene extends React.PureComponent {
               }
             }}
       >
-        <div style={{ overflow: 'hidden', height: '100%', width: '100%' }}>
-          <Tabs defaultIndex={0}>
+        <div style={{ overflow: 'hidden', height: '100%', width: '100%', paddingTop: 20, position: 'relative' }}>
+          <Tabs defaultIndex={0} className="react-tabs-main">
             <TabList>
               <Tab>Log player</Tab>
               <Tab>Model viewer</Tab>
