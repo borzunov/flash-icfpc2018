@@ -70,6 +70,8 @@ export default (state = initialState, action) => {
       for (let p of positions) {
         posForKey[p] = !deleted
         for (let key of Object.keys(state.colors)) {
+          if (key === colorOpKey)
+            continue
           if (state.colors[key][p]) {
             oldKeys[p] = key
           }
