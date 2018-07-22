@@ -27,7 +27,7 @@ const shift = (serVec) => {
 
 const FillContainerImpl = ({ boxSize, voxels }) => {
   let invisibleMap = {}
-  let res = (<group>
+  return (<group>
     {Object.entries(voxels)
       .filter(([pos, exists]) => exists)
       .map(([pos]) => {
@@ -47,8 +47,6 @@ const FillContainerImpl = ({ boxSize, voxels }) => {
                      invisible={invisibleMap[pos]} showEdges posKey={pos} color={0xffffff} filled/>)
       })
     }</group>)
-  console.log(`invisible ${Object.keys(invisibleMap).length}/${Object.keys(voxels).length}`)
-  return res
 }
 
 const FillContainer = compose(

@@ -32,7 +32,7 @@ let total = 0
 
 class LogPlayer extends React.PureComponent {
   componentDidMount() {
-    this.props.refreshLogs();
+    this.props.refreshLogs()
     this.syncQueueWithWait = new Queue((f, callback) => {
       try {
         f()
@@ -64,14 +64,15 @@ class LogPlayer extends React.PureComponent {
   }
 
   bindFocus() {
-    if (this.logList && !this.bound) {
-      this.bound = true
-      this.logList.addEventListener('mouseenter', () => {
+    if (this.logList) {
+      this.logList.removeEventListener('mouseenter', this.enterHandler)
+      this.logList.removeEventListener('mouseleave', this.leaveHandler)
+      this.enterHandler = this.logList.addEventListener('mouseenter', () => {
         this.logList.focus()
         console.log('zoom disabled')
         window.controls.enableZoom = false
       })
-      this.logList.addEventListener('mouseleave', () => {
+      this.leaveHandler = this.logList.addEventListener('mouseleave', () => {
         console.log('zoom enabled')
         window.controls.enableZoom = true
       })
@@ -85,7 +86,7 @@ class LogPlayer extends React.PureComponent {
   render() {
     let { latest, playLog, loading, refreshLogs, bd } = this.props
     if (bd === 'logs') {
-      latest = latest.concat([case1, case2, case3]);
+      latest = latest.concat([case1, case2, case3])
       //latest = latest.concat([case4, case5, case6])
     }
     if (bd === 'models')
@@ -131,7 +132,7 @@ export default compose(
       changeEnergy,
       changeMessage,
       changeVoxelBatch,
-      changeColorBatch,
+      changeColorBatch
     }, dataStore.dispatch)
   }),
   connect(
@@ -142,12 +143,13 @@ export default compose(
       }
     },
     dispatch => bindActionCreators({
-      refreshLogs,
+      refreshLogs
     }, dispatch)
   ),
   withHandlers({
-    playLog: ({ changeSize, changeBot, changeVoxel, changeColor, changeEnergy, changeHarmonic, changeMessage, changeVoxelBatch, changeColorBatch, }) => ({ log, size }, reset, push) => {
+    playLog: ({ changeSize, changeBot, changeVoxel, changeColor, changeEnergy, changeHarmonic, changeMessage, changeVoxelBatch, changeColorBatch }) => ({ log, size }, reset, push) => {
       reset()
+      window.controls.enableZoom = true
       passed = 0
       total = log.length
       playLog({
@@ -159,7 +161,7 @@ export default compose(
         changeEnergy,
         changeMessage,
         changeVoxelBatch,
-        changeColorBatch,
+        changeColorBatch
       }, {
         size,
         log

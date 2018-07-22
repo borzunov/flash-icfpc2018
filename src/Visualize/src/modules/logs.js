@@ -1,6 +1,8 @@
 export const LOGS_UPDATED = 'logs/LOGS_UPDATED'
 export const CURRENT_LOG_CHANGED = 'logs/CURRENT_LOG_CHANGED'
 
+const mongoTopology = `http://vm-dev-cont4:3005`
+
 const initialState = {
   latest: [],
   loading: true,
@@ -21,7 +23,7 @@ export const getLog = (bd, _id) => {
           data: null
         }
       })
-      log = await (await fetch(`http://localhost:3005/${bd}`)).json()[0]
+      log = await (await fetch(`${mongoTopology}/${bd}`)).json()[0]
     }
     catch(e) {
       console.error(e)
@@ -48,7 +50,7 @@ export const refreshLogs = (bd = 'logs') => {
         payload: [],
         loading: true
       })
-      logs = await (await fetch(`http://localhost:3005/${bd}`)).json()
+      logs = await (await fetch(`${mongoTopology}/${bd}`)).json()
     }
     catch (e) {
       console.error(e)
