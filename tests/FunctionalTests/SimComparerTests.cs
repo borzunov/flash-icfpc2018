@@ -18,7 +18,7 @@ namespace FunctionalTests
         public void Setup()
         {
             var currentAssemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase).Replace(@"file:\", string.Empty);
-            var projectPath = Directory.GetParent(currentAssemblyPath).Parent.Parent.FullName;
+            var projectPath = Directory.GetParent(currentAssemblyPath).Parent.FullName;
             string ethalonSimPath = Path.Combine(projectPath, @"src\evaller\js\exec-trace-novis_files\exec-trace-node.js");
             comparator = new SimulationsComaprator(new Simulator(), ethalonSimPath);
         }
@@ -35,7 +35,7 @@ namespace FunctionalTests
         public static IEnumerable<TestCaseData> GetTestCases()
         {
             var currentAssemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).Replace(@"file:\", string.Empty);
-            var projectPath = Directory.GetParent(currentAssemblyPath).Parent.Parent.FullName;
+            var projectPath = Directory.GetParent(currentAssemblyPath).Parent.FullName;
             var trackPath = Path.Combine(projectPath, @"data\track");
             var list = Directory.EnumerateFiles(trackPath).ToList();
 
