@@ -1,8 +1,7 @@
 import { LogAction } from '../../test-logs/LogAction'
-import { changeVoxelBatch } from '../../modules/space'
 
 const MAX = 100000;
-export const playLog = ({ changeSize, changeVoxel, changeBot, changeColor, changeEnergy, changeHarmonic, changeMessage, changeVoxelBatch }, { size, log, name }, enqueue) => {
+export const playLog = ({ changeSize, changeVoxel, changeBot, changeColor, changeEnergy, changeHarmonic, changeMessage, changeVoxelBatch, changeColorBatch }, { size, log, name }, enqueue) => {
   changeSize(size)
   if (log.length > MAX) {
     console.error(`log is longer (${log.length}) than ${MAX} and will crash app. Won't play`)
@@ -39,6 +38,9 @@ export const playLog = ({ changeSize, changeVoxel, changeBot, changeColor, chang
         break
       case LogAction.VoidBatch:
         enqueue(() => changeVoxelBatch(act.p, false))
+        break
+      case LogAction.ColorBatch:
+        enqueue(() => changeColorBatch(act.p, act.c, act.o))
         break
       default:
         console.warn('bad act', act);

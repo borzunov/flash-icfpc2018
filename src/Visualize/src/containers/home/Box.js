@@ -1,9 +1,9 @@
 import React from 'react'
 import * as THREE from 'three'
-import { compose, onlyUpdateForKeys, shouldUpdate, withProps } from 'recompose'
+import { compose, onlyUpdateForKeys, withProps } from 'recompose'
 import { dataStore } from '../../store'
 
-export const BoxImpl = ({ position, color, size, filled = false, contoured = false, opacity = 1, showEdges = false }) => {
+export const BoxImpl = ({ position, color, size, filled = false, contoured = false, opacity = 1, showEdges = false, invisible = false }) => {
   const box = new THREE.BoxBufferGeometry(size.x, size.y, size.z)
   if (!filled && !contoured) {
     return null
@@ -17,11 +17,12 @@ export const BoxImpl = ({ position, color, size, filled = false, contoured = fal
   }
 
   return (<group>
-      {showEdges && <lineSegments position={position}>
+      {showEdges && <lineSegments position={position} visible={!invisible}>
         <edgesGeometry geometry={box}/>
         <lineBasicMaterial color={0} linewidth={2}/>
       </lineSegments>}
       <mesh
+        visible={!invisible}
         position={position}
       >
         <boxGeometry

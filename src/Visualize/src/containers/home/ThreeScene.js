@@ -10,7 +10,6 @@ import FillContainer from './FillContainer'
 import { slide as Menu } from 'react-burger-menu'
 import HelpText from './HelpText'
 import LogPlayer from './LogPlayer'
-import ColorContainer from './ColorContainer'
 import InfoContainer from './InfoContainer'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
@@ -25,9 +24,28 @@ function makeCameraPosition(mapSize, bigBoxSize) {
 }
 
 class ThreeScene extends React.PureComponent {
+  state = {
+    menuOpen: true
+  }
+
   componentDidMount() {
-    this.controls = new OrbitControls(this.camera)
+    window.controls = this.controls = new OrbitControls(this.camera)
+    window.scene = this.scene
     this.updateCamera()
+    this.bindKeys(true)
+  }
+
+  bindKeys(enable) {
+    if (enable) {
+      this.keyEventHandler = (e) => {
+        if (e.keyCode === 77) // m
+          this.setState({ menuOpen: !this.state.menuOpen })
+      }
+      document.addEventListener('keydown', this.keyEventHandler)
+    }
+    else {
+      document.removeEventListener('keydown', this.keyEventHandler)
+    }
   }
 
   updateCamera = () => {
@@ -46,47 +64,64 @@ class ThreeScene extends React.PureComponent {
   componentWillUnmount() {
     this.controls.dispose()
     this.controls = null
+    window.scene = null
+    window.controlls = null
+    this.bindKeys(true)
   }
 
   render() {
     const { mapSize } = this.props
-    const { width, height } = this.props.size
+    let { width, height } = this.props.size
+    width = this.state.menuOpen ? width - 300 : width
     const bigBoxSize = new THREE.Vector3(mapSize, mapSize, mapSize)
 
     return (<div style={{ width: '100%', height: '100%' }}>
-      <Menu isOpen={true} noOverlay closeButton={false} width={300}>
-        <Tabs defaultIndex={0}>
-          <TabList>
-            <Tab>Log player</Tab>
-            <Tab>Model viewer</Tab>
-          </TabList>
-          <TabPanel style={{position: 'relative', width: '100%'}}><LogPlayer bd="logs" limit={10}/></TabPanel>
-          <TabPanel style={{position: 'relative', width: '100%'}}><LogPlayer bd="models"/></TabPanel>
-        </Tabs>
-      </Menu>
-      <HelpText/>
-      <InfoContainer/>
-      <React3
-        mainCamera="camera" // this points to the perspectiveCamera which has the name set to "camera" below
-        width={width}
-        height={height}
+      <Menu isOpen={this.state.menuOpen} noOverlay closeButton={false} width={400}
+            onStateChange={({ isOpen }) => this.setState({ menuOpen: isOpen })}
+            styles={{
+              bmMenuWrap: {
+                transition: '0s'
+              }
+            }}
       >
-        <scene ref={(ref) => this.scene = ref} rotation={new THREE.Euler(0, 0, 0, true)}>
-          <perspectiveCamera
-            ref={(ref) => this.camera = ref}
-            name="camera"
-            fov={75}
-            aspect={width / height}
-            near={0.1}
-            far={1000}
-            position={makeCameraPosition(mapSize, bigBoxSize)}
-          />
-          <CoordinatesHelpers mapSize={mapSize} bigBoxSize={bigBoxSize}/>
-          <FillContainer boxSize={smallBoxSize}/>
-          <ColorContainer boxSize={smallBoxSize}/>
-          <BotContainer botSize={botSize} botColor={0xffa500}/>
-        </scene>
-      </React3>
+        <div style={{ overflow: 'hidden', height: '100%', width: '100%', paddingTop: 20, position: 'relative' }}>
+          <Tabs defaultIndex={0} className="react-tabs-main">
+            <TabList>
+              <Tab>Log player</Tab>
+              <Tab>Model viewer</Tab>
+            </TabList>
+            <TabPanel style={{ position: 'relative', width: '100%' }}><LogPlayer bd="logs" limit={10}/></TabPanel>
+            <TabPanel style={{ position: 'relative', width: '100%' }}><LogPlayer bd="models"/></TabPanel>
+          </Tabs></div>
+      </Menu>
+      <div style={{
+        paddingLeft: this.state.menuOpen ? 300 : 0,
+        overflow: 'hidden',
+        backgroundColor: 'black'
+      }}>
+        <HelpText/>
+        <InfoContainer/>
+        <React3
+          mainCamera="camera" // this points to the perspectiveCamera which has the name set to "camera" below
+          width={width}
+          height={height}
+        >
+          <scene ref={(ref) => this.scene = ref} rotation={new THREE.Euler(0, 0, 0, true)}>
+            <perspectiveCamera
+              ref={(ref) => this.camera = ref}
+              name="camera"
+              fov={75}
+              aspect={width / height}
+              near={0.1}
+              far={1000}
+              position={makeCameraPosition(mapSize, bigBoxSize)}
+            />
+            <CoordinatesHelpers mapSize={mapSize} bigBoxSize={bigBoxSize}/>
+            <FillContainer useMerge boxSize={smallBoxSize} color={0xffffff} target="voxels"/>
+            <FillContainer useMerge colormap boxSize={smallBoxSize} target="colors"/>
+            <BotContainer botSize={botSize} botColor={0xffa500}/>
+          </scene>
+        </React3></div>
     </div>)
   }
 }

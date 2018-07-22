@@ -1,5 +1,5 @@
 export default {
-  name: 'static test case 3',
+  name: 'case3: medium',
   'log': [{ 'h': false, 't': 5 }, { 'p': '0/0/0', 't': 1 }, { 'e': 0, 't': 4 }, {
     'p': '0/0/0',
     't': 2

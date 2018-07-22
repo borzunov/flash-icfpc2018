@@ -10,7 +10,7 @@ import {
   changeHarmonic,
   changeEnergy,
   changeMessage,
-  changeVoxelBatch,
+  changeVoxelBatch, changeColorBatch
 } from '../../modules/space'
 import { playLog } from './playLog'
 import { withHandlers, compose, withProps, mapProps } from 'recompose'
@@ -21,7 +21,10 @@ import 'loaders.css/loaders.min.css'
 import case1 from '../../test-logs/1'
 import case2 from '../../test-logs/2'
 import case3 from '../../test-logs/3'
-import case4 from '../../test-logs/4'
+// import case4 from '../../test-logs/4'
+import case5 from '../../test-logs/5'
+// import case6 from '../../test-logs/6'
+import case7 from '../../test-logs/7'
 
 let currentWait = 10
 
@@ -61,10 +64,32 @@ class LogPlayer extends React.PureComponent {
     this.forceUpdate()
   }
 
+  bindFocus() {
+    if (this.logList) {
+      this.logList.removeEventListener('mouseenter', this.enterHandler)
+      this.logList.removeEventListener('mouseleave', this.leaveHandler)
+      this.enterHandler = this.logList.addEventListener('mouseenter', () => {
+        this.logList.focus()
+        console.log('zoom disabled')
+        window.controls.enableZoom = false
+      })
+      this.leaveHandler = this.logList.addEventListener('mouseleave', () => {
+        console.log('zoom enabled')
+        window.controls.enableZoom = true
+      })
+    }
+  }
+
+  componentDidUpdate() {
+    this.bindFocus()
+  }
+
   render() {
     let { latest, playLog, loading, refreshLogs, bd } = this.props
-    if (bd === 'logs')
-      latest = latest.concat([case1, case2, case3, case4])
+    if (bd === 'logs') {
+      latest = latest.concat([case1, case2, case3, case5, case7])
+      //latest = latest.concat([case4, case5, case6])
+    }
     if (bd === 'models')
       latest = latest.concat([]) // TODO
     const queueLength = this.syncQueueWithWait ? this.syncQueueWithWait.length() : 0
@@ -84,7 +109,8 @@ class LogPlayer extends React.PureComponent {
       content = <div className="flex-column">
         <h3 onClick={refreshLogs}>Click here to refresh</h3>
         <h4>Click any button to play</h4>
-        <div>
+        <div ref={(logList) => this.logList = logList}
+             style={{ overflow: 'auto', minHeight: 0, WebkitFlex: '1 1 auto' }}>
           {latest.map((l, i) => <button onClick={() => playLog(l, this.reset, this.syncQueueWithWait.push)}
                                         key={i}>{i + 1}: {l.name}</button>)}
         </div>
@@ -106,7 +132,8 @@ export default compose(
       changeHarmonic,
       changeEnergy,
       changeMessage,
-      changeVoxelBatch
+      changeVoxelBatch,
+      changeColorBatch
     }, dataStore.dispatch)
   }),
   connect(
@@ -121,8 +148,9 @@ export default compose(
     }, dispatch)
   ),
   withHandlers({
-    playLog: ({ changeSize, changeBot, changeVoxel, changeColor, changeEnergy, changeHarmonic, changeMessage, changeVoxelBatch }) => ({ log, size }, reset, push) => {
+    playLog: ({ changeSize, changeBot, changeVoxel, changeColor, changeEnergy, changeHarmonic, changeMessage, changeVoxelBatch, changeColorBatch }) => ({ log, size }, reset, push) => {
       reset()
+      window.controls.enableZoom = true
       passed = 0
       total = log.length
       playLog({
@@ -133,7 +161,8 @@ export default compose(
         changeHarmonic,
         changeEnergy,
         changeMessage,
-        changeVoxelBatch
+        changeVoxelBatch,
+        changeColorBatch
       }, {
         size,
         log

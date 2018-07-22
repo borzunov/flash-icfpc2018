@@ -5,10 +5,12 @@ namespace Flash.Infrastructure.Commands
     public class VoidCommand : ICommand
     {
         public readonly Vector NearDistance;
+        public readonly Vector RealVoid;
 
-        public VoidCommand(Vector nearDistance)
+        public VoidCommand(Vector nearDistance, Vector realVoid = null)
         {
             NearDistance = nearDistance;
+            RealVoid = realVoid;
         }
 
         public void Apply(State state, Bot bot)

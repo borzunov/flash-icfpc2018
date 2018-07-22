@@ -8,6 +8,10 @@ class VectorImpl {
     Object.freeze(this)
   }
 
+  add(other) {
+    return Vector(this.x + other.x, this.y + other.y, this.z + other.z);
+  }
+
   serialize() {
     return VectorImpl.getKey(this.x, this.y, this.z)
   }
