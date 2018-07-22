@@ -40,8 +40,10 @@ namespace Flash.Infrastructure.Algorithms
 		{
 			ConnectivityChecker = new DynamicConnectivity.DynamicConnectivity(matrix.R*matrix.R*matrix.R+1);
 
-			for (int x = 0; x < matrix.R; x++)
+			UnderGroundCode = UpdateEncoder(new Vector(-1, -1, -1));
+
 			for (int y = 0; y < matrix.R; y++)
+			for (int x = 0; x < matrix.R; x++)
 			for (int z = 0; z < matrix.R; z++)
 			{
 				var vector = new Vector(x,y,z);
@@ -65,8 +67,19 @@ namespace Flash.Infrastructure.Algorithms
 			}
 
 			Matrix = matrix.Clone();
+			
+			for (int y = 0; y < matrix.R; y++)
+			for (int x = 0; x < matrix.R; x++)
+			for (int z = 0; z < matrix.R; z++)
+			{
 
-			UnderGroundCode = UpdateEncoder(new Vector(-1, -1, -1));
+				var vector = new Vector(x, y, z);
+				if(Matrix.IsVoid(vector))
+					continue;
+				
+				if(!ConnectivityChecker.IsConnected(Encode(vector), UnderGroundCode))
+					throw new Exception("matrix is not grounded");
+			}
 		}
 
 		private void LinkWithAdjancents(Vector vector)
@@ -79,6 +92,11 @@ namespace Flash.Infrastructure.Algorithms
 				var dstCode = Encode(adj);
 				ConnectivityChecker.Link(code, dstCode);
 			}
+
+			if (vector.Y == 0)
+			{
+				ConnectivityChecker.Link(code, UnderGroundCode);
+			}
 		}
 
 		public void UpdateWithFill(Vector vector)
@@ -90,11 +108,6 @@ namespace Flash.Infrastructure.Algorithms
 			var code = Encode(vector);
 
 			LinkWithAdjancents(vector);
-
-			if (vector.Y == 0)
-			{
-				ConnectivityChecker.Link(code, UnderGroundCode);
-			}
 
 			if (!ConnectivityChecker.IsConnected(code, UnderGroundCode))
 			{
@@ -223,14 +236,13 @@ namespace Flash.Infrastructure.Algorithms
 			Matrix.Clear(vector);
 			var code = Encode(vector);
 			
-
 			foreach (var adj in vector.GetAdjacents()
 				.Where(Matrix.Contains)
 				.Where(Matrix.IsFull))
 			{
 				var dstCode = Encode(adj);
 				ConnectivityChecker.Cut(code, dstCode);
-				if(!ConnectivityChecker.IsConnected(UnderGroundCode, code))
+				if(!ConnectivityChecker.IsConnected(UnderGroundCode, dstCode))
 					throw new Exception($"Вектор {vector} - мост. Вершина {adj} полетела вниз. Используйте CanClear!");
 
 			}
