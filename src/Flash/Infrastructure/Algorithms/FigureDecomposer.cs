@@ -18,7 +18,7 @@ namespace Flash.Infrastructure.Algorithms
             rand = new Random(42);
         }
 
-        private const int RegionCount = 10;
+        private const int RegionCount = 20;
 
         public void Decompose()
         {
@@ -27,6 +27,7 @@ namespace Flash.Infrastructure.Algorithms
             var modelState = Models.State.CreateInitial(targetMatrix.R, mongoOplogWriter);
             mongoOplogWriter.WriteInitialState(modelState);
 
+            double initialTemp = EvaluateDifferenceFrom(curMatrix) / 10.0;
             for (var i = 0; i < RegionCount; i++)
             {
                 Console.WriteLine($"Points to change: {(curMatrix ^ targetMatrix).CountFulls()}\n");
@@ -35,7 +36,7 @@ namespace Flash.Infrastructure.Algorithms
 
                 for (var j = 1; j <= 10000; j++)
                 {
-                    var temp = InitialTemp / j;
+                    double temp = initialTemp / j;
                     var newState = MutateState(state);
                     var newFitness = Evaluate(newState);
 
@@ -56,6 +57,12 @@ namespace Flash.Infrastructure.Algorithms
                     }
                 }
 
+                if (state.Region.Dim == 0)
+                {
+                    Console.WriteLine("Got 1x1x1 region, it will be skipped");
+                    continue;
+                }
+
                 if (state.Fill)
                     curMatrix.Fill(state.Region);
                 else
@@ -66,7 +73,8 @@ namespace Flash.Infrastructure.Algorithms
                     for (var y = state.Region.Min.Y; y <= state.Region.Max.Y; y++)
                         for (var z = state.Region.Min.Z; z <= state.Region.Max.Z; z++)
                             points.Add(new Vector(x, y, z));
-                mongoOplogWriter.WriteGroupColor(points.ToArray(), state.Fill ? "00FF00" : "FF0000", 0.8);
+                mongoOplogWriter.WriteGroupColor(points.ToArray(),
+                    state.Fill ? "00FF00" : "FF0000", state.Fill ? 0.8 : 0.5);
             }
 
             for (var i = 0; i < R; i++)
@@ -75,7 +83,7 @@ namespace Flash.Infrastructure.Algorithms
                     {
                         var point = new Vector(i, j, k);
                         if (curMatrix.IsVoid(point) && targetMatrix.IsFull(point))
-                            mongoOplogWriter.WriteColor(point, "0000FF", 0.5);
+                            mongoOplogWriter.WriteColor(point, "0000FF", 0.8);
                         else
                         if (curMatrix.IsFull(point) && targetMatrix.IsVoid(point))
                             mongoOplogWriter.WriteColor(point, "FFFF00", 0.5);
@@ -87,9 +95,7 @@ namespace Flash.Infrastructure.Algorithms
             Console.ReadLine();
         }
 
-        const double InitialTemp = 1e6;
-
-        double GetTransitionProba(int fitness, int newFitness, double temp)
+        double GetTransitionProba(long fitness, long newFitness, double temp)
         {
             if (newFitness < fitness)
                 return 1;
@@ -112,7 +118,7 @@ namespace Flash.Infrastructure.Algorithms
         private State GenerateState()
         {
             return new State(rand.Next(1) == 1,
-                new Region(GenerateInitialVector()));
+                new Region(GenerateInitialVector(), GenerateInitialVector()));
         }
 
         private State MutateState(State state)
@@ -151,26 +157,33 @@ namespace Flash.Infrastructure.Algorithms
             return (int) Math.Round(rand.NextNormal(0, sigma));
         }
 
-        private int Evaluate(State state)
+        private long Evaluate(State state)
         {
-            var R3 = R * R * R;
+            long costPerStep = 3 * R * R * R;
 
             var wasFull = curMatrix.CountFulls(state.Region);
             var wasVoid = state.Region.Volume - wasFull;
-            var spentForRect = 3 * R3;
+            long spentForRect = costPerStep;
             if (state.Fill)
-                spentForRect += wasFull * 6;
+                spentForRect += wasFull * (long) 6;
             else
-                spentForRect += wasVoid * 3;
+                spentForRect += wasVoid * (long) 3;
+            spentForRect += (state.Region.Max - state.Region.Min).Mlen * costPerStep;
 
             var nextMatrix = curMatrix.Clone();
             if (state.Fill)
                 nextMatrix.Fill(state.Region);
             else
                 nextMatrix.Clear(state.Region);
-            var spentForRem = (nextMatrix ^ targetMatrix).CountFulls() * 3 * R3;
+            long spentForRem = EvaluateDifferenceFrom(nextMatrix);
 
             return spentForRect + spentForRem;
+        }
+
+        private long EvaluateDifferenceFrom(Matrix matrix)
+        {
+            long costPerStep = 3 * R * R * R;
+            return 2 * (matrix ^ targetMatrix).CountFulls() * costPerStep;
         }
     }
 }
