@@ -11,7 +11,7 @@ namespace Flash.Infrastructure.Models
         private readonly bool[,,] matrix;
         public int R => matrix.GetLength(0);
 
-        private IsGroundedChecker groundedChecker;
+        public IsGroundedChecker GroundedChecker;
 
         public Matrix(bool[,,] matrix)
         {
@@ -21,14 +21,11 @@ namespace Flash.Infrastructure.Models
             }
 
             this.matrix = matrix;
-
-            groundedChecker = new IsGroundedChecker(this);
         }
 
         public Matrix(int r)
         {
             matrix = new bool[r, r, r];
-            groundedChecker = new IsGroundedChecker(this);
         }
 
         public Matrix(string[] layers)
@@ -46,8 +43,6 @@ namespace Flash.Infrastructure.Models
                     }
                 }
             }
-
-            groundedChecker = new IsGroundedChecker(this);
         }
         
         public Matrix Clone()
@@ -91,42 +86,54 @@ namespace Flash.Infrastructure.Models
 
         public bool CanFill(Vector v)
         {
-            return groundedChecker.CanPlace(v);
+			if(GroundedChecker == null)
+				GroundedChecker = new IsGroundedChecker(this);
+
+            return GroundedChecker.CanPlace(v);
         }
 
         public bool CanVoid(Vector v)
         {
-            return groundedChecker.CanRemove(v);
+	        if (GroundedChecker == null)
+		        GroundedChecker = new IsGroundedChecker(this);
+
+			return GroundedChecker.CanRemove(v);
         }
 
         public void Fill(Vector v)
         {
-            groundedChecker.UpdateWithFill(v);
+	        if (GroundedChecker == null)
+		        GroundedChecker = new IsGroundedChecker(this);
+
+			GroundedChecker.UpdateWithFill(v);
 
             matrix[v.X, v.Y, v.Z] = true;
         }
 
         public void Clear(Vector v)
         {
-            groundedChecker.UpdateWithClear(v);
+	        if (GroundedChecker == null)
+		        GroundedChecker = new IsGroundedChecker(this);
+
+			GroundedChecker.UpdateWithClear(v);
 
             matrix[v.X, v.Y, v.Z] = false;
         }
 
         public void Fill(Region region)
         {
-            for (var i = region.Min.X; i <= region.Max.X; i++)
+			for (var i = region.Min.X; i <= region.Max.X; i++)
                 for (var j = region.Min.Y; j <= region.Max.Y; j++)
                     for (var k = region.Min.Z; k <= region.Max.Z; k++)
-                        matrix[i, j, k] = true;
-        }
+						Fill(new Vector(i, j, k));
+		}
 
         public void Clear(Region region)
         {
-            for (var i = region.Min.X; i <= region.Max.X; i++)
+			for (var i = region.Min.X; i <= region.Max.X; i++)
                 for (var j = region.Min.Y; j <= region.Max.Y; j++)
                     for (var k = region.Min.Z; k <= region.Max.Z; k++)
-                        matrix[i, j, k] = false;
+                        Clear(new Vector(i, j, k));
         }
 
         public int CountFulls(Region region)
