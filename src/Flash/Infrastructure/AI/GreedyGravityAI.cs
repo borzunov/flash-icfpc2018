@@ -130,10 +130,7 @@ namespace Flash.Infrastructure.AI
 
 			commands.Add(new HaltCommand());
             Console.WriteLine("Commands have been generated");
-
-
-	        var fillCommandsCount = commands.OfType<FillCommand>().Count();
-
+			
 			commands = commands.Where(command =>
             {
 	            var fillCommand = command as FillCommand;
@@ -144,9 +141,7 @@ namespace Flash.Infrastructure.AI
 	            removeFills.Dequeue();
 	            return false;
             }).ToList();
-
-	        fillCommandsCount = commands.OfType<FillCommand>().Count();
-
+			
 	        return commands;
         }
 
