@@ -11,6 +11,8 @@ namespace Flash.Infrastructure.Models
         private readonly bool[,,] matrix;
         public int R => matrix.GetLength(0);
 
+        private IsGroundedChecker groundedChecker;
+
         public Matrix(bool[,,] matrix)
         {
             if (matrix.GetLength(0) != matrix.GetLength(1) || matrix.GetLength(1) != matrix.GetLength(2))
@@ -19,11 +21,14 @@ namespace Flash.Infrastructure.Models
             }
 
             this.matrix = matrix;
+
+            groundedChecker = new IsGroundedChecker(this);
         }
 
         public Matrix(int r)
         {
             matrix = new bool[r, r, r];
+            groundedChecker = new IsGroundedChecker(this);
         }
 
         public Matrix(string[] layers)
@@ -41,8 +46,10 @@ namespace Flash.Infrastructure.Models
                     }
                 }
             }
-        }
 
+            groundedChecker = new IsGroundedChecker(this);
+        }
+        
         public Matrix Clone()
         {
             return new Matrix(matrix);
@@ -82,13 +89,27 @@ namespace Flash.Infrastructure.Models
 		           v.Z >= 0 && v.Z < R;
 	    }
 
+        public bool CanFill(Vector v)
+        {
+            return groundedChecker.CanPlace(v);
+        }
+
+        public bool CanVoid(Vector v)
+        {
+            return groundedChecker.CanRemove(v);
+        }
+
         public void Fill(Vector v)
         {
+            groundedChecker.UpdateWithFill(v);
+
             matrix[v.X, v.Y, v.Z] = true;
         }
 
         public void Clear(Vector v)
         {
+            groundedChecker.UpdateWithClear(v);
+
             matrix[v.X, v.Y, v.Z] = false;
         }
     }

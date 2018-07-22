@@ -30,13 +30,13 @@ namespace Flash.Infrastructure.Models
 
         public bool IsValid()
         {
-            return CheckGround() && CheckNanobotsIds() && CheckNanobotsPositions();
+            return CheckNanobotsIds() && CheckNanobotsPositions();
         }
 
-        private bool CheckGround()
-        {
-            return Harmonics || Matrix.IsGrounded(); //TODO optimize IsGrounded
-        }
+//        private bool CheckGround()
+//        {
+//            return Harmonics || Matrix.IsGrounded(); //TODO optimize IsGrounded
+//        }
 
         private bool CheckNanobotsPositions()
         {
