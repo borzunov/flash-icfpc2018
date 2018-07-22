@@ -28,14 +28,12 @@ namespace Flash.Infrastructure.Algorithms
 
         private const int RegionCount = 20;
 
-        public void Decompose()
+        public List<BuildingTask> Decompose()
         {
-            var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
-            mongoOplogWriter.WriteLogName("FigureDecomposer");
-            var modelState = Models.State.CreateInitial(targetMatrix.R, mongoOplogWriter);
-            mongoOplogWriter.WriteInitialState(modelState);
+            Console.WriteLine("FigureDecomposer.Decompose() started");
 
             double initialTemp = EvaluateDifferenceFrom(curMatrix) / 10.0;
+            var tasks = new List<BuildingTask>();
             for (var i = 0; i < RegionCount; i++)
             {
                 if (xorSums.TotalFulls <= 1)
@@ -81,13 +79,8 @@ namespace Flash.Infrastructure.Algorithms
                 curSums = new PointCounter(curMatrix);
                 xorSums = new PointCounter(curMatrix ^ targetMatrix);
 
-                var points = new List<Vector>();
-                for (var x = state.Region.Min.X; x <= state.Region.Max.X; x++)
-                    for (var y = state.Region.Min.Y; y <= state.Region.Max.Y; y++)
-                        for (var z = state.Region.Min.Z; z <= state.Region.Max.Z; z++)
-                            points.Add(new Vector(x, y, z));
-                mongoOplogWriter.WriteGroupColor(points.ToArray(),
-                    state.Fill ? "00FF00" : "FF0000", state.Fill ? 0.8 : 0.5);
+                var type = state.Fill ? BuildingTaskType.GFill : BuildingTaskType.GVoid;
+                tasks.Add(new BuildingTask(type, state.Region));
             }
 
             for (var i = 0; i < R; i++)
@@ -96,16 +89,15 @@ namespace Flash.Infrastructure.Algorithms
                     {
                         var point = new Vector(i, j, k);
                         if (curMatrix.IsVoid(point) && targetMatrix.IsFull(point))
-                            mongoOplogWriter.WriteColor(point, "0000FF", 0.8);
+                            tasks.Add(new BuildingTask(BuildingTaskType.Fill, new Region(point)));
                         else
                         if (curMatrix.IsFull(point) && targetMatrix.IsVoid(point))
-                            mongoOplogWriter.WriteColor(point, "FFFF00", 0.5);
+                            tasks.Add(new BuildingTask(BuildingTaskType.Void, new Region(point)));
                     }
 
-            mongoOplogWriter.Save();
-
-            Console.WriteLine($"Points to change: {xorSums.TotalFulls}\n");
-            Console.ReadLine();
+            Console.WriteLine($"Points to change: {xorSums.TotalFulls}");
+            Console.WriteLine("FigureDecomposer.Decompose() complete");
+            return tasks;
         }
 
         double GetTransitionProba(long fitness, long newFitness, double temp)

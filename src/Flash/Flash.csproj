@@ -117,6 +117,7 @@
     <Compile Include="Infrastructure\Commands\FusionSCommand.cs" />
     <Compile Include="Infrastructure\Commands\LMoveCommand.cs" />
     <Compile Include="Infrastructure\AI\IAI.cs" />
+    <Compile Include="Infrastructure\Models\BuildingTask.cs" />
     <Compile Include="Infrastructure\Models\FakeOpLog.cs" />
     <Compile Include="Infrastructure\Models\IJsonWriter.cs" />
     <Compile Include="Infrastructure\Models\IOpLogWriter.cs" />
