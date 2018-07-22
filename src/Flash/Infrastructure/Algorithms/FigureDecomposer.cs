@@ -9,9 +9,8 @@ namespace Flash.Infrastructure.Algorithms
     {
         private readonly int R;
         private readonly long costPerStep;
-        private readonly Matrix curMatrix, targetMatrix;
-        private PointCounter curSums, xorSums;
-        private readonly PointCounter targetSums;
+        private readonly Matrix curMatrix, targetMatrix, xorMatrix;
+        private readonly PointCounter curSums, targetSums, xorSums;
         private readonly Random rand;
 
         public FigureDecomposer(Matrix sourceMatrix, Matrix targetMatrix)
@@ -21,9 +20,12 @@ namespace Flash.Infrastructure.Algorithms
 
             curMatrix = sourceMatrix.Clone();
             this.targetMatrix = targetMatrix.Clone();
+            xorMatrix = curMatrix ^ targetMatrix;
+
             curSums = new PointCounter(curMatrix);
-            xorSums = new PointCounter(curMatrix ^ targetMatrix);
             targetSums = new PointCounter(targetMatrix);
+            xorSums = new PointCounter(xorMatrix);
+
             rand = new Random(42);
         }
 
@@ -52,8 +54,10 @@ namespace Flash.Infrastructure.Algorithms
                     curMatrix.Fill(state.Region);
                 else
                     curMatrix.Clear(state.Region);
+                UpdateXorMatrix(state.Region);
+
                 curSums.Update(curMatrix, state.Region.Min);
-                xorSums.Update(curMatrix ^ targetMatrix, state.Region.Min);
+                xorSums.Update(xorMatrix, state.Region.Min);
 
                 var type = state.Fill ? BuildingTaskType.GFill : BuildingTaskType.GVoid;
                 tasks.Add(new BuildingTask(type, state.Region));
@@ -67,6 +71,19 @@ namespace Flash.Infrastructure.Algorithms
 
             Console.WriteLine("FigureDecomposer.Decompose() complete");
             return tasks;
+        }
+
+        private void UpdateXorMatrix(Region region)
+        {
+            // This violates incapsulation principle but provides optimization benefits
+
+            var curContent = curMatrix.GetContent();
+            var targetContent = targetMatrix.GetContent();
+            var xorContent = xorMatrix.GetContent();
+            for (var i = region.Min.X; i <= region.Max.X; i++)
+            for (var j = region.Min.Y; j <= region.Max.Y; j++)
+            for (var k = region.Min.Z; k <= region.Max.Z; k++)
+                xorContent[i, j, k] = curContent[i, j, k] ^ targetContent[i, j, k];
         }
 
         private State FindNextRectangle(int regionNo, double initialTemp)
