@@ -111,6 +111,11 @@ namespace Flash.Infrastructure.Models
             }
         }
 
+        public Matrix Clone()
+        {
+            return new Matrix(matrix);
+        }
+
         public bool IsFull(Vector v)
         {
             return matrix[v.X, v.Y, v.Z];
