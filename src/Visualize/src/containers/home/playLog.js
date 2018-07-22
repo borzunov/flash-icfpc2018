@@ -1,5 +1,4 @@
 import { LogAction } from '../../test-logs/LogAction'
-import { changeVoxelBatch } from '../../modules/space'
 
 const MAX = 100000;
 export const playLog = ({ changeSize, changeVoxel, changeBot, changeColor, changeEnergy, changeHarmonic, changeMessage, changeVoxelBatch }, { size, log, name }, enqueue) => {

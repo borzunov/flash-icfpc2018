@@ -1,6 +1,6 @@
 import React from 'react'
 import * as THREE from 'three'
-import { compose, onlyUpdateForKeys, shouldUpdate, withProps } from 'recompose'
+import { compose, onlyUpdateForKeys, withProps } from 'recompose'
 import { dataStore } from '../../store'
 
 export const BoxImpl = ({ position, color, size, filled = false, contoured = false, opacity = 1, showEdges = false }) => {

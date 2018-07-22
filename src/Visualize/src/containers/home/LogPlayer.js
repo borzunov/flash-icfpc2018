@@ -84,7 +84,7 @@ class LogPlayer extends React.PureComponent {
       content = <div className="flex-column">
         <h3 onClick={refreshLogs}>Click here to refresh</h3>
         <h4>Click any button to play</h4>
-        <div>
+        <div style={{overflow: 'auto'}}>
           {latest.map((l, i) => <button onClick={() => playLog(l, this.reset, this.syncQueueWithWait.push)}
                                         key={i}>{i + 1}: {l.name}</button>)}
         </div>
