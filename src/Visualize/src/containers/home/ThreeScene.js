@@ -31,6 +31,7 @@ class ThreeScene extends React.PureComponent {
 
   componentDidMount() {
     window.controls = this.controls = new OrbitControls(this.camera)
+    window.scene = this.scene
     this.updateCamera()
     this.bindKeys(true)
   }
@@ -64,6 +65,8 @@ class ThreeScene extends React.PureComponent {
   componentWillUnmount() {
     this.controls.dispose()
     this.controls = null
+    window.scene = null
+    window.controlls = null
     this.bindKeys(true)
   }
 
@@ -115,7 +118,7 @@ class ThreeScene extends React.PureComponent {
               position={makeCameraPosition(mapSize, bigBoxSize)}
             />
             <CoordinatesHelpers mapSize={mapSize} bigBoxSize={bigBoxSize}/>
-            <FillContainer boxSize={smallBoxSize}/>
+            <FillContainer useMerge boxSize={smallBoxSize} color={0xffffff}/>
             <ColorContainer boxSize={smallBoxSize}/>
             <BotContainer botSize={botSize} botColor={0xffa500}/>
           </scene>

@@ -22,7 +22,7 @@ import case1 from '../../test-logs/1'
 import case2 from '../../test-logs/2'
 import case3 from '../../test-logs/3'
 // import case4 from '../../test-logs/4'
-// import case5 from '../../test-logs/5'
+import case5 from '../../test-logs/5'
 // import case6 from '../../test-logs/6'
 
 let currentWait = 10
@@ -86,7 +86,7 @@ class LogPlayer extends React.PureComponent {
   render() {
     let { latest, playLog, loading, refreshLogs, bd } = this.props
     if (bd === 'logs') {
-      latest = latest.concat([case1, case2, case3])
+      latest = latest.concat([case1, case2, case3, case5])
       //latest = latest.concat([case4, case5, case6])
     }
     if (bd === 'models')
