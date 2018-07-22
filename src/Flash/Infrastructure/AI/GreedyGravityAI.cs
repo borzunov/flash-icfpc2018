@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Bingo.Graph;
-using Flash.Infrastructure.Algorithms;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Models;
 
@@ -131,7 +130,7 @@ namespace Flash.Infrastructure.AI
 
 			commands.Add(new HaltCommand());
             Console.WriteLine("Commands have been generated");
-			
+
 			commands = commands.Where(command =>
             {
 	            var fillCommand = command as FillCommand;
@@ -228,13 +227,24 @@ namespace Flash.Infrastructure.AI
 
         private IEnumerable<Vector> GetPointsTowards(Vector start, Vector end)
         {
-            var direction = Clipping.Clip(end - start, 1);
+            var direction = end - start;
+            direction = new Vector(Clip(direction.X, 1), Clip(direction.Y, 1), Clip(direction.Z, 1));
+
             var point = start;
             while (!point.Equals(end))
             {
                 point += direction;
                 yield return point;
             }
+        }
+
+        private int Clip(int value, int abs)
+        {
+            if (value < -abs)
+                return -abs;
+            if (value > abs)
+                return abs;
+            return value;
         }
 
         private int curCommand = 0;

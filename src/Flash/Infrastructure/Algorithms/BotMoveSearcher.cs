@@ -17,6 +17,7 @@ namespace Flash.Infrastructure.Algorithms
 		private Vector End;
 		private Func<Vector, bool> IsForbiddenArea;
 		private int BotsCount;
+		public JsonOpLogWriter mongoOplogWriter;
 
 		private Dictionary<Tuple<Vector, bool>, AStarState> MinStates = new Dictionary<Tuple<Vector, bool>, AStarState>();
 
