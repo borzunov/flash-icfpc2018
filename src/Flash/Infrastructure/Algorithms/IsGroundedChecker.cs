@@ -7,7 +7,7 @@ using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Algorithms
 {
-	class IsGroundedChecker
+	public class IsGroundedChecker
 	{
 		private DynamicConnectivity.DynamicConnectivity ConnectivityChecker;
 		private Dictionary<Vector, int> Encoder = new Dictionary<Vector, int>();
