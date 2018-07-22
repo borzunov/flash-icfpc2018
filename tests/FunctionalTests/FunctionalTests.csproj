@@ -62,6 +62,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SimComparerTests.cs" />
     <Compile Include="TraceBinaryDeserializatorTests.cs" />
     <Compile Include="TraceBinarySerializerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,6 +71,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\evaller\evaller.csproj">
+      <Project>{b38bb1a5-d473-407a-80c2-501cbf2a73c3}</Project>
+      <Name>evaller</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\Flash\Flash.csproj">
       <Project>{4b7a1219-e10b-4e48-96cf-64549b7634c9}</Project>
       <Name>Flash</Name>

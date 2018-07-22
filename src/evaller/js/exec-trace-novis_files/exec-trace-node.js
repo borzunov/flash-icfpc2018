@@ -20,6 +20,10 @@ var tgtModelBData = loadData(argv.tgtModelPath);
 var traceBData = loadData(argv.tracePath);
 var srcModelBData = loadData(argv.srcModelPath);
 
+var requestAnimationFrame = function(f){
+    f();
+}
+
 var dom = new JSDOM(`<!DOCTYPE html>
 <html lang="en-US">
     <link type="text/css" id="dark-mode" rel="stylesheet" href="https://icfpcontest2018.github.io/full/exec-trace-novis.html">
