@@ -51,9 +51,9 @@ namespace Flash.Infrastructure.Models
             opLog.Add(new { p = $"{v.X}/{v.Y}/{v.Z}", t = 1 });
         }
 		
-	    public void WriteColor(Vector v, string color)
+	    public void WriteColor(Vector v, string color, double opacity)
 	    {
-		    opLog.Add(new { p = $"{v.X}/{v.Y}/{v.Z}", t = 6, c = color });
+		    opLog.Add(new { p = $"{v.X}/{v.Y}/{v.Z}", t = 6, c = color, o = Math.Min(opacity, 1) });
 	    }
 
 		public void WriteRemove(Vector v)
@@ -73,12 +73,12 @@ namespace Flash.Infrastructure.Models
 
         public void WriteGroupAdd(Vector[] points)
         {
-            opLog.Add(new { p = points.Select(v => $"{v.X}/{v.Y}/{v.Z}"), t = 7 });
+            opLog.Add(new { p = points.Select(v => $"{v.X}/{v.Y}/{v.Z}").ToArray(), t = 7 });
         }
 
         public void WriteGroupRemove(Vector[] points)
         {
-            opLog.Add(new { p = points.Select(v => $"{v.X}/{v.Y}/{v.Z}"), t = 8 });
+            opLog.Add(new { p = points.Select(v => $"{v.X}/{v.Y}/{v.Z}").ToArray(), t = 8 });
         }
 
         public void Save()

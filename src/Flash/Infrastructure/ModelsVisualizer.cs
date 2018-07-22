@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Flash.Infrastructure.Deserializers;
 using Flash.Infrastructure.Models;
+using Flash.Infrastructure.Simulation;
 
 namespace Flash.Infrastructure
 {
@@ -39,7 +41,14 @@ namespace Flash.Infrastructure
                 }
             }
 
-            oplogWriter.WriteGroupAdd(points.ToArray());
+            var queue = new Queue<Vector>(points);
+            while (queue.Any())
+            {
+                var part = queue.Dequeue(1000);
+
+                oplogWriter.WriteGroupAdd(part);
+            }
+
 
             oplogWriter.Save();
         }

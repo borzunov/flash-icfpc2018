@@ -1,7 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Flash.Infrastructure;
 using Flash.Infrastructure.AI;
+using Flash.Infrastructure.Algorithms;
 using Flash.Infrastructure.Commands;
+using Flash.Infrastructure.Deserializers;
 using Flash.Infrastructure.Models;
 using Flash.Infrastructure.Simulation;
 
@@ -11,18 +16,22 @@ namespace Flash
     {
         public static void Main(string[] args)
         {
-            var trackFilePath = @"..\..\..\data\track\LA001.nbt";
-            var modelFilePath = @"..\..\..\data\track\LA001_tgt.mdl";
+            //var trackFilePath = @"..\..\..\data\track\LA001.nbt";
+            var modelFilePath = @"..\..\..\data\models\LA020_tgt.mdl";
 
-            var ai = new FileAI(trackFilePath);
+            var matrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(modelFilePath));
+            var ai = new GreedyGravityAI(matrix);
+	        
+			var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
+            mongoOplogWriter.WriteLogName("GreedyGravityAI_IsGrounded");
+	        var state = State.CreateInitial(matrix.R, mongoOplogWriter);
+	        mongoOplogWriter.WriteInitialState(state);
 
-            var mongoOplogWriter = new JsonOpLogWriter(new ConsoleJsonWriter());
-            mongoOplogWriter.WriteLogName("MY_BEST_ALGO");
+	        
+
+			return;
 
             var simulator = new Simulator();
-            var size = 30;
-            var state = State.CreateInitial(size, mongoOplogWriter);
-            mongoOplogWriter.WriteInitialState(state);
 
             while (true)
             {

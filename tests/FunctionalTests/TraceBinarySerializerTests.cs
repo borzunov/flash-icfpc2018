@@ -61,6 +61,21 @@ namespace FunctionalTests
                     Trace.From(new FillCommand(new Vector(0, -1, 0))),
                     new byte[] { 0b0101_0011 })
                 .SetName("Fill");
+
+            yield return new TestCaseData(
+                    Trace.From(new VoidCommand(new Vector(1, 0, 1))),
+                    new byte[] { 0b1011_1010 })
+                .SetName("Void");
+
+            yield return new TestCaseData(
+                    Trace.From(new GFillCommand(new Vector(0,-1,0), new Vector(10,-15,20))),
+                    new byte[] { 0b0101_0001,0b001_01000,0b0000_1111,0b001_10010 })
+                .SetName("GFill");
+
+            yield return new TestCaseData(
+                    Trace.From(new GVoidCommand(new Vector(1, 0, 0), new Vector(5, 5, -5))),
+                    new byte[] { 0b1011_0000, 0b0010_0011, 0b0010_0011, 0b0001_1001 })
+                .SetName("GVoid");
         }
 
         [TestCaseSource(nameof(GetSerializeTest))]

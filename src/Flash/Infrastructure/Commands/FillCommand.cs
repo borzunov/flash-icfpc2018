@@ -4,12 +4,14 @@ using Flash.Infrastructure.Models;
 namespace Flash.Infrastructure.Commands
 {
     public class FillCommand : ICommand
-    {
-        public readonly Vector NearDistance;
+	{
+		public readonly Vector NearDistance;
+		public readonly Vector RealFill;
 
-        public FillCommand(Vector nearDistance)
+		public FillCommand(Vector nearDistance, Vector realFill = null)
         {
             NearDistance = nearDistance;
+	        RealFill = realFill;
         }
 
         public void Apply(State state, Bot bot)

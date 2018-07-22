@@ -48,6 +48,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="js\exec-trace-novis_files\css" />
+    <None Include="js\package-lock.json" />
+    <None Include="js\package.json" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="js\exec-trace-novis-node.html" />
+    <Content Include="js\exec-trace-novis.html" />
+    <Content Include="js\exec-trace-novis_files\exec-trace-node.js" />
+    <Content Include="js\exec-trace-novis_files\exec-trace.js" />
+    <Content Include="js\exec-trace-novis_files\load-file-utils.js" />
+    <Content Include="js\exec-trace-novis_files\style.css" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

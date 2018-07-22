@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Input;
 
 namespace Flash.Infrastructure.Models
 {
@@ -16,7 +18,7 @@ namespace Flash.Infrastructure.Models
 
         public static State CreateInitial(int r, IOpLogWriter opLogWriter=null)
         {
-            return new State(0, false, new Matrix(r), new [] {new Bot(1, new Vector(0, 0, 0), Enumerable.Range(2, 19).ToArray())}, null,  opLogWriter);
+            return new State(0, false, new Matrix(r), new [] {new Bot(1, new Vector(0, 0, 0), Enumerable.Range(2, 39).ToArray())}, null,  opLogWriter);
         }
 
         public IOpLogWriter OpLogWriter { get; set; }
@@ -28,13 +30,13 @@ namespace Flash.Infrastructure.Models
 
         public bool IsValid()
         {
-            return CheckGround() && CheckNanobotsIds() && CheckNanobotsPositions();
+            return CheckNanobotsIds() && CheckNanobotsPositions();
         }
 
-        private bool CheckGround()
-        {
-            return Harmonics || Matrix.IsGrounded(); //TODO optimize IsGrounded
-        }
+//        private bool CheckGround()
+//        {
+//            return Harmonics || Matrix.IsGrounded(); //TODO optimize IsGrounded
+//        }
 
         private bool CheckNanobotsPositions()
         {

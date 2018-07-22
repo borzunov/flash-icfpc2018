@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
 
 namespace Flash.Infrastructure.Models
 {
@@ -103,6 +105,23 @@ namespace Flash.Infrastructure.Models
             };
         }
 
+        private const int LongLinearMLen = 2; // FIXME: Was 15
+
+        public List<Vector> GetLongLinearNeighs()
+        {
+            var result = new List<Vector>();
+            for (var i = 1; i <= LongLinearMLen; i++)
+            {
+                result.Add(new Vector(X - i, Y, Z));
+                result.Add(new Vector(X + i, Y, Z));
+                result.Add(new Vector(X, Y - i, Z));
+                result.Add(new Vector(X, Y + i, Z));
+                result.Add(new Vector(X, Y, Z - i));
+                result.Add(new Vector(X, Y, Z + i));
+            }
+            return result;
+        }
+
         public int GetFirstNonZeroComponent()
         {
             if (X != 0)
@@ -120,6 +139,8 @@ namespace Flash.Infrastructure.Models
         #region equality members
         protected bool Equals(Vector other)
         {
+            if (other is null)
+                return false;
             return X == other.X && Y == other.Y && Z == other.Z;
         }
 
@@ -144,6 +165,15 @@ namespace Flash.Infrastructure.Models
                 return hashCode;
             }
         }
+
+        public static bool operator ==(Vector a, Vector b)
+        {
+            if (a is null)
+                return b is null;
+            return a.Equals(b);
+        }
+
+        public static bool operator !=(Vector a, Vector b) => !(a == b);
         #endregion
 
         public override string ToString()
