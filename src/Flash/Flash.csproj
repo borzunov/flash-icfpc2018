@@ -68,11 +68,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Infrastructure\AIResult.cs" />
     <Compile Include="Infrastructure\AI\FileAI.cs" />
     <Compile Include="Infrastructure\AI\GreedyGravityAI.cs" />
     <Compile Include="Infrastructure\Alghorithms\BridgesFinder.cs" />
+    <Compile Include="Infrastructure\Algorithms\Clipping.cs" />
+    <Compile Include="Infrastructure\Algorithms\BotMoveSearcher.cs" />
     <Compile Include="Infrastructure\Algorithms\ClusterMixtureBuilder.cs" />
     <Compile Include="Infrastructure\Algorithms\DynamicConnectivity.cs" />
+    <Compile Include="Infrastructure\Algorithms\FigureDecomposer.cs" />
     <Compile Include="Infrastructure\Algorithms\IsGroundedChecker.cs" />
     <Compile Include="Infrastructure\Algorithms\IsGroundedCheckerTest.cs" />
     <Compile Include="Infrastructure\Algorithms\Lib\Core\DynamicEdge.cs" />
@@ -84,7 +88,9 @@
     <Compile Include="Infrastructure\Algorithms\Lib\EulerTourTree\EulerVertex.cs" />
     <Compile Include="Infrastructure\Algorithms\Lib\Treap\TreapNode.cs" />
     <Compile Include="Infrastructure\Algorithms\Lib\Treap\XorShift.cs" />
+    <Compile Include="Infrastructure\Algorithms\PointCounter.cs" />
     <Compile Include="Infrastructure\Algorithms\PriorityQueue.cs" />
+    <Compile Include="Infrastructure\Algorithms\RandomExtensions.cs" />
     <Compile Include="Infrastructure\Algorithms\SkeletonBuilder.cs" />
     <Compile Include="Infrastructure\Commands\GVoidCommand.cs" />
     <Compile Include="Infrastructure\Commands\GFillCommand.cs" />
@@ -98,6 +104,8 @@
     <Compile Include="Infrastructure\Deserializers\FlipCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\FusionPCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\FusionSCommandDeserializer.cs" />
+    <Compile Include="Infrastructure\Deserializers\GFillCommandDeserializer.cs" />
+    <Compile Include="Infrastructure\Deserializers\GVoidCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\HaltCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\ICommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\LMoveCommandDeserializer.cs" />
@@ -105,6 +113,7 @@
     <Compile Include="Infrastructure\Deserializers\SMoveCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\TraceBinaryDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\VectorDeserializer.cs" />
+    <Compile Include="Infrastructure\Deserializers\VoidCommandDeserializer.cs" />
     <Compile Include="Infrastructure\Deserializers\WaitCommandDeserializer.cs" />
     <Compile Include="Infrastructure\ModelsVisualizer.cs" />
     <Compile Include="Infrastructure\Models\Bot.cs" />
@@ -114,6 +123,7 @@
     <Compile Include="Infrastructure\Commands\FusionSCommand.cs" />
     <Compile Include="Infrastructure\Commands\LMoveCommand.cs" />
     <Compile Include="Infrastructure\AI\IAI.cs" />
+    <Compile Include="Infrastructure\Models\BuildingTask.cs" />
     <Compile Include="Infrastructure\Models\FakeOpLog.cs" />
     <Compile Include="Infrastructure\Models\IJsonWriter.cs" />
     <Compile Include="Infrastructure\Models\IOpLogWriter.cs" />
@@ -133,10 +143,13 @@
     <Compile Include="Infrastructure\Serializers\FissionCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\FusionPCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\FusionSCommandSerializer.cs" />
+    <Compile Include="Infrastructure\Serializers\GFillCommandSerializer.cs" />
+    <Compile Include="Infrastructure\Serializers\GVoidCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\LMoveCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\SMoveCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\FlipCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\VectorSerializer.cs" />
+    <Compile Include="Infrastructure\Serializers\VoidCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\WaitCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\HaltCommandSerializer.cs" />
     <Compile Include="Infrastructure\Serializers\ICommandSerializer.cs" />

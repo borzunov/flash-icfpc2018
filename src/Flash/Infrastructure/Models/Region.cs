@@ -72,5 +72,9 @@ namespace Flash.Infrastructure.Models
         }
 
         #endregion
+
+        public int Volume => (Max.X - Min.X + 1) * (Max.Y - Min.Y + 1) * (Max.Z - Min.Z + 1);
+
+        public override string ToString() => $"[{Min}, {Max}]";
     }
 }

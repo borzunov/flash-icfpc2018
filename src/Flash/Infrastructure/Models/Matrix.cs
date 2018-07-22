@@ -52,7 +52,7 @@ namespace Flash.Infrastructure.Models
         
         public Matrix Clone()
         {
-            return new Matrix(matrix);
+            return new Matrix((bool[,,]) matrix.Clone());
         }
 
         public bool IsFull(Vector v)
@@ -111,6 +111,50 @@ namespace Flash.Infrastructure.Models
             groundedChecker.UpdateWithClear(v);
 
             matrix[v.X, v.Y, v.Z] = false;
+        }
+
+        public void Fill(Region region)
+        {
+            for (var i = region.Min.X; i <= region.Max.X; i++)
+                for (var j = region.Min.Y; j <= region.Max.Y; j++)
+                    for (var k = region.Min.Z; k <= region.Max.Z; k++)
+                        matrix[i, j, k] = true;
+        }
+
+        public void Clear(Region region)
+        {
+            for (var i = region.Min.X; i <= region.Max.X; i++)
+                for (var j = region.Min.Y; j <= region.Max.Y; j++)
+                    for (var k = region.Min.Z; k <= region.Max.Z; k++)
+                        matrix[i, j, k] = false;
+        }
+
+        public int CountFulls(Region region)
+        {
+            var result = 0;
+            for (var i = region.Min.X; i <= region.Max.X; i++)
+                for (var j = region.Min.Y; j <= region.Max.Y; j++)
+                    for (var k = region.Min.Z; k <= region.Max.Z; k++)
+                        result += (matrix[i, j, k] ? 1 : 0);
+            return result;
+        }
+
+        public int CountFulls()
+        {
+            return CountFulls(new Region(new Vector(0, 0, 0), new Vector(R - 1, R - 1, R - 1)));
+        }
+
+        public static Matrix operator ^(Matrix a, Matrix b)
+        {
+            if (a.R != b.R)
+                throw new ArgumentException("Matrix sizes don't match");
+
+            var result = a.Clone();
+            for (var i = 0; i < a.R; i++)
+                for (var j = 0; j < a.R; j++)
+                    for (var k = 0; k < a.R; k++)
+                        result.matrix[i, j, k] ^= b.matrix[i, j, k];
+            return result;
         }
     }
 }
