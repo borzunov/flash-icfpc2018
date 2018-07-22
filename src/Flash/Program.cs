@@ -1,7 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Flash.Infrastructure;
 using Flash.Infrastructure.AI;
+using Flash.Infrastructure.Algorithms;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Deserializers;
 using Flash.Infrastructure.Models;
@@ -14,17 +17,21 @@ namespace Flash
         public static void Main(string[] args)
         {
             //var trackFilePath = @"..\..\..\data\track\LA001.nbt";
-            var modelFilePath = @"..\..\..\data\models\LA016_tgt.mdl";
+            var modelFilePath = @"..\..\..\data\models\LA020_tgt.mdl";
 
             var matrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(modelFilePath));
             var ai = new GreedyGravityAI(matrix);
+	        
+			var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
+            mongoOplogWriter.WriteLogName("GreedyGravityAI_IsGrounded");
+	        var state = State.CreateInitial(matrix.R, mongoOplogWriter);
+	        mongoOplogWriter.WriteInitialState(state);
 
-            var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
-            mongoOplogWriter.WriteLogName("GreedyGravityAI");
+	        
+
+			return;
 
             var simulator = new Simulator();
-            var state = State.CreateInitial(matrix.R, mongoOplogWriter);
-            mongoOplogWriter.WriteInitialState(state);
 
             while (true)
             {
