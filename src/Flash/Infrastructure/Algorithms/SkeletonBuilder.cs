@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bingo.Graph;
 using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Algorithms
@@ -53,44 +54,79 @@ namespace Flash.Infrastructure.Algorithms
 
 		private bool IsMoveable(Vector vector)
 		{
-			return IsMoveableMatrix.TryGetValue(vector, out var moveable) ? moveable : Matrix.Contains(R, vector);
+			return IsMoveableMatrix.TryGetValue(vector, out var moveable) ? moveable : vector.Y == 0 && Matrix.Contains(R, vector);
 		}
 
 		public SkeletonNode FindSkeleton()
 		{
-			var skeleton = new SkeletonNode();
-			
+			SetMovable();
+
 			HashSet<int> unvisitedAreas = Enumerable.Range(0, BotsCount).ToHashSet();
 			Dictionary<Vector, Vector> dads = new Dictionary<Vector, Vector>();
 			Dictionary<Vector, SkeletonNode> skeletons = new Dictionary<Vector, SkeletonNode>();
 
-			var queue = new Queue<Vector>();
-			queue.Enqueue(new Vector(0, 0, 0));
+			var queue = new PriorityQueue<Vector>();
+			queue.Enqueue(0, new Vector(0, 0, 0));
 			dads[new Vector(0, 0, 0)] = null;
 
 			while (unvisitedAreas.Count > 0)
 			{
+				var priority = queue.GetMaxPriority();
 				var node = queue.Dequeue();
 
 				if (VectorComponents.TryGetValue(node, out var component) && unvisitedAreas.Contains(component))
 				{
 					unvisitedAreas.Remove(component);
-					
-					//var branch
+
+					var branch = new SkeletonNode
+					{
+						Vector = node,
+						InputPoint = component
+					};
+
+					while (dads[branch.Vector] != null)
+					{
+						var dadNode = dads[branch.Vector];
+						var dad = skeletons.TryGetValue(dadNode, out var dadBranch) 
+							? dadBranch 
+							: new SkeletonNode{Vector = dadNode};
+						dad.Childs[component] = branch;
+						skeletons[branch.Vector] = branch;
+						skeletons[dad.Vector] = dad;
+						branch = dad;
+					}
 				}
-
-
+				
 				foreach (var adj in node.GetAdjacents().Where(adj => !dads.ContainsKey(adj) && IsMoveable(adj)))
 				{
 					dads[adj] = node;
+					var priorityAdd = (VectorComponents.TryGetValue(adj, out var s) ? s : -1) >= 0 ? -1 : -2;
+					queue.Enqueue(priorityAdd + priority, adj);
 				}
 			}
-			throw new Exception();
+
+			var queue1 = new Queue<SkeletonNode>();
+			queue1.Enqueue(skeletons[new Vector(0, 0, 0)]);
+			while (queue1.Count > 0)
+			{
+				var i = queue1.Dequeue();
+				if(VectorComponents.ContainsKey(i.Vector))
+					VectorComponents[i.Vector] = Skeleton;
+
+				foreach (var skeletonNode in i.Childs.Select(pair => pair.Value).Distinct())
+				{
+					queue1.Enqueue(skeletonNode);
+				}
+			}
+
+
+			return skeletons[new Vector(0, 0, 0)];
 		}
 	}
 
 	class SkeletonNode
 	{
+		public int InputPoint = -1;
 		public Vector Vector;
 		public Dictionary<int, SkeletonNode> Childs = new Dictionary<int, SkeletonNode>();
 	}

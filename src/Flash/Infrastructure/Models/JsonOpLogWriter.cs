@@ -51,9 +51,9 @@ namespace Flash.Infrastructure.Models
             opLog.Add(new { p = $"{v.X}/{v.Y}/{v.Z}", t = 1 });
         }
 		
-	    public void WriteColor(Vector v, string color)
+	    public void WriteColor(Vector v, string color, double opacity)
 	    {
-		    opLog.Add(new { p = $"{v.X}/{v.Y}/{v.Z}", t = 6, c = color });
+		    opLog.Add(new { p = $"{v.X}/{v.Y}/{v.Z}", t = 6, c = color, o = Math.Min(opacity, 1) });
 	    }
 
 		public void WriteRemove(Vector v)
