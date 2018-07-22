@@ -28,8 +28,8 @@ namespace Flash.Infrastructure.Models
         public int Clen => Math.Max(Math.Max(Math.Abs(X), Math.Abs(Y)), Math.Abs(Z));
 
         public static Vector operator +(Vector v1, Vector v2) => new Vector(v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z);
-        public static Vector operator -(Vector v1, Vector v2) => new Vector(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
-        public static Vector operator -(Vector v) => new Vector(-v.X, -v.Y, -v.Z);
+	    public static Vector operator -(Vector v1, Vector v2) => new Vector(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
+		public static Vector operator -(Vector v) => new Vector(-v.X, -v.Y, -v.Z);
 
         /// <summary>
         /// (this - other).Mlen == 1;
@@ -39,7 +39,7 @@ namespace Flash.Infrastructure.Models
             return (this - other).Mlen == 1;
         }
 
-        public Vector[] GetAdjacents()
+	    public Vector[] GetAdjacents()
         {
             return new[]
             {
@@ -105,7 +105,7 @@ namespace Flash.Infrastructure.Models
             };
         }
 
-        private const int LongLinearMLen = 2; // FIXME: Was 15
+        private const int LongLinearMLen = 15;
 
         public List<Vector> GetLongLinearNeighs()
         {
@@ -180,5 +180,10 @@ namespace Flash.Infrastructure.Models
         {
             return $"({X},{Y},{Z})";
         }
+
+	    public Vector Abs()
+	    {
+		    return new Vector(Math.Abs(X), Math.Abs(Y), Math.Abs(Z));
+	    }
     }
 }

@@ -192,7 +192,7 @@ namespace Flash.Infrastructure.Algorithms
 			return canRemove;
 		}
 
-		public bool CanRemove(ICollection<Vector> vectors)
+		public bool CanRemove(HashSet<Vector> vectors)
 		{
 			bool canRemove = true;
 			foreach (var vector in vectors.Where(vector => Matrix.IsFull(vector)))
@@ -201,6 +201,7 @@ namespace Flash.Infrastructure.Algorithms
 				var adjsCodes = vector.GetAdjacents()
 					.Where(Matrix.Contains)
 					.Where(Matrix.IsFull)
+					.Where(v => !vectors.Contains(v))
 					.Select(Encode);
 
 				foreach (var dstCode in adjsCodes)
@@ -217,6 +218,7 @@ namespace Flash.Infrastructure.Algorithms
 				var adjsCodes = vector.GetAdjacents()
 					.Where(Matrix.Contains)
 					.Where(Matrix.IsFull)
+					.Where(v => !vectors.Contains(v))
 					.Select(Encode);
 
 				foreach (var dstCode in adjsCodes)
