@@ -28,38 +28,66 @@ const shift = (serVec) => {
 
 class MergedFillContainer extends React.PureComponent {
   render() {
-    const { boxSize, voxels, color } = this.props
-
-    const rootGeo = new THREE.Geometry()
+    const { boxSize, voxels, color, colormap } = this.props
     const boxGeo = new THREE.BoxGeometry(boxSize.x, boxSize.y, boxSize.z)
 
-    for (let [pos, exists] of Object.entries(voxels)) {
-      if (!exists)
-        continue
-      let vec = deserializeVector(pos)
-      let newX = vec.x + boxSize.x / 2
-      let newY = vec.y + boxSize.y / 2
-      let newZ = vec.z + boxSize.z / 2
-      boxGeo.translate(newX, newY, newZ)
-      rootGeo.merge(boxGeo)
-      boxGeo.translate(-newX, -newY, -newZ)
+    if (!colormap) {
+      const rootGeo = new THREE.Geometry()
+      for (let [pos, exists] of Object.entries(voxels)) {
+        if (!exists)
+          continue
+        let vec = deserializeVector(pos)
+        let newX = vec.x + boxSize.x / 2
+        let newY = vec.y + boxSize.y / 2
+        let newZ = vec.z + boxSize.z / 2
+        boxGeo.translate(newX, newY, newZ)
+        rootGeo.merge(boxGeo)
+        boxGeo.translate(-newX, -newY, -newZ)
+      }
+      return <group>
+        <lineSegments>
+          <edgesGeometry geometry={rootGeo}/>
+          <lineBasicMaterial color={0} linewidth={2}/>
+        </lineSegments>
+        <mesh>
+          <geometry vertices={rootGeo.vertices} faces={rootGeo.faces}/>
+          <meshBasicMaterial color={color} vertexColors={THREE.VertexColors}/>
+        </mesh>
+      </group>
+    }
+
+    // colormap mode
+    let objs = []
+    let i = 0
+    for (let [colorOpacity, positions] of Object.entries(voxels)) {
+      const [color, opacity] = colorOpacity.split('/').map(Number);
+      const rootGeo = new THREE.Geometry()
+      for (let [pos, exists] of Object.entries(positions)) {
+        if (!exists)
+          continue;
+        let vec = deserializeVector(pos)
+        let newX = vec.x + boxSize.x / 2
+        let newY = vec.y + boxSize.y / 2
+        let newZ = vec.z + boxSize.z / 2
+        boxGeo.translate(newX, newY, newZ)
+        rootGeo.merge(boxGeo)
+        boxGeo.translate(-newX, -newY, -newZ)
+      }
+      objs.push(<mesh key={i}>
+        <geometry vertices={rootGeo.vertices} faces={rootGeo.faces}/>
+        <meshBasicMaterial color={color} transparent={opacity < 1} opacity={opacity} vertexColors={THREE.VertexColors}/>
+      </mesh>)
+      i++;
     }
     return <group>
-      <lineSegments>
-        <edgesGeometry geometry={rootGeo}/>
-        <lineBasicMaterial color={0} linewidth={2}/>
-      </lineSegments>
-      <mesh>
-        <geometry vertices={rootGeo.vertices} faces={rootGeo.faces}/>
-        <meshBasicMaterial color={color} vertexColors={THREE.VertexColors}/>
-      </mesh>
+      {objs}
     </group>
   }
 }
 
-const FillContainerImpl = ({ boxSize, voxels, useMerge, color }) => {
+const FillContainerImpl = ({ boxSize, voxels, useMerge, color, colormap }) => {
   if (useMerge)
-    return <MergedFillContainer boxSize={boxSize} voxels={voxels} color={color}/>
+    return <MergedFillContainer boxSize={boxSize} voxels={voxels} color={color} colormap={colormap}/>
   let invisibleMap = {}
   return (<group>
     {Object.entries(voxels)
@@ -85,7 +113,7 @@ const FillContainerImpl = ({ boxSize, voxels, useMerge, color }) => {
 
 const FillContainer = compose(
   withProps({ store: dataStore }),
-  connect(({ space }) => ({ voxels: space.voxels })),
+  connect(({ space }, { target }) => ({ voxels: space[target] })),
   pure
 )(FillContainerImpl)
 

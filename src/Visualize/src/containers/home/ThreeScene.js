@@ -10,7 +10,6 @@ import FillContainer from './FillContainer'
 import { slide as Menu } from 'react-burger-menu'
 import HelpText from './HelpText'
 import LogPlayer from './LogPlayer'
-import ColorContainer from './ColorContainer'
 import InfoContainer from './InfoContainer'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
@@ -118,8 +117,8 @@ class ThreeScene extends React.PureComponent {
               position={makeCameraPosition(mapSize, bigBoxSize)}
             />
             <CoordinatesHelpers mapSize={mapSize} bigBoxSize={bigBoxSize}/>
-            <FillContainer useMerge boxSize={smallBoxSize} color={0xffffff}/>
-            <ColorContainer boxSize={smallBoxSize}/>
+            <FillContainer useMerge boxSize={smallBoxSize} color={0xffffff} target="voxels"/>
+            <FillContainer useMerge colormap boxSize={smallBoxSize} target="colors"/>
             <BotContainer botSize={botSize} botColor={0xffa500}/>
           </scene>
         </React3></div>

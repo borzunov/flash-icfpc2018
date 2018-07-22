@@ -48,10 +48,10 @@ export default (state = initialState, action) => {
           [action.payload.position]: action.payload.filled
         }
       }
-    case VOXEL_CHANGED_BATCH:
-      let newVoxels = {};
+    case VOXEL_CHANGED_BATCH: {
+      let newVoxels = {}
       for (let pos of action.payload.positions) {
-        newVoxels[pos] = action.payload.value;
+        newVoxels[pos] = action.payload.value
       }
       return {
         ...state,
@@ -60,30 +60,72 @@ export default (state = initialState, action) => {
           ...newVoxels
         }
       }
-    case COLOR_CHANGED_BATCH:
-      let newColors = {};
-      const {color, opacity} = action.payload;
-      for (let pos of action.payload.positions) {
-        newColors[pos] = {color, opacity};
-      }
-      return {
-        ...state,
-        colors: {
-          ...state.colors,
-          ...newColors
-        }
-      }
-    case COLOR_CHANGED:
-      return {
-        ...state,
-        colors: {
-          ...state.colors,
-          [action.payload.position]: {
-            color: action.payload.color,
-            opacity: action.payload.opacity
+    }
+    case COLOR_CHANGED_BATCH: {
+      const { color, opacity, positions } = action.payload
+      let deleted = color === '000000'
+      let colorOpKey = `0x${color}/${opacity}`
+      let posForKey = state.colors[colorOpKey] || {}
+      let oldKeys = []
+      for (let p of positions) {
+        posForKey[p] = !deleted
+        for (let key of Object.keys(state.colors)) {
+          if (state.colors[key][p]) {
+            oldKeys[p] = key
           }
         }
       }
+
+      let newColors = {
+        ...state.colors,
+        [colorOpKey]: posForKey
+      }
+      for (let [pos, key] of Object.entries(oldKeys)) {
+        newColors[key] = {
+          ...newColors[key],
+          [pos]: false
+        }
+      }
+
+      return {
+        ...state,
+        colors: newColors
+      }
+    }
+    case COLOR_CHANGED: {
+      const { color, opacity, position } = action.payload
+      let colorOpKey = `0x${color}/${opacity}`
+      let positionsForKey = state.colors[colorOpKey] || {}
+      let deleted = color === '000000'
+      let oldKey
+      for (let key of Object.keys(state.colors)) {
+        if (key === colorOpKey)
+          continue
+        if (state.colors[key][position]) {
+          oldKey = key
+        }
+      }
+
+      const oldKeyExpand = oldKey ? {
+        [oldKey]: {
+          ...state.colors[oldKey],
+          [position]: false
+        }
+      } : {}
+
+      let newPositionsForKey = {
+        ...positionsForKey,
+        [position]: !deleted
+      }
+      return {
+        ...state,
+        colors: {
+          ...state.colors,
+          ...oldKeyExpand,
+          [colorOpKey]: newPositionsForKey
+        }
+      }
+    }
     case BOT_CHANGED:
       return {
         ...state,
@@ -169,7 +211,7 @@ export const changeColorBatch = (positions, color, opacity) => {
       payload: {
         positions,
         color,
-        opacity,
+        opacity
       }
     })
   }

@@ -21,6 +21,9 @@ for (let i = 0; i < 10; ++i) {
 
 log.push(makeLog(['3/3/3', '4/4/4', '5/5/5', '6/6/6'], LogAction.FillBatch));
 log.push(makeLog(['3/3/2', '4/4/3', '5/5/4', '6/6/5'], LogAction.ColorBatch, {c: '0000ff', o: 0.7}));
+log.push(makeLog(['3/5/4', '4/5/4', '5/5/4', '6/5/4'], LogAction.ColorBatch, {c: 'ff0000', o: 1}));
+log.push(makeLog(['3/5/4', '4/5/4'], LogAction.ColorBatch, {c: '000000', o: 0.5}));
+log.push(makeLog('9/9/0', LogAction.FillColor, {c: '000000', o: 1}))
 
 export default {
   size: 10,
