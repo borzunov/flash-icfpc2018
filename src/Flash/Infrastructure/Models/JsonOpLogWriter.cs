@@ -81,6 +81,12 @@ namespace Flash.Infrastructure.Models
             opLog.Add(new { p = points.Select(v => $"{v.X}/{v.Y}/{v.Z}").ToArray(), t = 8 });
         }
 
+        public void WriteGroupColor(Vector[] points, string color, double opacity)
+        {
+            opLog.Add(new { p = points.Select(v => $"{v.X}/{v.Y}/{v.Z}").ToArray(), t = 9,
+                c = color, o = Math.Min(opacity, 1) });
+        }
+
         public void Save()
         {
             var result = new

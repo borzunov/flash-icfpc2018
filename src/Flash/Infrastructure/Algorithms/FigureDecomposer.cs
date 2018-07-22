@@ -1,5 +1,6 @@
 ﻿using Flash.Infrastructure.Models;
 using System;
+using System.Collections.Generic;
 
 namespace Flash.Infrastructure.Algorithms
 {
@@ -17,10 +18,15 @@ namespace Flash.Infrastructure.Algorithms
             rand = new Random(42);
         }
 
-        const int RegionCount = 10;
+        private const int RegionCount = 10;
 
         public void Decompose()
         {
+            var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
+            mongoOplogWriter.WriteLogName("FigureDecomposer");
+            var modelState = Models.State.CreateInitial(targetMatrix.R, mongoOplogWriter);
+            mongoOplogWriter.WriteInitialState(modelState);
+
             for (var i = 0; i < RegionCount; i++)
             {
                 Console.WriteLine($"Points to change: {(curMatrix ^ targetMatrix).CountFulls()}\n");
@@ -54,7 +60,28 @@ namespace Flash.Infrastructure.Algorithms
                     curMatrix.Fill(state.Region);
                 else
                     curMatrix.Clear(state.Region);
+
+                var points = new List<Vector>();
+                for (var x = state.Region.Min.X; x <= state.Region.Max.X; x++)
+                    for (var y = state.Region.Min.Y; y <= state.Region.Max.Y; y++)
+                        for (var z = state.Region.Min.Z; z <= state.Region.Max.Z; z++)
+                            points.Add(new Vector(x, y, z));
+                mongoOplogWriter.WriteGroupColor(points.ToArray(), state.Fill ? "00FF00" : "FF0000", 0.8);
             }
+
+            for (var i = 0; i < R; i++)
+                for (var j = 0; j < R; j++)
+                    for (var k = 0; k < R; k++)
+                    {
+                        var point = new Vector(i, j, k);
+                        if (curMatrix.IsVoid(point) && targetMatrix.IsFull(point))
+                            mongoOplogWriter.WriteColor(point, "0000FF", 0.5);
+                        else
+                        if (curMatrix.IsFull(point) && targetMatrix.IsVoid(point))
+                            mongoOplogWriter.WriteColor(point, "FFFF00", 0.5);
+                    }
+
+            mongoOplogWriter.Save();
 
             Console.WriteLine($"Points to change: {(curMatrix ^ targetMatrix).CountFulls()}\n");
             Console.ReadLine();
