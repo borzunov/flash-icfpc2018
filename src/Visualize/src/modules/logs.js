@@ -1,67 +1,65 @@
-//import modelsDb from './indexedDb'
-
 export const LOGS_UPDATED = 'logs/LOGS_UPDATED'
+export const CURRENT_LOG_CHANGED = 'logs/CURRENT_LOG_CHANGED'
 
 const initialState = {
   latest: [],
   loading: true,
+  currentLog: {
+    loading: true,
+    data: null,
+  }
 }
 
-export const tryGetLogs = (bd) => {
+export const getLog = (bd, _id) => {
   return async (dispatch) => {
-    // if (bd === 'models') {
-    //     try {
-    //       let ser = (await modelsDb.toArray());
-    //       dispatch({
-    //         type: LOGS_UPDATED,
-    //         payload: ser.map(m => m.value),
-    //         loading: false
-    //       })
-    //     }
-    //     catch (e) {
-    //       console.error(e)
-    //       await doRefreshLogs(dispatch, bd)
-    //     }
-    //
-    // } else {
-    //
-    // }
-    await doRefreshLogs(dispatch, bd)
-  }
-}
+    let log;
+    try {
+      dispatch({
+        type: CURRENT_LOG_CHANGED,
+        payload: {
+          loading: true,
+          data: null
+        }
+      })
+      log = await (await fetch(`http://localhost:3005/${bd}`)).json()[0]
+    }
+    catch(e) {
+      console.error(e)
+    }
+    finally {
+      dispatch({
+        type: CURRENT_LOG_CHANGED,
+        payload: {
+          loading: false,
+          data: log,
+        },
 
-async function doRefreshLogs(dispatch, bd) {
-
-  let logs = []
-  try {
-    dispatch({
-      type: LOGS_UPDATED,
-      payload: [],
-      loading: true
-    })
-    //debugger
-    logs = await (await fetch(`http://vm-dev-cont4:3005/${bd}`)).json()
-    // if (bd === 'models') {
-    //   for (let m of logs) {
-    //     await modelsDb.put({name: m.name, value: m})
-    //   }
-    // }
-  }
-  catch (e) {
-    console.error(e)
-  }
-  finally {
-    dispatch({
-      type: LOGS_UPDATED,
-      payload: logs,
-      loading: false
-    })
+      })
+    }
   }
 }
 
 export const refreshLogs = (bd = 'logs') => {
   return async (dispatch) => {
-    await doRefreshLogs(dispatch, bd)
+    let logs = []
+    try {
+      dispatch({
+        type: LOGS_UPDATED,
+        payload: [],
+        loading: true
+      })
+      logs = await (await fetch(`http://localhost:3005/${bd}`)).json()
+    }
+    catch (e) {
+      console.error(e)
+    }
+    finally {
+      dispatch({
+        type: LOGS_UPDATED,
+        payload: logs,
+        loading: false
+      })
+    }
   }
 }
 
@@ -71,9 +69,9 @@ export default (state = initialState, action) => {
       return {
         ...state,
         latest: action.payload,
-        loading: action.loading,
+        loading: action.loading
       }
     default:
-      return initialState;
+      return initialState
   }
 };

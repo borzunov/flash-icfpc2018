@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { refreshLogs, tryGetLogs } from '../../modules/logs'
+import { refreshLogs } from '../../modules/logs'
 import { bindActionCreators } from 'redux'
 import {
   changeBot,
@@ -32,7 +32,7 @@ let total = 0
 
 class LogPlayer extends React.PureComponent {
   componentDidMount() {
-    this.props.tryGetLogs(this.props.bd)
+    this.props.refreshLogs();
     this.syncQueueWithWait = new Queue((f, callback) => {
       try {
         f()
@@ -143,8 +143,6 @@ export default compose(
     },
     dispatch => bindActionCreators({
       refreshLogs,
-      tryGetLogs,
-
     }, dispatch)
   ),
   withHandlers({
