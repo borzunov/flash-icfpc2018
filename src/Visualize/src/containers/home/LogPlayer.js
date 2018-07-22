@@ -10,7 +10,7 @@ import {
   changeHarmonic,
   changeEnergy,
   changeMessage,
-  changeVoxelBatch
+  changeVoxelBatch, changeColorBatch
 } from '../../modules/space'
 import { playLog } from './playLog'
 import { withHandlers, compose, withProps, mapProps } from 'recompose'
@@ -128,6 +128,7 @@ export default compose(
       changeEnergy,
       changeMessage,
       changeVoxelBatch,
+      changeColorBatch,
     }, dataStore.dispatch)
   }),
   connect(
@@ -144,7 +145,7 @@ export default compose(
     }, dispatch)
   ),
   withHandlers({
-    playLog: ({ changeSize, changeBot, changeVoxel, changeColor, changeEnergy, changeHarmonic, changeMessage, changeVoxelBatch }) => ({ log, size }, reset, push) => {
+    playLog: ({ changeSize, changeBot, changeVoxel, changeColor, changeEnergy, changeHarmonic, changeMessage, changeVoxelBatch, changeColorBatch, }) => ({ log, size }, reset, push) => {
       reset()
       passed = 0
       total = log.length
@@ -157,6 +158,7 @@ export default compose(
         changeEnergy,
         changeMessage,
         changeVoxelBatch,
+        changeColorBatch,
       }, {
         size,
         log

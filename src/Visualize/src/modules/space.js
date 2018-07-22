@@ -6,6 +6,7 @@ export const COLOR_CHANGED = 'space/COLOR_CHANGED'
 export const ENERGY_CHANGED = 'space/ENERGY_CHANGED'
 export const HARMONIC_CHANGED = 'space/HARMONIC_CHANGED'
 export const MESSAGE_CHANGED = 'space/MESSAGE_CHANGED'
+export const COLOR_CHANGED_BATCH = 'space/COLOR_CHANGED_BATCH'
 
 const initialState = {
   size: 30,
@@ -57,6 +58,19 @@ export default (state = initialState, action) => {
         voxels: {
           ...state.voxels,
           ...newVoxels
+        }
+      }
+    case COLOR_CHANGED_BATCH:
+      let newColors = {};
+      const {color, opacity} = action.payload;
+      for (let pos of action.payload.positions) {
+        newColors[pos] = {color, opacity};
+      }
+      return {
+        ...state,
+        colors: {
+          ...state.colors,
+          ...newColors
         }
       }
     case COLOR_CHANGED:
@@ -143,6 +157,19 @@ export const changeVoxelBatch = (positions, value) => {
       payload: {
         positions,
         value
+      }
+    })
+  }
+}
+
+export const changeColorBatch = (positions, color, opacity) => {
+  return dispatch => {
+    dispatch({
+      type: COLOR_CHANGED_BATCH,
+      payload: {
+        positions,
+        color,
+        opacity,
       }
     })
   }
