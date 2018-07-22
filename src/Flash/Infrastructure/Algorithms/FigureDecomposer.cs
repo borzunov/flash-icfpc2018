@@ -13,14 +13,13 @@ namespace Flash.Infrastructure.Algorithms
         private readonly PointCounter targetSums;
         private readonly Random rand;
 
-        public FigureDecomposer(Matrix targetMatrix)
+        public FigureDecomposer(Matrix sourceMatrix, Matrix targetMatrix)
         {
             R = targetMatrix.R;
             costPerStep = 3 * R * R * R;
 
-            curMatrix = new Matrix(R);
-            // TODO: Clone sourceMatrix here
-            this.targetMatrix = targetMatrix;
+            curMatrix = sourceMatrix.Clone();
+            this.targetMatrix = targetMatrix.Clone();
             curSums = new PointCounter(curMatrix);
             xorSums = new PointCounter(curMatrix ^ targetMatrix);
             targetSums = new PointCounter(targetMatrix);
