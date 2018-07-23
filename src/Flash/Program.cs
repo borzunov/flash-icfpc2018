@@ -19,7 +19,7 @@ namespace Flash
         public static void Main(string[] args)
         {
             //var trackFilePath = @"..\..\..\data\track\LA001.nbt";
-            var modelFilePath = @"..\..\..\data\models\LA001_tgt.mdl";
+            var modelFilePath = @"..\..\..\data\models\LA105_tgt.mdl";
 
             var model = MatrixDeserializer.Deserialize(File.ReadAllBytes(modelFilePath));
 			//var ai = new GreedyGravityAI(matrix);
@@ -29,9 +29,12 @@ namespace Flash
 			var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
             mongoOplogWriter.WriteLogName("GreedyGravityAI_IsGrounded");
 	        var state = State.CreateInitial(model.R, mongoOplogWriter);
-	        mongoOplogWriter.WriteInitialState(state);
+	        var matrixToDo = state.Matrix;
+	        state.Matrix = model;
 
-			var groundedChecker = new IsGroundedChecker(state.Matrix);
+			mongoOplogWriter.WriteInitialState(state);
+
+			var groundedChecker = new IsGroundedChecker(model);
 			
 			var figure = new HashSet<Vector>();
 
@@ -45,11 +48,12 @@ namespace Flash
 			        figure.Add(point);
 		        }
 	        }
+			
+			var clearWork = new GreedyClearer(state.Matrix, figure, null);
+			var path = new PathWork(new Vector(0, 0, 0), 
+				clearWork.SetWorkerAndGetInput(groundedChecker, vector => false, new Vector(0, 0, 0), 0), state.Matrix, groundedChecker, 29, 0, matrixToDo);
 
-	        var fillWork = new GreedyFiller(state.Matrix, figure, null);
-			var path = new PathWork(new Vector(0, 0, 0), fillWork.SetWorkerAndGetInput(groundedChecker, vector => false, new Vector(0, 0, 0), 0), state.Matrix, groundedChecker, 29, 0, model);
-
-	        var works = new[] {(IWork)path, fillWork };
+	        var works = new[] {(IWork)path, clearWork };
 
 	        var simulator = new Simulator();
 
@@ -66,10 +70,23 @@ namespace Flash
 					works[i].DoWork(groundedChecker, vector => false, out commands, out var p);
 			        i++;
 			        commandIdx = 0;
+					if(p.Contains(new Vector(12, 0, 12)))
+						Console.WriteLine();
 				}
 
 		        if (commands == null || commandIdx >= commands.Count)
-				{
+		        {
+			        var restFigures = figure.Where(f => !state.Matrix.IsVoid(f)).ToHashSet();
+					if (restFigures.Count > 0)
+					{
+						clearWork = new GreedyClearer(state.Matrix, restFigures, null);
+						path = new PathWork(state.Bots[0].Pos, 
+							clearWork.SetWorkerAndGetInput(groundedChecker, vector => false, state.Bots[0].Pos, 0), 
+							state.Matrix, groundedChecker, 29, 0, matrixToDo);
+						works = new IWork[] {path, clearWork};
+						i = 0;
+						continue;
+					}
 					if (state.Bots[0].Pos == new Vector(0, 0, 0))
 					{
 						commands = new List<ICommand>{new HaltCommand()};
@@ -92,12 +109,19 @@ namespace Flash
 		        traces.Add(new Trace(new[] { commands[commandIdx] }));
 
 
-				if (commands[commandIdx] is VoidCommand && ((VoidCommand)commands[commandIdx]).RealVoid != null)
+				if (commands[commandIdx] is FillCommand && ((FillCommand)commands[commandIdx]).RealFill != null)
 				{
-					mongoOplogWriter.WriteColor(((VoidCommand)commands[commandIdx]).RealVoid, "FF00FF", 0.8);
+					groundedChecker.UpdateWithFill(((FillCommand)commands[commandIdx]).RealFill);
+					//mongoOplogWriter.WriteColor(((FillCommand)commands[commandIdx]).RealFill, "FF00FF", 0.8);
 				}
 
-		        commandIdx++;
+		        if (commands[commandIdx] is VoidCommand && ((VoidCommand)commands[commandIdx]).RealVoid != null)
+		        {
+			        groundedChecker.UpdateWithClear(((VoidCommand)commands[commandIdx]).RealVoid);
+					//mongoOplogWriter.WriteColor(((VoidCommand)commands[commandIdx]).RealVoid, "FF00FF", 0.8);
+				}
+
+				commandIdx++;
 
 				if (commands.Count == 1 && commands[0] is HaltCommand)
 		        {
@@ -105,7 +129,7 @@ namespace Flash
 		        }
 	        }
 			
-			File.WriteAllBytes("atatat.nbt", simulator.CreateResultTrace());
+			File.WriteAllBytes(@"C:\Projects\icfpc2018\flash-icfpc2018\data\atatat.nbt", simulator.CreateResultTrace());
 
 			mongoOplogWriter.Save();
 			

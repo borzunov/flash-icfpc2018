@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JobsCommon;
@@ -47,17 +48,27 @@ namespace JobTaskSender
             var outDir = Path.Combine(@"\\vm-dev-cont1\TRACES", name);
             if (!Directory.Exists(outDir))
                 Directory.CreateDirectory(outDir);
+
+            var regex = new Regex(@"(?<key>\w{2}\d{3})_(?<type>\w{3}).mdl", RegexOptions.Compiled);
+
             var tasks = Directory.EnumerateFiles(problemsDirectory)
-                .Where(x => Path.GetFileName(x).StartsWith("FA"))
-                .Take(10)
+                .Select(path => new {path,  regex = regex.Match(Path.GetFileName(path))})
+                .Where(x => x.regex.Success)
+                .GroupBy(x => x.regex.Groups["key"].Value)
+                //.Where(x => Path.GetFileName(x).StartsWith("FA"))
+                //.Take(10)
                 .Select(x =>
                 {
-                    var outTracePath = Path.Combine(outDir, $"{Path.GetFileName(x).Substring(0, 5)}.nbt");
+
+                    var srcPath = x.FirstOrDefault(y => y.regex.Groups["type"].Value == "src")?.path;
+                    var tgtPath = x.FirstOrDefault(y => y.regex.Groups["type"].Value == "tgt")?.path;
+                    
+                    var outTracePath = Path.Combine(outDir, $"{x.Key}.nbt");
                     var msg = new Message
                     {
                         ZipMongoBlobId = blobId.ToString(),
                         FileNameNoRun = "run.exe",
-                        Arguments = $"--tgt={x.ToString()} --trace={outTracePath}",
+                        Arguments = GetArgsString(srcPath, tgtPath, outTracePath),
                         TimeoutMilliseconds = TimeoutMilliseconds
                     };
                     var msgJson = JsonConvert.SerializeObject(msg);
@@ -68,6 +79,19 @@ namespace JobTaskSender
                 }).ToList();
 
             Send(factory, Jobs.QueueName, tasks);
+        }
+
+        private static string GetArgsString(string srcPath, string tgtPath, string outTracePath)
+        {
+            var args = new List<string>();
+            if (!string.IsNullOrEmpty(srcPath))
+                args.Add($"--src={srcPath}");
+            if (!string.IsNullOrEmpty(tgtPath))
+                args.Add($"--tgt={tgtPath}");
+            if (!string.IsNullOrEmpty(outTracePath))
+                args.Add($"--trace={outTracePath}");
+
+            return string.Join(" ", args);
         }
 
         private static void Send(ConnectionFactory factory, string queueName, IEnumerable<byte[]> tasks)

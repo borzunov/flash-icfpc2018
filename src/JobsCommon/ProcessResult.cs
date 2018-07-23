@@ -29,6 +29,9 @@ namespace JobsCommon
         [BsonElement("errorMessage")]
         public string ErrorMessage { get; set; }
 
+        [BsonElement("timeoutMilliseconds")]
+        public int TimeoutMilliseconds { get; set; }
+
         public static ProcessResult FromMessage(Message message, string executor)
         {
             return new ProcessResult()
@@ -37,6 +40,7 @@ namespace JobsCommon
                 ZipMongoBlobId = message.ZipMongoBlobId,
                 FileNameNoRun = message.FileNameNoRun,
                 Arguments = message.Arguments,
+                TimeoutMilliseconds = message.TimeoutMilliseconds,
                 Executor = executor
             };
         }
