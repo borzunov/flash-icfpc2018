@@ -131,7 +131,7 @@ namespace Flash.Infrastructure.Algorithms
 
 					var move = vector * i;
 					var position = botPosition + move;
-					if(!Matrix.Contains(position) || Matrix.IsFull(position) || IsForbiddenArea(position))
+					if(!Matrix.Contains(position) || Matrix.IsFull(position) || IsForbiddenArea(position) || position == BotPosition)
 						break;
 					var weight = currentWeight + GetSMoveWeight(i);
 					yield return new AStarState
@@ -181,7 +181,7 @@ namespace Flash.Infrastructure.Algorithms
 						if(x < 0 && bannedNX || x > 0 && bannedPX)
 							continue;
 						if (!Matrix.Contains(botPosition + move1) || Matrix.IsFull(botPosition + move1) ||
-						    IsForbiddenArea(botPosition + move1))
+						    IsForbiddenArea(botPosition + move1) || botPosition + move1 == BotPosition)
 						{
 							if (x < 0)
 								bannedNX = true;
@@ -199,7 +199,7 @@ namespace Flash.Infrastructure.Algorithms
 							if (y < 0 && bannedNY || y > 0 && bannedPY)
 								continue;
 							if (!Matrix.Contains(botPosition + move1 + move2) || Matrix.IsFull(botPosition + move1 + move2) ||
-							    IsForbiddenArea(botPosition + move1 + move2))
+							    IsForbiddenArea(botPosition + move1 + move2) || botPosition + move1 + move2 == BotPosition)
 							{
 								if (y < 0)
 									bannedNY = true;
