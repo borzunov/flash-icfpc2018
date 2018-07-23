@@ -21,6 +21,11 @@ namespace Flash.Infrastructure.Algorithms
 
 		private readonly JsonOpLogWriter mongoOplogWriter;
 
+		public IEnumerable<int> GetBots()
+		{
+			yield return BotId;
+		}
+
 		public GreedyFiller(Matrix matrix, HashSet<Vector> figure, JsonOpLogWriter mongoOplogWriter)
 		{
 			this.mongoOplogWriter = mongoOplogWriter;

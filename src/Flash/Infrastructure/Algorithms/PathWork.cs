@@ -19,6 +19,11 @@ namespace Flash.Infrastructure.Algorithms
 		public JsonOpLogWriter mongoOplogWriter;
 		public int BotId;
 
+		public IEnumerable<int> GetBots()
+		{
+			yield return BotId;
+		}
+
 		public PathWork(Vector botPosition, Vector endPosition, Matrix matrix, IsGroundedChecker isGroundedChecker, int botsCount, int botId, Matrix model)
 		{
 			BotPosition = botPosition;

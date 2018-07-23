@@ -171,8 +171,6 @@ namespace Flash.Infrastructure.AI.Solvers
 				if ((commands == null || commandIdx >= commands.Count) && i < works.Length)
 				{
 					works[i].DoWork(groundedChecker, vector => false, out commands, out var p);
-					if (p.Contains(new Vector(23, 26, 18)))
-						Console.WriteLine();
 					i++;
 					commandIdx = 0;
 				}

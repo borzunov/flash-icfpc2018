@@ -19,5 +19,7 @@ namespace Flash.Infrastructure.Algorithms
 		HashSet<Vector> GetWorkPlan();
 
 		Dictionary<int, Vector> DoWork(IsGroundedChecker groundedChecker, Func<Vector, bool> isForbidden, out List<ICommand> commands, out List<Vector> vectors);
+
+		IEnumerable<int> GetBots();
 	}
 }

@@ -119,6 +119,11 @@ namespace Flash.Infrastructure.Algorithms
 			return new Dictionary<int, Vector>{{ BotId, curPoint } };
 		}
 
+		public IEnumerable<int> GetBots()
+		{
+			yield return BotId;
+		}
+
 		private static void MoveStraight(Vector curPoint, Vector nextPoint, out List<Vector> curPath, out List<ICommand> curCommands)
 		{
 			curPath = new List<Vector>

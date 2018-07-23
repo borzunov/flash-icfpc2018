@@ -97,6 +97,7 @@
     <Compile Include="Infrastructure\Algorithms\Lib\EulerTourTree\EulerVertex.cs" />
     <Compile Include="Infrastructure\Algorithms\Lib\Treap\TreapNode.cs" />
     <Compile Include="Infrastructure\Algorithms\Lib\Treap\XorShift.cs" />
+    <Compile Include="Infrastructure\Algorithms\NanoMaster.cs" />
     <Compile Include="Infrastructure\Algorithms\PathWork.cs" />
     <Compile Include="Infrastructure\Algorithms\PointCounter.cs" />
     <Compile Include="Infrastructure\Algorithms\PriorityQueue.cs" />
