@@ -13,12 +13,12 @@ namespace Flash.Infrastructure.Algorithms
         private readonly PointCounter curSums, targetSums, xorSums;
         private readonly Random rand;
 
-        public FigureDecomposer(Matrix sourceMatrix, Matrix targetMatrix)
+        public FigureDecomposer(Matrix targetMatrix, Matrix startMatrix = null)
         {
             R = targetMatrix.R;
             costPerStep = 3 * R * R * R;
 
-            curMatrix = sourceMatrix.Clone();
+            curMatrix = startMatrix?.Clone() ?? new Matrix(R);
             this.targetMatrix = targetMatrix.Clone();
             xorMatrix = curMatrix ^ targetMatrix;
 
@@ -185,7 +185,7 @@ namespace Flash.Infrastructure.Algorithms
             return new Vector(rand.Next(1, R - 1), rand.Next(0, R - 1), rand.Next(1, R - 1));
         }
 
-        public Vector MutateVector(Vector v)
+	    private Vector MutateVector(Vector v)
         {
             return new Vector(
                 Clipping.Clip(v.X + GenerateMutateDiff(), 1, R - 1),

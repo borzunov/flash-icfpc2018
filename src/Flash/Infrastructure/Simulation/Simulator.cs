@@ -153,6 +153,12 @@ namespace Flash.Infrastructure.Simulation
                     return new Region[]
                     {
                     };
+                case VoidCommand v:
+                    return new[]
+                    {
+                        new Region(bot.Pos),
+                        new Region(bot.Pos + v.NearDistance)
+                    };
                 default:
                     throw new Exception($"Unknown command {command}");
             }

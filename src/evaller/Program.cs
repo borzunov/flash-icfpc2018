@@ -2,60 +2,109 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Flash.Infrastructure;
+using Flash.Infrastructure.AI;
+using Flash.Infrastructure.Commands;
+using Flash.Infrastructure.Models;
 using Flash.Infrastructure.Simulation;
 
 namespace evaller
 {
 	class Program
 	{
-		public class AIResult
-		{
-			public long energy;
-			public byte[] data;
-		}
-
 		static void Main(string[] args)
 		{
+			var inputPath = "input";
+			var modelsPath = @"..\..\..\data\models";
 
+			// "LA145" -> xx
+			var modelToSize = GetModelToSize(modelsPath);
 
-            var comaprator = new SimulationsComaprator(new Simulator(), @"\js\exec-trace-novis_files\exec-trace-node.js");
-
-            foreach (var tgtModelPath in Directory.EnumerateFiles(@"C:\icfpc\flash-icfpc2018\data\models"))
-            {
-                var prefix = Path.GetFileName(tgtModelPath).Substring(0, 5);
-                var tracePath = Directory.EnumerateFiles(@"C:\icfpc\flash-icfpc2018\data\track")
-                    .Single(p => Path.GetFileName(p).StartsWith(prefix));
-                var compareResult = comaprator.Compare(tgtModelPath, null, tracePath);
-                Console.WriteLine($"{prefix} {compareResult}");
-            }
-
-		    /*comaprator.Compare(
-		        tgtModelPath: "C:\\icfpc\\flash-icfpc2018\\data\\models\\LA001_tgt.mdl",
-		        srcModelPath: null,
-		        tracePath: "C:\\icfpc\\flash-icfpc2018\\data\\track\\LA001.nbt");
-                */
-
-            return;
-
-			var resourcePath = "C:\\Users\\starcev.m\\Desktop\\result";
-			var outPath = "C:\\Users\\starcev.m\\Desktop\\result";
-			List<Func<string,AIResult>> listOfAI = new List<Func<string, AIResult>>();
-
-			foreach (var file in Directory.EnumerateFiles(outPath))
+			// "LA145" -> ..
+			var summary = new Dictionary<string, List<(string strategyName, long energy, string tracePath)>>();
+			foreach (var directory in Directory.EnumerateDirectories(inputPath))
 			{
-				var resultsForFile = new List<AIResult>();
-				foreach (var ai in listOfAI)
-				{
-					resultsForFile.Add(ai(file));
-				}
+				Console.WriteLine($"## Start processing {directory}");
 
-				var best = resultsForFile.OrderBy(x => x.energy).First();
-				File.WriteAllBytes(
-					$"c:\\users\\starcev.m\\desktop\\result\\{Path.GetFileName(file).Substring(0, 5)}.nbt",best.data);
+				var startegyName = Path.GetDirectoryName(directory);
+				foreach (var tracePath in Directory.EnumerateFiles(directory))
+				{
+
+					var ai = new FileAI(tracePath);
+					var mongoOplogWriter = new FakeOpLog();
+					mongoOplogWriter.WriteLogName(startegyName);
+
+					var simulator = new Simulator();
+					var modelName = Path.GetFileName(tracePath).Substring(0, 5);
+					Console.Write($"# evaluating {modelName}... ");
+					var size = modelToSize[modelName];
+					var state = State.CreateInitial(size, mongoOplogWriter);
+					mongoOplogWriter.WriteInitialState(state);
+
+					while (true)
+					{
+						var commands = ai.NextStep(state).ToList();
+						simulator.NextStep(state, new Trace(commands));
+
+						if (commands.Count == 1 && commands[0] is HaltCommand)
+						{
+							break;
+						}
+					}
+
+					UpdateSummary(summary, state, startegyName, tracePath, modelName);
+
+					mongoOplogWriter.Save();
+				}
 			}
 
+			var defaultTracksPath = @"..\..\..\data\track";
+			PrepareBestSubmission(summary, defaultTracksPath, modelsPath, "output");
+		}
+
+		private static void PrepareBestSubmission(Dictionary<string, List<(string strategyName, long energy, string tracePath)>> summary,
+			string defaultTracksPath, string modelsPath, string outputPath)
+		{
+			if (Directory.Exists(outputPath))
+			{
+				Directory.Delete(outputPath, true);
+			}
+			Directory.CreateDirectory(outputPath);
+
+			foreach (var modelPath in Directory.EnumerateFiles(modelsPath))
+			{
+				var modelName = Path.GetFileName(modelPath).Substring(0, 5);
+				var bestTracePath = Path.Combine(defaultTracksPath, $"{modelName}.nbt");
+				var src = "default";
+				if (summary.ContainsKey(modelName))
+				{
+					var (strategyName, energy, tracePath) = summary[modelName].OrderByDescending(x => x.energy).First();
+					bestTracePath = tracePath;
+					src = strategyName;
+				}
+
+				Console.WriteLine($"Choose '{src}' strategy for '{modelName}'");
+				File.Copy(bestTracePath, Path.Combine(outputPath, Path.GetFileName(bestTracePath)));
+			}
+		}
+
+		private static void UpdateSummary(Dictionary<string, List<(string strategyName, long energy, string tracePath)>> summary,
+			State state, string strategyName, string tracePath, string modelName)
+		{
+			if (!summary.ContainsKey(modelName))
+				summary[modelName] = new List<(string strategyName, long energy, string tracePath)>();
+
+			var list = summary[modelName];
+			list.Add((strategyName, state.Energy, tracePath));
+			Console.WriteLine($"energy: {state.Energy}");
+		}
+
+		private static Dictionary<string, byte> GetModelToSize(string modelsPath)
+		{
+			var dictionary = Directory.EnumerateFiles(modelsPath)
+				.ToDictionary(p => Path.GetFileName(p).Substring(0, 5), p => File.ReadAllBytes(p)[0]);
+
+			return dictionary;
 		}
 	}
 }
