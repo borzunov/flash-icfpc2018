@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using JobsCommon;
 using log4net;
 using MongoDB.Bson;
@@ -109,6 +110,15 @@ namespace JobExecutor
                     log.Info(args.Data);
                 }
             };
+            var sb = new StringBuilder();
+            process.ErrorDataReceived += (sender, args) =>
+            {
+                if (args.Data != null)
+                {
+                    log.Info(args.Data);
+                    sb.AppendLine(args.Data);
+                }
+            };
             process.Start();
             process.BeginOutputReadLine();
 
@@ -117,12 +127,12 @@ namespace JobExecutor
             if (!process.HasExited)
             {
                 process.Kill();
-                throw new TimeoutException($"Timeout: {message.TimeoutMilliseconds}ms");
+                throw new TimeoutException($"Timeout: `{message.TimeoutMilliseconds/1000}` s");
             }
 
             if(process.ExitCode != 0)
             {
-                throw new NonZeroExitCodeException($"Exit code: {process.ExitCode}");
+                throw new NonZeroExitCodeException($"Exit code: `{process.ExitCode}`. Errors: `{sb}`");
             }
 
 
