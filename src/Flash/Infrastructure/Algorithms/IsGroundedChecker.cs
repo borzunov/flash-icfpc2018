@@ -146,6 +146,9 @@ namespace Flash.Infrastructure.Algorithms
 				{
 					ConnectivityChecker.Link(code, dstCode);
 				}
+
+				if (vector.Y == 0)
+					ConnectivityChecker.Link(code, UnderGroundCode);
 			}
 
 			var canPlace = vectors.All(vector => ConnectivityChecker.IsConnected(Encode(vector), UnderGroundCode));
@@ -163,6 +166,10 @@ namespace Flash.Infrastructure.Algorithms
 				{
 					ConnectivityChecker.Cut(code, dstCode);
 				}
+
+				if (vector.Y == 0)
+					ConnectivityChecker.Cut(code, UnderGroundCode);
+
 			}
 
 			return canPlace;
