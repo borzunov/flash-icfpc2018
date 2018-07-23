@@ -24,7 +24,7 @@ namespace Flash
             var matrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(modelFilePath));
 
 	        var tasks = new FigureDecomposer(matrix).Decompose();
-			var ai = new GreedyWithFigureDecomposeAI(tasks, new IsGroundedChecker(matrix));
+			var ai = new GreedyWithFigureDecomposeAI(tasks, new IsGroundedChecker(matrix), matrix);
 
 			Console.WriteLine("test greedy");
 

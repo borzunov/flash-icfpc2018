@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Flash.Infrastructure.Algorithms;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Models;
@@ -12,25 +10,19 @@ namespace Flash.Infrastructure.AI
 	public class GreedyWithFigureDecomposeAI : IAI
 	{
 		private readonly IsGroundedChecker groundedChecker;
+		private readonly Matrix matrix;
 		private readonly Queue<BuildingTask> buildingTasks;
 		private Dictionary<int, Queue<ICommand>> commandsQueue;
 		private Queue<ICommand> myQueue;
 		private int myBodBid = 0;
 		private Queue<ICommand> fussionQueue;
 		private bool FLAG = true;
-		//public Dictionary<int, List<Vector>> debt = new Dictionary<int, List<Vector>>();
 
-		public HashSet<Vector> tehDolg = new HashSet<Vector>();
-
-		public GreedyWithFigureDecomposeAI(List<BuildingTask> buildingTasks, IsGroundedChecker groundedChecker)
+		public GreedyWithFigureDecomposeAI(List<BuildingTask> buildingTasks, IsGroundedChecker groundedChecker, Matrix matrix)
 		{
 			this.groundedChecker = groundedChecker;
+			this.matrix = matrix;
 			this.buildingTasks = new Queue<BuildingTask>(buildingTasks);
-
-			/*for (var i = 0; i <= 8; i++)
-			{
-				debt.Add(i, new List<Vector>());
-			}*/
 		}
 
 		public IEnumerable<ICommand> NextStep(State state)
@@ -47,6 +39,7 @@ namespace Flash.Infrastructure.AI
 			{
 				Console.WriteLine();
 
+				return new List<ICommand> {new HaltCommand()};
 				return ans;
 			}
 
@@ -65,11 +58,6 @@ namespace Flash.Infrastructure.AI
 					}
 					else
 					{
-						var vectors = tehDolg.Where(x => state.Matrix.IsVoid(x)).ToList();
-						if (vectors.Count != 0)
-						{
-							Console.WriteLine();
-						}
 						ans.Add(new FlipCommand());
 						ans.Add(new HaltCommand());
 						return ans;
@@ -103,18 +91,7 @@ namespace Flash.Infrastructure.AI
 
 						var command = fussionQueue.Dequeue();
 
-						/*var newList = GetFixCommand(state, command, bot2);
-
-						if (newList.Count != 0)
-						{
-							fussionQueue = new Queue<ICommand>(newList.Concat(fussionQueue));
-							ans.Add(fussionQueue.Dequeue());
-						}
-						else
-						{*/
-							ans.Add(command);
-						/*}*/
-						//ans.Add(command);
+						ans.Add(command);
 					}
 				}
 			}
@@ -134,13 +111,7 @@ namespace Flash.Infrastructure.AI
 				commandsQueue = commandsQueue ?? GetCommadsQueue(state, taretPoints, task.Region, true);
 
 				if (!commandsQueue.Any() || commandsQueue.All(x => x.Value.Count == 0))
-				{
 					commandsQueue = GetCommadsQueue(state, taretPoints, task.Region, true);
-				}
-				else
-				{
-
-				}
 
 				if (!commandsQueue.Any() || commandsQueue.All(x => x.Value.Count == 0))
 				{
@@ -160,17 +131,7 @@ namespace Flash.Infrastructure.AI
 						{
 							var moveCommand = commandsQueue[bot.Bid].Dequeue();
 
-							/*var newList = GetFixCommand(state, moveCommand, bot);
-
-							if (newList.Count != 0)
-							{
-								commandsQueue[bot.Bid] = new Queue<ICommand>(newList.Concat(commandsQueue[bot.Bid]));
-								ans.Add(commandsQueue[bot.Bid].Dequeue());
-							}
-							else
-							{*/
-								ans.Add(moveCommand);
-							/*}*/
+							ans.Add(moveCommand);
 						}
 						else
 						{
@@ -186,7 +147,7 @@ namespace Flash.Infrastructure.AI
 		}
 
 
-		/*private List<ICommand> GetFixCommand(State state, ICommand moveCommand, Bot bot)
+		private List<ICommand> GetFixCommand(State state, ICommand moveCommand, Bot bot)
 		{
 			if (moveCommand is SMoveCommand)
 			{
@@ -196,10 +157,6 @@ namespace Flash.Infrastructure.AI
 				var vector = bot.Pos + d;
 				if (state.Matrix.IsVoid(vector))
 					return new List<ICommand>();
-
-				
-				debt[bot.Bid].Add(vector);
-				tehDolg.Add(vector);
 
 				if (d.IsNd)
 				{
@@ -223,9 +180,6 @@ namespace Flash.Infrastructure.AI
 				if (state.Matrix.IsVoid(vector))
 					return new List<ICommand>();
 
-				
-				debt[bot.Bid].Add(vector);
-				tehDolg.Add(vector);
 
 				if (s.IsNd)
 				{
@@ -237,7 +191,7 @@ namespace Flash.Infrastructure.AI
 			}
 
 			return new List<ICommand>();
-		}*/
+		}
 
 		private Dictionary<int, Queue<ICommand>> GetCommadsQueue(State state, List<Vector> points, Region region, bool flag)
 		{
@@ -256,14 +210,13 @@ namespace Flash.Infrastructure.AI
 					&& !region.Contains(v)
 					&& state.Bots.All(x => bot.Bid == x.Bid || x.Pos != v)
 					&& !used.Contains(v)
-					//&& state.Matrix.IsVoid(v)
 					&& !fobidden.Contains(v));
 
 				if (point == null)
 					continue;
 
 				used.Add(point);
-
+				
 				fobidden.UnionWith(used);
 				var (positions, moveCommands) = GetMoveCommands(state, bot, point, fobidden, flag);
 				if (positions.Any())
@@ -359,49 +312,17 @@ namespace Flash.Infrastructure.AI
 			yield return new FissionCommand(new Vector(1, 0, 0), bot.Seeds.Length - 1);
 		}
 
-		private (List<Vector> positions, List<ICommand> commands) GetMoveCommands(State state, Bot bot, Vector target, HashSet<Vector> fobidden, bool flag = true)
+		private (List<Vector> positions, List<ICommand> commands) GetMoveCommands(State state, Bot bot, Vector target,
+			HashSet<Vector> fobidden, bool flag = true)
 		{
 			if (bot.Pos == target)
 				return (new List<Vector>(), new List<ICommand>());
 
 			bool IsForbiddenArea(Vector v) => fobidden.Contains(v) || state.Bots.Any(x => x.Bid != bot.Bid && x.Pos == v);
-			var botMoveSearcher = new BotMoveSearcher(state.Matrix, bot.Pos, IsForbiddenArea, state.Bots.Length, target, groundedChecker);
+			var botMoveSearcher = new BotMoveSearcher(state.Matrix, matrix, bot.Pos, IsForbiddenArea, state.Bots.Length, target,
+				groundedChecker);
 
 			var s = botMoveSearcher.FindPath(out var positions, out var commands, out _);
-
-			/*if (debt[bot.Bid].Count != 0 && flag)
-			{
-				if(debt[bot.Bid].Count != 1)
-					Console.WriteLine();
-				var point = debt[bot.Bid].First();
-
-				if (point != bot.Pos)
-					throw new InvalidOperationException();
-
-				var c = commands.Select((x, i) => new { x, i }).First(x => x.x is SMoveCommand || x.x is LMoveCommand);
-
-				var da = new HashSet<Vector>(
-					debt
-						.Where(x => x.Key != bot.Bid && state.Bots.All(y => y.Bid != x.Key))
-						.SelectMany(x => x.Value)
-						.ToList());
-
-				if (da.Count != 0 || state.Bots.Length < 8)
-				{
-					Console.WriteLine();
-				}
-				var h = bot.Pos.GetNears().Where(x => da.Contains(x)).ToList();
-				var clearCommnads = new List<ICommand>();
-				foreach (var vector in h)
-				{
-					clearCommnads.Add(new FillCommand(vector - bot.Pos));
-				}
-				var fixCommands = GetFixCommand1(c.x);
-
-				commands = commands.Take(c.i).Concat(clearCommnads).Concat(fixCommands).Concat(commands.Skip(c.i + 1)).ToList();
-				
-				debt[bot.Bid] = new List<Vector>();
-			}*/
 
 			if (!s)
 			{
@@ -410,41 +331,5 @@ namespace Flash.Infrastructure.AI
 
 			return (positions, commands);
 		}
-
-		/*private List<ICommand> GetFixCommand1(ICommand moveCommand)
-		{
-			if (moveCommand is SMoveCommand)
-			{
-				var command = (SMoveCommand)moveCommand;
-				var d = command.Direction;
-
-				if (d.IsNd)
-				{
-					return new List<ICommand> { moveCommand, new FillCommand(-d) };
-				}
-
-				var n_d = d.Normalize();
-				var direction = d - n_d;
-
-				return new List<ICommand> { new SMoveCommand(n_d), new FillCommand(-n_d), new SMoveCommand(direction) };
-			}
-
-			if (moveCommand is LMoveCommand)
-			{
-				var command = (LMoveCommand)moveCommand;
-				var f = command.FirstDirection;
-				var s = command.SecondDirection;
-
-				var n_f = f.Normalize();
-				if (f.IsNd)
-				{
-					return new List<ICommand> { new SMoveCommand(f), new FillCommand(-n_f), new SMoveCommand(s) };
-				}
-
-				return new List<ICommand> { new SMoveCommand(n_f), new FillCommand(-n_f), new SMoveCommand(f - n_f), new SMoveCommand(s) };
-			}
-
-			return new List<ICommand>();
-		}*/
 	}
 }
