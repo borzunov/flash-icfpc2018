@@ -5,6 +5,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using NUnit.Framework;
+using MongoDB.Driver.GridFS;
 
 namespace Sandbox
 {
@@ -32,6 +33,23 @@ namespace Sandbox
             var client = new MongoClient(connectionString);
 
             db = client.GetDatabase("my_lols");
+        }
+
+        [Test]
+        public void UploadBlob()
+        {
+            var bucket = new GridFSBucket(db);
+            var id = bucket.UploadFromBytes("test_blob", new byte[]{1,2,3});
+
+            Console.WriteLine(id.ToString());
+        }
+
+        [Test]
+        public void DownloadBlob()
+        {
+            var bucket = new GridFSBucket(db);
+            ObjectId.TryParse("5b550d43ad3ef0083c6e3ca7", out var id);
+            var data = bucket.DownloadAsBytes(id);
         }
 
         [Test]
