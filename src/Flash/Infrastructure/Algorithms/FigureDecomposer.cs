@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Flash.Infrastructure.Algorithms
 {
@@ -11,6 +12,7 @@ namespace Flash.Infrastructure.Algorithms
         private readonly long costPerStep;
         private readonly Matrix curMatrix, targetMatrix, xorMatrix;
         private readonly PointCounter curSums, targetSums, xorSums;
+        private IsGroundedChecker curGroundChecker;
         private readonly Random rand;
 
         public FigureDecomposer(Matrix targetMatrix, Matrix startMatrix = null)
@@ -25,6 +27,8 @@ namespace Flash.Infrastructure.Algorithms
             curSums = new PointCounter(curMatrix);
             targetSums = new PointCounter(targetMatrix);
             xorSums = new PointCounter(xorMatrix);
+
+            curGroundChecker = new IsGroundedChecker(curMatrix);
 
             rand = new Random(42);
         }
@@ -58,6 +62,8 @@ namespace Flash.Infrastructure.Algorithms
 
                 curSums.Update(curMatrix, state.Region.Min);
                 xorSums.Update(xorMatrix, state.Region.Min);
+
+                curGroundChecker = new IsGroundedChecker(curMatrix);
 
                 var type = state.Fill ? BuildingTaskType.GFill : BuildingTaskType.GVoid;
                 tasks.Add(new BuildingTask(type, state.Region));
@@ -109,6 +115,7 @@ namespace Flash.Infrastructure.Algorithms
                     state = newState;
                     fitness = newFitness;
                 }
+
                 return fitness;
             }, 0.01, 10000);
             return state;
@@ -159,7 +166,7 @@ namespace Flash.Infrastructure.Algorithms
         private State GenerateState()
         {
             var region = new Region(GenerateInitialVector(), GenerateInitialVector());
-            return new State(rand.Next(1) == 1, ClipRegion(region));
+            return new State(rand.NextDouble() < 0.5, ClipRegion(region));
         }
 
         private State MutateState(State state)
@@ -215,8 +222,16 @@ namespace Flash.Infrastructure.Algorithms
             if (state.Fill)
                 diffInside = state.Region.Volume - diffInside;
             long spentForRem = 2 * (diffInside + diffOutside) * costPerStep;
-
+            
             return spentForRect + spentForRem;
+        }
+
+        private bool BreakesGrounding(State state)
+        {
+            if (state.Fill)
+                return !curGroundChecker.CanPlace(state.Region.AllPoints().ToList());
+            else
+                return !curGroundChecker.CanRemove(state.Region.AllPoints().ToHashSet());
         }
 
         private long EvaluateDifferenceFrom(Matrix matrix)
