@@ -74,6 +74,7 @@
     <Compile Include="Infrastructure\Algorithms\BotMoveSearcher.cs" />
     <Compile Include="Infrastructure\Algorithms\Clipping.cs" />
     <Compile Include="Infrastructure\Algorithms\ClusterMixtureBuilder.cs" />
+    <Compile Include="Infrastructure\Algorithms\ComponentFinder.cs" />
     <Compile Include="Infrastructure\Algorithms\ConvergenceStopper.cs" />
     <Compile Include="Infrastructure\Algorithms\DynamicConnectivity.cs" />
     <Compile Include="Infrastructure\Algorithms\FigureDecomposer.cs" />
@@ -126,6 +127,7 @@
     <Compile Include="Infrastructure\Commands\LMoveCommand.cs" />
     <Compile Include="Infrastructure\AI\IAI.cs" />
     <Compile Include="Infrastructure\Models\BuildingTask.cs" />
+    <Compile Include="Infrastructure\Models\Component.cs" />
     <Compile Include="Infrastructure\Models\FakeOpLog.cs" />
     <Compile Include="Infrastructure\Models\IJsonWriter.cs" />
     <Compile Include="Infrastructure\Models\IOpLogWriter.cs" />
