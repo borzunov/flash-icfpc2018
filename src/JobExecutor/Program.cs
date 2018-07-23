@@ -1,4 +1,7 @@
-﻿namespace JobExecutor
+﻿using JobsCommon;
+using MongoDB.Driver;
+
+namespace JobExecutor
 {
     class Program
     {

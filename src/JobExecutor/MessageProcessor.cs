@@ -54,7 +54,6 @@ namespace JobExecutor
         private void DumpProcessResult(ProcessResult processResult)
         {
             var db = mongoClient.GetDatabase(Jobs.MongoJobsDbName);
-            db.CreateCollection("results");
             var results = db.GetCollection<ProcessResult>("results");
             results.InsertOne(processResult);
         }
