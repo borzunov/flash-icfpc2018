@@ -120,6 +120,9 @@ namespace Flash.Infrastructure.Algorithms
 			if (Matrix.IsFull(vector))
 				return true;
 
+			if (vector.Y == 0)
+				return true;
+
 			return vector.GetAdjacents()
 				.Where(Matrix.Contains)
 				.Where(Matrix.IsFull)

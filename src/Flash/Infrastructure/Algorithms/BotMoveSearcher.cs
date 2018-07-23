@@ -17,6 +17,7 @@ namespace Flash.Infrastructure.Algorithms
 		private Vector End;
 		private Func<Vector, bool> IsForbiddenArea;
 		private int BotsCount;
+		public JsonOpLogWriter mongoOplogWriter;
 
 		private Dictionary<Tuple<Vector, bool>, AStarState> MinStates = new Dictionary<Tuple<Vector, bool>, AStarState>();
 
@@ -41,7 +42,9 @@ namespace Flash.Infrastructure.Algorithms
 			var endState = new AStarState
 			{
 				EndPosition = End,
-				Straight = false
+				StartPosition = End,
+				Straight = false,
+				DestroyedCell = Matrix.IsFull(End) ? End : null
 			};
 			priorityQueue.Enqueue(0, startState);
 			priorityQueue.Enqueue(0, endState);
@@ -87,7 +90,9 @@ namespace Flash.Infrastructure.Algorithms
 					}
 
 					MinStates[Tuple.Create(newState.EndPosition, newState.DestroyedCell != null)] = newState;
-					priorityQueue.Enqueue(-newState.MaxPotentialWeight, newState);
+					priorityQueue.Enqueue(-newState.MaxPotentialWeight + (newState.Straight 
+						                      ? (End - newState.EndPosition).Euclidlen 
+						                      : (BotPosition - newState.EndPosition).Euclidlen ) / Matrix.R / 3, newState);
 					iterationsCount++;
 				}
 
@@ -314,8 +319,8 @@ namespace Flash.Infrastructure.Algorithms
 					yield return new SMoveCommand(-Move1);
 				if (Move1 != null && Move2 != null)
 					yield return new LMoveCommand(-Move2, -Move1);
-				if (DestroyedCell != null)
-					yield return new FillCommand(EndPosition - StartPosition);
+				if (DestroyedCell != null && StartPosition != null)
+					yield return new FillCommand(DestroyedCell - StartPosition);
 			}
 		}
 

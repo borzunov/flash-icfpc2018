@@ -1,6 +1,7 @@
 ﻿using Flash.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Flash.Infrastructure.Algorithms
 {
@@ -8,9 +9,8 @@ namespace Flash.Infrastructure.Algorithms
     {
         private readonly int R;
         private readonly long costPerStep;
-        private readonly Matrix curMatrix, targetMatrix;
-        private PointCounter curSums, xorSums;
-        private readonly PointCounter targetSums;
+        private readonly Matrix curMatrix, targetMatrix, xorMatrix;
+        private readonly PointCounter curSums, targetSums, xorSums;
         private readonly Random rand;
 
         public FigureDecomposer(Matrix targetMatrix, Matrix startMatrix = null)
@@ -19,14 +19,15 @@ namespace Flash.Infrastructure.Algorithms
             costPerStep = 3 * R * R * R;
 
             curMatrix = startMatrix?.Clone() ?? new Matrix(R);
-            this.targetMatrix = targetMatrix;
+            this.targetMatrix = targetMatrix.Clone();
+            xorMatrix = curMatrix ^ targetMatrix;
+
             curSums = new PointCounter(curMatrix);
-            xorSums = new PointCounter(curMatrix ^ targetMatrix);
             targetSums = new PointCounter(targetMatrix);
+            xorSums = new PointCounter(xorMatrix);
+
             rand = new Random(42);
         }
-
-        private const int RegionCount = 20;
 
         public List<BuildingTask> Decompose()
         {
@@ -34,29 +35,36 @@ namespace Flash.Infrastructure.Algorithms
 
             double initialTemp = EvaluateDifferenceFrom(curMatrix) / 10.0;
             var tasks = new List<BuildingTask>();
-            for (var i = 0; i < RegionCount; i++)
+            ConvergenceStopper.Run(regionNo =>
             {
-                if (xorSums.TotalFulls <= 1)
-                    break;
+                var stopwatch = Stopwatch.StartNew();
+
+                if (xorSums.TotalFulls <= 2)
+                    return null;
                 Console.WriteLine($"Points to change: {xorSums.TotalFulls}\n");
 
-                var state = FindNextRectangle(i, initialTemp);
-                if (state.Region.Dim == 0)
+                var state = FindNextRectangle(regionNo, initialTemp);
+                if ((state.Region.Max - state.Region.Min).Clen <= 2)
                 {
-                    Console.WriteLine("Got 1x1x1 region, it will be skipped");
-                    continue;
+                    Console.WriteLine("Too small region, it will be skipped");
+                    return xorSums.TotalFulls;
                 }
 
                 if (state.Fill)
                     curMatrix.Fill(state.Region);
                 else
                     curMatrix.Clear(state.Region);
-                curSums = new PointCounter(curMatrix);
-                xorSums = new PointCounter(curMatrix ^ targetMatrix);
+                UpdateXorMatrix(state.Region);
+
+                curSums.Update(curMatrix, state.Region.Min);
+                xorSums.Update(xorMatrix, state.Region.Min);
 
                 var type = state.Fill ? BuildingTaskType.GFill : BuildingTaskType.GVoid;
                 tasks.Add(new BuildingTask(type, state.Region));
-            }
+
+                Console.WriteLine($"Elapsed {stopwatch.ElapsedMilliseconds} ms");
+                return xorSums.TotalFulls;
+            }, 0.001, 20);
 
             Console.WriteLine($"Points to change: {xorSums.TotalFulls}");
             tasks.AddRange(CreatePointwiseTasks());
@@ -65,23 +73,34 @@ namespace Flash.Infrastructure.Algorithms
             return tasks;
         }
 
+        private void UpdateXorMatrix(Region region)
+        {
+            // This violates incapsulation principle but provides optimization benefits
+
+            var curContent = curMatrix.GetContent();
+            var targetContent = targetMatrix.GetContent();
+            var xorContent = xorMatrix.GetContent();
+            for (var i = region.Min.X; i <= region.Max.X; i++)
+            for (var j = region.Min.Y; j <= region.Max.Y; j++)
+            for (var k = region.Min.Z; k <= region.Max.Z; k++)
+                xorContent[i, j, k] = curContent[i, j, k] ^ targetContent[i, j, k];
+        }
+
         private State FindNextRectangle(int regionNo, double initialTemp)
         {
             var state = GenerateState();
             var fitness = Evaluate(state);
-            for (var j = 1; j <= 10000; j++)
+            ConvergenceStopper.Run(iter =>
             {
-                double temp = initialTemp / j;
+                double temp = initialTemp / iter;
                 var newState = MutateState(state);
                 var newFitness = Evaluate(newState);
 
-                if (j % 10000 == 0)
+                if (iter % 10000 == 0)
                 {
-                    Console.WriteLine($"Region {regionNo}, iteration {j}:");
+                    Console.WriteLine($"Region {regionNo}, iteration {iter}:");
                     Console.WriteLine($"    state.Fill = {state.Fill}, fitness = {fitness}");
                     Console.WriteLine($"    state.Region = {state.Region}");
-                    Console.WriteLine($"    newState.Fill = {newState.Fill}, newFitness = {newFitness}");
-                    Console.WriteLine($"    newState.Region = {newState.Region}\n");
                 }
 
                 var proba = GetTransitionProba(fitness, newFitness, temp);
@@ -90,7 +109,8 @@ namespace Flash.Infrastructure.Algorithms
                     state = newState;
                     fitness = newFitness;
                 }
-            }
+                return fitness;
+            }, 0.01, 10000);
             return state;
         }
 
