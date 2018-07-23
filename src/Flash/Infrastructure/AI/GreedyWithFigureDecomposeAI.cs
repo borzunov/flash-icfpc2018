@@ -18,7 +18,7 @@ namespace Flash.Infrastructure.AI
 		private int myBodBid = 0;
 		private Queue<ICommand> fussionQueue;
 		private bool FLAG = true;
-		public Dictionary<int, List<Vector>> debt = new Dictionary<int, List<Vector>>();
+		//public Dictionary<int, List<Vector>> debt = new Dictionary<int, List<Vector>>();
 
 		public HashSet<Vector> tehDolg = new HashSet<Vector>();
 
@@ -27,10 +27,10 @@ namespace Flash.Infrastructure.AI
 			this.groundedChecker = groundedChecker;
 			this.buildingTasks = new Queue<BuildingTask>(buildingTasks);
 
-			for (var i = 0; i <= 8; i++)
+			/*for (var i = 0; i <= 8; i++)
 			{
 				debt.Add(i, new List<Vector>());
-			}
+			}*/
 		}
 
 		public IEnumerable<ICommand> NextStep(State state)
@@ -103,7 +103,7 @@ namespace Flash.Infrastructure.AI
 
 						var command = fussionQueue.Dequeue();
 
-						var newList = GetFixCommand(state, command, bot2);
+						/*var newList = GetFixCommand(state, command, bot2);
 
 						if (newList.Count != 0)
 						{
@@ -111,9 +111,9 @@ namespace Flash.Infrastructure.AI
 							ans.Add(fussionQueue.Dequeue());
 						}
 						else
-						{
+						{*/
 							ans.Add(command);
-						}
+						/*}*/
 						//ans.Add(command);
 					}
 				}
@@ -160,7 +160,7 @@ namespace Flash.Infrastructure.AI
 						{
 							var moveCommand = commandsQueue[bot.Bid].Dequeue();
 
-							var newList = GetFixCommand(state, moveCommand, bot);
+							/*var newList = GetFixCommand(state, moveCommand, bot);
 
 							if (newList.Count != 0)
 							{
@@ -168,9 +168,9 @@ namespace Flash.Infrastructure.AI
 								ans.Add(commandsQueue[bot.Bid].Dequeue());
 							}
 							else
-							{
+							{*/
 								ans.Add(moveCommand);
-							}
+							/*}*/
 						}
 						else
 						{
@@ -186,7 +186,7 @@ namespace Flash.Infrastructure.AI
 		}
 
 
-		private List<ICommand> GetFixCommand(State state, ICommand moveCommand, Bot bot)
+		/*private List<ICommand> GetFixCommand(State state, ICommand moveCommand, Bot bot)
 		{
 			if (moveCommand is SMoveCommand)
 			{
@@ -237,7 +237,7 @@ namespace Flash.Infrastructure.AI
 			}
 
 			return new List<ICommand>();
-		}
+		}*/
 
 		private Dictionary<int, Queue<ICommand>> GetCommadsQueue(State state, List<Vector> points, Region region, bool flag)
 		{
@@ -369,7 +369,7 @@ namespace Flash.Infrastructure.AI
 
 			var s = botMoveSearcher.FindPath(out var positions, out var commands, out _);
 
-			if (debt[bot.Bid].Count != 0 && flag)
+			/*if (debt[bot.Bid].Count != 0 && flag)
 			{
 				if(debt[bot.Bid].Count != 1)
 					Console.WriteLine();
@@ -401,18 +401,17 @@ namespace Flash.Infrastructure.AI
 				commands = commands.Take(c.i).Concat(clearCommnads).Concat(fixCommands).Concat(commands.Skip(c.i + 1)).ToList();
 				
 				debt[bot.Bid] = new List<Vector>();
-			}
+			}*/
 
 			if (!s)
 			{
-				return (null, null);
-				//return (new List<Vector>(), new List<ICommand>());
+				return (new List<Vector>(), new List<ICommand>());
 			}
 
 			return (positions, commands);
 		}
 
-		private List<ICommand> GetFixCommand1(ICommand moveCommand)
+		/*private List<ICommand> GetFixCommand1(ICommand moveCommand)
 		{
 			if (moveCommand is SMoveCommand)
 			{
@@ -446,6 +445,6 @@ namespace Flash.Infrastructure.AI
 			}
 
 			return new List<ICommand>();
-		}
+		}*/
 	}
 }
