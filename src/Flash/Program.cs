@@ -19,7 +19,7 @@ namespace Flash
         public static void Main(string[] args)
         {
             //var trackFilePath = @"..\..\..\data\track\LA001.nbt";
-            var modelFilePath = @"..\..\..\data\models\LA040_tgt.mdl";
+            var modelFilePath = @"..\..\..\data\models\LA080_tgt.mdl";
 
             var model = MatrixDeserializer.Deserialize(File.ReadAllBytes(modelFilePath));
 			//var ai = new GreedyGravityAI(matrix);
@@ -64,6 +64,8 @@ namespace Flash
 		        if ((commands == null || commandIdx >= commands.Count) && i < works.Length)
 		        {
 					works[i].DoWork(groundedChecker, vector => false, out commands, out var p);
+					if(p.Contains(new Vector(23, 26, 18)))
+						Console.WriteLine();
 			        i++;
 			        commandIdx = 0;
 				}
