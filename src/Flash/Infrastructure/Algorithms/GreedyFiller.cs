@@ -96,13 +96,7 @@ namespace Flash.Infrastructure.Algorithms
 					mongoOplogWriter?.WriteColor(nextPoint, "FF0000", 0.5);
 				}
 				if (nextPoint == null)
-					nextPoint = figure
-						.SelectMany(fig => fig.GetAdjacents())
-						.Where(s => !figure.Contains(s))
-						.Where(s => !isForbidden(s))
-						.Where(matrix.Contains)
-						.OrderBy(s => (s - curPoint).Mlen)
-						.First();
+					break;
 
 				try
 				{
