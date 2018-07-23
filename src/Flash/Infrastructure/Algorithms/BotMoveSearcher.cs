@@ -38,8 +38,7 @@ namespace Flash.Infrastructure.Algorithms
 			var priorityQueue = new PriorityQueue<AStarState>();
 			var startState = new AStarState
 			{
-				LastDestroyedCell = Model.IsFull(BotPosition) ? BotPosition : null,
-				StartPosition = BotPosition,
+				DestroyedCell = Model.IsFull(BotPosition) ? BotPosition : null,
 				EndPosition = BotPosition,
 				Straight = true
 			};
@@ -306,7 +305,7 @@ namespace Flash.Infrastructure.Algorithms
 		{
 			if (Straight)
 			{
-				if (DestroyedCell != null)
+				if (DestroyedCell != null && Move1 != null)
 					yield return new VoidCommand(EndPosition - StartPosition);
 				if (Move1 != null && Move2 == null)
 					yield return new SMoveCommand(Move1);

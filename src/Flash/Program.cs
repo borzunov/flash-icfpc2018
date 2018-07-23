@@ -46,7 +46,7 @@ namespace Flash
 		        }
 	        }
 
-	        var fillWork = new GreedyFiller(model, figure, null);
+	        var fillWork = new GreedyFiller(state.Matrix, figure, null);
 			var path = new PathWork(new Vector(0, 0, 0), fillWork.SetWorkerAndGetInput(groundedChecker, vector => false, new Vector(0, 0, 0), 0), state.Matrix, groundedChecker, 29, 0, model);
 
 	        var works = new[] {(IWork)path, fillWork };
@@ -77,7 +77,7 @@ namespace Flash
 					}
 					else
 					{
-						var path1 = new PathWork(state.Bots[0].Pos, new Vector(0, 0, 0), state.Matrix, groundedChecker, 29, 0, state.Matrix);
+						var path1 = new PathWork(state.Bots[0].Pos, new Vector(0, 0, 0), state.Matrix, groundedChecker, 29, 0, model);
 						path1.DoWork(groundedChecker, vector => false, out commands, out _);
 						commandIdx = 0;
 					}
@@ -105,6 +105,8 @@ namespace Flash
 		        }
 	        }
 			
+			File.WriteAllBytes("atatat.nbt", simulator.CreateResultTrace());
+
 			mongoOplogWriter.Save();
 			
         }
