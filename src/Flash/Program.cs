@@ -104,7 +104,7 @@ namespace Flash
 			        break;
 		        }
 	        }
-
+			
 			mongoOplogWriter.Save();
 			
         }
