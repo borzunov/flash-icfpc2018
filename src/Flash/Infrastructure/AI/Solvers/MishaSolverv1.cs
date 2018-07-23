@@ -10,11 +10,18 @@ using Flash.Infrastructure.Simulation;
 
 namespace Flash.Infrastructure.AI.Solvers
 {
-	class MishaSolverv1 : ISolver
+	public class MishaSolverv1 : ISolver
 	{
 		public Trace Solve(Matrix srcMatrix, Matrix model)
 		{
-			var state = State.CreateInitial(model.R, new FakeOpLog());
+		    if (srcMatrix != null || model == null)
+		    {
+                //dasm & reasm
+		        return null;
+		    }
+
+            //asm
+		    var state = State.CreateInitial(model.R, new FakeOpLog());
 
 			Console.WriteLine("matrix loaded");
 
