@@ -74,6 +74,7 @@
     <Compile Include="Infrastructure\AI\GreedyGravityAI.cs" />
     <Compile Include="Infrastructure\AI\GreedyWithFigureDecomposeAI.cs" />
     <Compile Include="Infrastructure\AI\Solvers\JenyaRomaSolver.cs" />
+    <Compile Include="Infrastructure\AI\Solvers\MishaSolverv1.cs" />
     <Compile Include="Infrastructure\Alghorithms\BridgesFinder.cs" />
     <Compile Include="Infrastructure\Algorithms\Clipping.cs" />
     <Compile Include="Infrastructure\Algorithms\BotMoveSearcher.cs" />
