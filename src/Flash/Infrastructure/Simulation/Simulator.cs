@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using Flash.Infrastructure.Commands;
+using Flash.Infrastructure.Deserializers;
 using Flash.Infrastructure.Models;
+using Flash.Infrastructure.Serializers;
 
 namespace Flash.Infrastructure.Simulation
 {
     public class Simulator
     {
+        private readonly List<ICommand> allCommands = new List<ICommand>();
         public void NextStep(State state, Trace trace)
         {
             //if (state.Bots.Length != trace.Count)
@@ -15,12 +18,19 @@ namespace Flash.Infrastructure.Simulation
 
             UpdateEnergy(state);
 
+            allCommands.AddRange(trace);
+
             while (trace.Any())
             {
                 var bots = state.Bots.ToList();
                 var commands = trace.Dequeue(bots.Count);
                 Execute(state, bots.Zip(commands, (x, y) => (x, y)).ToList());
             }
+        }
+
+        private byte[] CreateResultTrace()
+        {
+            return TraceBinarySerializer.Create().Serialize(new Trace(allCommands));
         }
 
         private static void Execute(State state, List<(Bot bot, ICommand command)> commands)
@@ -47,7 +57,7 @@ namespace Flash.Infrastructure.Simulation
             }
 
             // validation
-            Validate(state, singleCommands, groupCommands);
+            //Validate(state, singleCommands, groupCommands);
 
             // apply
             foreach (var (bot, command) in singleCommands)
