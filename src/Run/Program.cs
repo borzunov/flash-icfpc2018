@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Flash.Infrastructure.AI;
 using Flash.Infrastructure.Commands;
@@ -17,6 +18,9 @@ namespace Run
     {
         static void Main(string[] args)
         {
+            Thread.Sleep(1000*10);
+            return;
+
             var tgt = args.Single(a => a.StartsWith("--tgt=")).Substring(6);
             var trace = args.Single(a => a.StartsWith("--trace=")).Substring(8);
 
