@@ -18,6 +18,8 @@ namespace JobTaskSender
     {
         static string problemsDirectory = @"\\vm-dev-cont1\data\problemsF";
 
+        public static int TimeoutMilliseconds = TimeSpan.FromSeconds(5).Milliseconds;
+
         static void Main(string[] args)
         {
             var strategyName = args[0];
@@ -53,7 +55,8 @@ namespace JobTaskSender
                     {
                         ZipMongoBlobId = blobId.ToString(),
                         FileNameNoRun = "run.exe",
-                        Arguments = $"--tgt={x.ToString()} --trace={outTracePath}"
+                        Arguments = $"--tgt={x.ToString()} --trace={outTracePath}",
+                        TimeoutMilliseconds = TimeoutMilliseconds
                     };
                     var msgJson = JsonConvert.SerializeObject(msg);
 
