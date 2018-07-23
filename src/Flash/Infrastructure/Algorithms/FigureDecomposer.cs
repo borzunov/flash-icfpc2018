@@ -43,14 +43,45 @@ namespace Flash.Infrastructure.Algorithms
             {
                 var stopwatch = Stopwatch.StartNew();
 
-                if (xorSums.TotalFulls <= 2)
+                if (xorSums.TotalFulls <= 3)
                     return null;
                 Console.WriteLine($"Points to change: {xorSums.TotalFulls}\n");
 
                 var state = FindNextRectangle(regionNo, initialTemp);
-                if ((state.Region.Max - state.Region.Min).Clen <= 2)
+                if ((state.Region.Max - state.Region.Min).Clen <= 3)
                 {
                     Console.WriteLine("Too small region, it will be skipped");
+                    return xorSums.TotalFulls;
+                }
+
+                Region leg = null;
+                if (state.Fill && BreakesGrounding(state) && state.Region.Min.Y > 0)
+                {
+                    var direction = state.Region.Max - state.Region.Min;
+                    if (direction.X < 3 || direction.Z < 3)
+                    {
+                        Console.WriteLine("We don't build regions like vertical lines if they are not grounded");
+                        return xorSums.TotalFulls;
+                    }
+                    
+                    var legX = state.Region.Min.X + 1;
+                    var legZ = state.Region.Min.Z + 1;
+                    leg = new Region(
+                        new Vector(legX, 0, legZ),
+                        new Vector(legX, state.Region.Min.Y - 1, legZ));
+                    Console.WriteLine($"Building leg {leg} for region {state.Region}");
+
+                    curMatrix.Fill(leg);
+                    UpdateXorMatrix(leg);
+                    if (leg.Volume >= 4)
+                        tasks.Add(new BuildingTask(BuildingTaskType.GFill, leg));
+                    else
+                        tasks.AddRange(leg.AllPoints()
+                            .Select(p => new BuildingTask(BuildingTaskType.Fill, new Region(p))));
+                }
+                if (!state.Fill && BreakesGrounding(state))
+                {
+                    Console.WriteLine("Can't fix ungrounded GVoids");
                     return xorSums.TotalFulls;
                 }
 
@@ -59,18 +90,17 @@ namespace Flash.Infrastructure.Algorithms
                 else
                     curMatrix.Clear(state.Region);
                 UpdateXorMatrix(state.Region);
-
-                curSums.Update(curMatrix, state.Region.Min);
-                xorSums.Update(xorMatrix, state.Region.Min);
-
-                curGroundChecker = new IsGroundedChecker(curMatrix);
-
                 var type = state.Fill ? BuildingTaskType.GFill : BuildingTaskType.GVoid;
                 tasks.Add(new BuildingTask(type, state.Region));
 
+                var minChanged = leg == null ? state.Region.Min : new Vector(0, 0, 0);
+                curSums.Update(curMatrix, minChanged);
+                xorSums.Update(xorMatrix, minChanged);
+                curGroundChecker = new IsGroundedChecker(curMatrix);
+
                 Console.WriteLine($"Elapsed {stopwatch.ElapsedMilliseconds} ms");
                 return xorSums.TotalFulls;
-            }, 0.001, 20);
+            }, 0.001, 50);
 
             Console.WriteLine($"Points to change: {xorSums.TotalFulls}");
             tasks.AddRange(CreatePointwiseTasks());
