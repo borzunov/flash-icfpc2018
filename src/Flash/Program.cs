@@ -19,7 +19,7 @@ namespace Flash
         public static void Main(string[] args)
         {
             //var trackFilePath = @"..\..\..\data\track\LA001.nbt";
-            var modelFilePath = @"..\..\..\data\models\LA080_tgt.mdl";
+            var modelFilePath = @"..\..\..\data\models\LA001_tgt.mdl";
 
             var model = MatrixDeserializer.Deserialize(File.ReadAllBytes(modelFilePath));
 			//var ai = new GreedyGravityAI(matrix);
@@ -46,7 +46,16 @@ namespace Flash
 		        }
 	        }
 
-	        var fillWork = new GreedyFiller(state.Matrix, figure, null);
+	        var radn = new Random();
+
+	        while (true)
+			{
+				var idx = radn.Next(figure.Count);
+				var path2 = new PathWork(new Vector(0, 0, 0), figure.ToList()[idx], model, groundedChecker, 29, 0, state.Matrix);
+				path2.DoWork(groundedChecker, vector => false, out var c, out var v);
+			}
+
+			var fillWork = new GreedyFiller(state.Matrix, figure, null);
 			var path = new PathWork(new Vector(0, 0, 0), fillWork.SetWorkerAndGetInput(groundedChecker, vector => false, new Vector(0, 0, 0), 0), state.Matrix, groundedChecker, 29, 0, model);
 
 	        var works = new[] {(IWork)path, fillWork };
