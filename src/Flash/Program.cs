@@ -9,6 +9,7 @@ using Flash.Infrastructure.Algorithms;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Deserializers;
 using Flash.Infrastructure.Models;
+using Flash.Infrastructure.Serializers;
 using Flash.Infrastructure.Simulation;
 
 namespace Flash
@@ -18,80 +19,31 @@ namespace Flash
         public static void Main(string[] args)
         {
             //var trackFilePath = @"..\..\..\data\track\LA001.nbt";
-            var modelFilePath = @"..\..\..\data\models\LA180_tgt.mdl";
+            var modelFilePath = @"..\..\..\data\models\LA030_tgt.mdl";
 
             var matrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(modelFilePath));
-			//var ai = new GreedyGravityAI(matrix);
 
-			Console.WriteLine("matrix loaded");
+	        var tasks = new FigureDecomposer(matrix).Decompose();
+			var ai = new GreedyWithFigureDecomposeAI(tasks, new IsGroundedChecker(matrix));
+
+			Console.WriteLine("test greedy");
 
 			var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
-            mongoOplogWriter.WriteLogName("GreedyGravityAI_IsGrounded");
+            mongoOplogWriter.WriteLogName("myTest");
 	        var state = State.CreateInitial(matrix.R, mongoOplogWriter);
 	        mongoOplogWriter.WriteInitialState(state);
-
-			var groundedChecker = new IsGroundedChecker(matrix);
-			var startPosition = new Vector(0, 0, 0);
-
-	        for (int i = 0; i < matrix.R; i++)
-	        {
-				for (int j = 0; j < matrix.R; j++)
-				{
-					for (int k = 0; k < matrix.R; k++)
-					{
-						var vector = new Vector(i, j, k);
-						if(matrix.IsVoid(vector))
-							continue;
-						mongoOplogWriter.WriteColor(vector, "0000FF", 0.5);
-					}
-				}
-			}
-
-
-	        Console.WriteLine("matrix inited");
-
-			var rand = new Random(14);
-			var forbidden = new HashSet<Vector>();
-	        Console.WriteLine("start");
-			for (int i = 0; i <1002; i++)
-	        {
-		        var endPosition = new Vector(rand.Next(matrix.R), rand.Next(matrix.R), rand.Next(matrix.R));
-				while(forbidden.Contains(endPosition) || matrix.IsFull(endPosition))
-					endPosition = new Vector(rand.Next(matrix.R), rand.Next(matrix.R), rand.Next(matrix.R));
-
-				mongoOplogWriter.WriteColor(endPosition, "00FF00", 1);
-		        DateTime d = DateTime.UtcNow;
-				var pathBuilder = new BotMoveSearcher(matrix, startPosition, vector => forbidden.Contains(vector), 39, endPosition, groundedChecker);
-		        pathBuilder.FindPath(out var movePath, out var commands, out var iterations);
-				
-				if (movePath == null)
-					break;
-				
-		        Console.WriteLine($"{commands.Count}: {d - DateTime.UtcNow} - {iterations}");
-				
-				movePath.ForEach(c => forbidden.Add(c));
-
-
-				foreach (var vector in movePath)
-				{
-					mongoOplogWriter.WriteFill(vector);
-				}
-		        mongoOplogWriter.WriteColor(endPosition, "0000FF", 1);
-
-				startPosition = endPosition;
-	        }
-
-
-			mongoOplogWriter.Save();
-
-			return;
-			/*
+	        
             var simulator = new Simulator();
 
+	        var b = new List<byte>();
             while (true)
             {
                 var commands = ai.NextStep(state).ToList();
-                simulator.NextStep(state, new Trace(commands));
+	            var trace = new Trace(commands);
+
+	            b.AddRange(TraceBinarySerializer.Create().Serialize(trace));
+
+	            simulator.NextStep(state, trace);
 
                 if (commands.Count == 1 && commands[0] is HaltCommand)
                 {
@@ -99,7 +51,9 @@ namespace Flash
                 }
             }
 
-            mongoOplogWriter.Save();*/
+
+			File.WriteAllBytes(@"C:\Users\s.jane\Desktop\result\LA019.nbt", b.ToArray());
+            mongoOplogWriter.Save();
         }
     }
 }

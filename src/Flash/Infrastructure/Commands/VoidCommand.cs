@@ -1,4 +1,6 @@
-﻿using Flash.Infrastructure.Models;
+﻿using System;
+using System.Linq;
+using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Commands
 {
@@ -19,7 +21,7 @@ namespace Flash.Infrastructure.Commands
             if (state.Matrix.IsFull(vector))
             {
                 state.OpLogWriter.WriteRemove(vector);
-                state.Matrix.Fill(vector);
+                state.Matrix.Clear(vector);
                 state.Energy -= 12;
             }
             else

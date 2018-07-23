@@ -1,4 +1,6 @@
-﻿using Flash.Infrastructure.Models;
+﻿using System;
+using System.Linq;
+using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Commands
 {
@@ -18,7 +20,7 @@ namespace Flash.Infrastructure.Commands
             var oldPosition = bot.Pos;
             var newPosition = bot.Pos + FirstDirection + SecondDirection;
 
-            bot.Pos = newPosition;
+			bot.Pos = newPosition;
             state.Energy += 2*(FirstDirection.Mlen + 2 + SecondDirection.Mlen);
 
             state.OpLogWriter.WriteRemove(oldPosition);

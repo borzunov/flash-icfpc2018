@@ -17,7 +17,7 @@ namespace Flash.Infrastructure.Commands
             var newPosition = bot.Pos + Direction;
             
             bot.Pos = newPosition;
-            state.Energy += 2*Direction.Mlen;
+			state.Energy += 2*Direction.Mlen;
 
             state.OpLogWriter.WriteRemove(oldPosition);
             state.OpLogWriter.WriteAdd(newPosition);
