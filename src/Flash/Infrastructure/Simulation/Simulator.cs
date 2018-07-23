@@ -33,6 +33,12 @@ namespace Flash.Infrastructure.Simulation
             return TraceBinarySerializer.Create().Serialize(new Trace(allCommands));
         }
 
+        public Trace CreateResultTraceAsTrace()
+        {
+            return new Trace(allCommands);
+        }
+
+
         private static void Execute(State state, List<(Bot bot, ICommand command)> commands)
         {
             var singleCommands = new List<(Bot bot, ICommand command)>();
