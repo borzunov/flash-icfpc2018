@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using JobsCommon;
 using log4net;
 using MongoDB.Bson;
@@ -32,10 +34,9 @@ namespace JobExecutor
 
         private void ProcessInternal(Message message)
         {
-            var processResult = ProcessResult.FromMessage(message, Environment.MachineName);
-            
             try
             {
+                var processResult = ProcessResult.FromMessage(message, Environment.MachineName);
                 var workPath = PrepareEnv(message);
                 RunCode(message, workPath);
                 processResult.IsSuccess = true;
@@ -44,10 +45,10 @@ namespace JobExecutor
             }
             catch (Exception e)
             {
+                var processResult = ProcessResult.FromMessage(message, Environment.MachineName);
                 processResult.IsSuccess = false;
                 processResult.ErrorMessage = e.ToString();
                 DumpProcessResult(processResult);
-                throw;
             }
         }
 
@@ -91,6 +92,7 @@ namespace JobExecutor
 
         private void RunCode(Message message, string workPath)
         {
+
             var process = new Process
             {
                 StartInfo =
@@ -104,11 +106,53 @@ namespace JobExecutor
             process.OutputDataReceived += (sender, args) =>
             {
                 if (args.Data != null)
+                {
                     log.Info(args.Data);
+                }
+            };
+            var sb = new StringBuilder();
+            process.ErrorDataReceived += (sender, args) =>
+            {
+                if (args.Data != null)
+                {
+                    log.Info(args.Data);
+                    sb.AppendLine(args.Data);
+                }
             };
             process.Start();
             process.BeginOutputReadLine();
-            process.WaitForExit();
+
+            process.WaitForExit(message.TimeoutMilliseconds);
+
+            if (!process.HasExited)
+            {
+                process.Kill();
+                throw new TimeoutException($"Timeout: `{message.TimeoutMilliseconds/1000}` s");
+            }
+
+            if(process.ExitCode != 0)
+            {
+                throw new NonZeroExitCodeException($"Exit code: `{process.ExitCode}`. Errors: `{sb}`");
+            }
+
+
+        }
+
+        private class NonZeroExitCodeException : Exception
+        {
+            public NonZeroExitCodeException(string msg) : base(msg)
+            {
+
+            }
+        }
+
+
+        private class TimeoutException : Exception
+        {
+            public TimeoutException(string msg) : base(msg)
+            {
+                
+            }
         }
     }
 }

@@ -29,9 +29,10 @@ namespace Flash.Infrastructure.Algorithms
 
 		public Vector GetPossibleStartPlace(IsGroundedChecker groundedChecker, Func<Vector, bool> isForbidden, Vector botCoordinate)
 		{
-			return figure.OrderByDescending(f => f.Mlen).FirstOrDefault(f =>
-				f.GetAdjacents()
-					.Any(adj => !figure.Contains(adj) && matrix.Contains(adj) && !isForbidden(botCoordinate) && groundedChecker.CanPlace(adj)));
+			return figure.OrderByDescending(f => f.Mlen)
+				.Where(f => groundedChecker.CanPlace(f))
+				.FirstOrDefault(f => f.GetAdjacents()
+					.Any(adj => !figure.Contains(adj) && matrix.Contains(adj) && !isForbidden(botCoordinate)));
 		}
 
 		public Vector SetWorkerAndGetInput(IsGroundedChecker groundedChecker, Func<Vector, bool> isForbidden, Vector botCoordinate, int botId)
@@ -40,9 +41,10 @@ namespace Flash.Infrastructure.Algorithms
 				throw new Exception("too many workers");
 
 			BotId = botId;
-			return start = figure.OrderBy(f => f.Mlen).FirstOrDefault(f =>
-				f.GetAdjacents()
-					.Any(adj => !figure.Contains(adj) && matrix.Contains(adj) && !isForbidden(botCoordinate) && groundedChecker.CanPlace(adj)));
+			return start = figure.OrderBy(f => f.Mlen)
+				.Where(f => groundedChecker.CanPlace(f))
+				.FirstOrDefault(f =>f.GetAdjacents()
+					.Any(adj => !figure.Contains(adj) && matrix.Contains(adj) && !isForbidden(botCoordinate)));
 		}
 
 		public bool IsEnoughWorkers()
@@ -96,13 +98,7 @@ namespace Flash.Infrastructure.Algorithms
 					mongoOplogWriter?.WriteColor(nextPoint, "FF0000", 0.5);
 				}
 				if (nextPoint == null)
-					nextPoint = figure
-						.SelectMany(fig => fig.GetAdjacents())
-						.Where(s => !figure.Contains(s))
-						.Where(s => !isForbidden(s))
-						.Where(matrix.Contains)
-						.OrderBy(s => (s - curPoint).Mlen)
-						.First();
+					break;
 
 				try
 				{

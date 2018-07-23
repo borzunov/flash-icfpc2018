@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using JobsCommon;
 using MongoDB.Bson;
@@ -17,6 +18,8 @@ namespace JobTaskSender
     class Program
     {
         static string problemsDirectory = @"\\vm-dev-cont1\data\problemsF";
+
+        public static int TimeoutMilliseconds = (int)TimeSpan.FromMinutes(10).TotalMilliseconds;
 
         static void Main(string[] args)
         {
@@ -46,6 +49,7 @@ namespace JobTaskSender
                 Directory.CreateDirectory(outDir);
             var tasks = Directory.EnumerateFiles(problemsDirectory)
                 .Where(x => Path.GetFileName(x).StartsWith("FA"))
+                .Take(10)
                 .Select(x =>
                 {
                     var outTracePath = Path.Combine(outDir, $"{Path.GetFileName(x).Substring(0, 5)}.nbt");
@@ -53,7 +57,8 @@ namespace JobTaskSender
                     {
                         ZipMongoBlobId = blobId.ToString(),
                         FileNameNoRun = "run.exe",
-                        Arguments = $"--tgt={x.ToString()} --trace={outTracePath}"
+                        Arguments = $"--tgt={x.ToString()} --trace={outTracePath}",
+                        TimeoutMilliseconds = TimeoutMilliseconds
                     };
                     var msgJson = JsonConvert.SerializeObject(msg);
 

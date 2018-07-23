@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Flash.Infrastructure.Algorithms;
@@ -22,7 +23,6 @@ namespace Flash.Infrastructure.AI
 		{
 			this.groundedChecker = groundedChecker;
 			this.buildingTasks = new Queue<BuildingTask>(buildingTasks);
-			commandsQueue = new Dictionary<int, Queue<ICommand>>();
 		}
 
 		public IEnumerable<ICommand> NextStep(State state)
@@ -37,8 +37,7 @@ namespace Flash.Infrastructure.AI
 			var firstOrDefault = state.Bots.FirstOrDefault(x => state.Matrix.Contains(x.Pos) && state.Matrix.IsFull(x.Pos));
 			if (firstOrDefault != null || state.Bots.Any(x => state.Bots.Where(y => y.Bid != x.Bid).Any(z => z.Pos == x.Pos)))
 			{
-				ans.Add(new FlipCommand());
-				ans.Add(new HaltCommand());
+				Console.WriteLine();
 
 				return ans;
 			}
@@ -58,6 +57,7 @@ namespace Flash.Infrastructure.AI
 					}
 					else
 					{
+						ans.Add(new FlipCommand());
 						ans.Add(new HaltCommand());
 						return ans;
 					}
@@ -123,6 +123,10 @@ namespace Flash.Infrastructure.AI
 				if (!commandsQueue.Any() || commandsQueue.All(x => x.Value.Count == 0))
 				{
 					commandsQueue = GetCommadsQueue(state, taretPoints, task.Region);
+				}
+				else
+				{
+					
 				}
 
 				if (!commandsQueue.Any() || commandsQueue.All(x => x.Value.Count == 0))
@@ -340,13 +344,14 @@ namespace Flash.Infrastructure.AI
 				return (new List<Vector>(), new List<ICommand>());
 
 			bool IsForbiddenArea(Vector v) => fobidden.Contains(v) || state.Bots.Any(x => x.Bid != bot.Bid && x.Pos == v);
-			var botMoveSearcher = new BotMoveSearcher(state.Matrix, bot.Pos, IsForbiddenArea, state.Bots.Length, target, groundedChecker);
+			var botMoveSearcher = new BotMoveSearcher(state.Matrix, null, bot.Pos, IsForbiddenArea, state.Bots.Length, target, groundedChecker);
 
 			var s = botMoveSearcher.FindPath(out var positions, out var commands, out _);
 
 			if (!s)
 			{
-				return (new List<Vector>(), new List<ICommand>());
+				return (null, null);
+				//return (new List<Vector>(), new List<ICommand>());
 			}
 
 			return (positions, commands);
