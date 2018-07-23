@@ -22,7 +22,7 @@ namespace Flash
             var state = State.CreateInitial(sourceMatrix.R, mongoOplogWriter);
             mongoOplogWriter.WriteInitialState(state);
 
-            var tasks = new FigureDecomposer(sourceMatrix, targetMatrix).Decompose();
+            var tasks = new FigureDecomposer(targetMatrix, sourceMatrix).Decompose();
             var fillPoints = new List<Vector>();
             var voidPoints = new List<Vector>();
             foreach (var task in tasks)
