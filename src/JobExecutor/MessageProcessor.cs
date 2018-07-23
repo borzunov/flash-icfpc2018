@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Threading;
 using JobsCommon;
 using log4net;
 using MongoDB.Bson;
@@ -15,10 +14,12 @@ namespace JobExecutor
     {
         private static readonly object GlobalLock = new object();
         private readonly ILog log;
+        private readonly MongoClient mongoClient;
 
-        public MessageProcessor(ILog log)
+        public MessageProcessor(ILog log, MongoClient mongoClient)
         {
             this.log = log;
+            this.mongoClient = mongoClient;
         }
 
         public void Process(Message message)
@@ -31,8 +32,31 @@ namespace JobExecutor
 
         private void ProcessInternal(Message message)
         {
-            var workPath = PrepareEnv(message);
-            RunCode(message, workPath);
+            var processResult = ProcessResult.FromMessage(message, Environment.MachineName);
+            
+            try
+            {
+                var workPath = PrepareEnv(message);
+                RunCode(message, workPath);
+                processResult.IsSuccess = true;
+                DumpProcessResult(processResult);
+
+            }
+            catch (Exception e)
+            {
+                processResult.IsSuccess = false;
+                processResult.ErrorMessage = e.ToString();
+                DumpProcessResult(processResult);
+                throw;
+            }
+        }
+
+        private void DumpProcessResult(ProcessResult processResult)
+        {
+            var db = mongoClient.GetDatabase(Jobs.MongoJobsDbName);
+            db.CreateCollection("results");
+            var results = db.GetCollection<ProcessResult>("results");
+            results.InsertOne(processResult);
         }
 
         private static string PrepareEnv(Message message)

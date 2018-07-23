@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JobsCommon;
 using log4net;
+using MongoDB.Driver;
 using Newtonsoft.Json;
 
 namespace JobExecutor
@@ -79,7 +80,7 @@ namespace JobExecutor
 
         private void DoWork()
         {
-            var messageProcessor = new MessageProcessor(log);
+            var messageProcessor = new MessageProcessor(log, new MongoClient(Jobs.MongoConnectionString));
             while (true)
             {
                 foreach (var message in blockingCollection.GetConsumingEnumerable())
