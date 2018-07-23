@@ -58,7 +58,7 @@ namespace Flash.Infrastructure.Algorithms
 
 				mongoOplogWriter.WriteColor(endPosition, "00FF00", 1);
 				DateTime d = DateTime.UtcNow;
-				var pathBuilder = new BotMoveSearcher(matrix, startPosition, vector => forbidden.Contains(vector), 39, endPosition, groundedChecker);
+				var pathBuilder = new BotMoveSearcher(matrix, state.Matrix, startPosition, vector => forbidden.Contains(vector), 39, endPosition, groundedChecker);
 				pathBuilder.FindPath(out var movePath, out var commands, out var iterations);
 
 				if (movePath == null)
