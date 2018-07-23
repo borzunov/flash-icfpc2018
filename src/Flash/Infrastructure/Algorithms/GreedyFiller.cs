@@ -66,9 +66,7 @@ namespace Flash.Infrastructure.Algorithms
 			
 			Console.WriteLine("figure.Count = {0}", figure.Count);
 			Console.WriteLine("gravity.Count = {0}", gravity.Count);
-
-			int i = 0;
-
+			
 			var removeFills = new Dictionary<Vector, int>();
 			var filled = new HashSet<Vector>();
 			var curPoint = start;

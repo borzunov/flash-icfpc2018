@@ -42,7 +42,8 @@ namespace Flash.Infrastructure.Algorithms
 			var endState = new AStarState
 			{
 				EndPosition = End,
-				Straight = false
+				Straight = false,
+				DestroyedCell = Matrix.IsFull(End) ? End : null
 			};
 			priorityQueue.Enqueue(0, startState);
 			priorityQueue.Enqueue(0, endState);

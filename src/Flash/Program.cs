@@ -44,11 +44,10 @@ namespace Flash
 			        figure.Add(point);
 		        }
 	        }
+			
+			var path = new PathWork(new Vector(0, 0, 0), figure.ToList()[new Random().Next(figure.Count)], matrix, groundedChecker, 29, 0);
 
-	        var fillWork = new GreedyFiller(state.Matrix, figure, null);
-			var path = new PathWork(new Vector(0, 0, 0), fillWork.SetWorkerAndGetInput(groundedChecker, vector => false, new Vector(0, 0, 0), 0), state.Matrix, groundedChecker, 29, 0);
-
-	        var works = new[] {(IWork)path, fillWork};
+	        var works = new[] {(IWork)path};
 
 	        var simulator = new Simulator();
 
