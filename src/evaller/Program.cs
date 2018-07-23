@@ -46,7 +46,7 @@ namespace evaller
 						var commands = ai.NextStep(state).ToList();
 						simulator.NextStep(state, new Trace(commands));
 
-						if (commands.Count == 1 && commands[0] is HaltCommand)
+						if (commands[0] is HaltCommand)
 						{
 							break;
 						}

@@ -6,7 +6,7 @@
         public string ZipMongoBlobId { get; set; }
         public string FileNameNoRun { get; set; }
         public string Arguments { get; set; }
-
+        public int TimeoutMilliseconds { get; set; }
         public override string ToString()
         {
             return $"{nameof(FriendlyName)}: {FriendlyName}, {nameof(ZipMongoBlobId)}: {ZipMongoBlobId}, {nameof(FileNameNoRun)}: {FileNameNoRun}, {nameof(Arguments)}: {Arguments}";

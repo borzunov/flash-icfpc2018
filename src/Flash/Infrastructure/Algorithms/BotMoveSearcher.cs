@@ -12,6 +12,7 @@ namespace Flash.Infrastructure.Algorithms
 	class BotMoveSearcher
 	{
 		private Matrix Matrix;
+		private Matrix Model;
 		private IsGroundedChecker GroundedChecker;
 		private Vector BotPosition;
 		private Vector End;
@@ -21,7 +22,7 @@ namespace Flash.Infrastructure.Algorithms
 
 		private Dictionary<Tuple<Vector, bool>, AStarState> MinStates = new Dictionary<Tuple<Vector, bool>, AStarState>();
 
-		public BotMoveSearcher(Matrix matrix, Vector botPosition, Func<Vector, bool> isForbiddenArea, int botsCount, Vector end, IsGroundedChecker groundedChecker)
+		public BotMoveSearcher(Matrix matrix, Matrix model, Vector botPosition, Func<Vector, bool> isForbiddenArea, int botsCount, Vector end, IsGroundedChecker groundedChecker)
 		{
 			Matrix = matrix;
 			BotPosition = botPosition;
@@ -29,6 +30,7 @@ namespace Flash.Infrastructure.Algorithms
 			BotsCount = botsCount;
 			End = end;
 			GroundedChecker = groundedChecker;
+			Model = model;
 		}
 		private static Random rand = new Random();
 		public bool FindPath(out List<Vector> movePositions, out List<ICommand> commands, out int iterationsCount)
@@ -36,6 +38,7 @@ namespace Flash.Infrastructure.Algorithms
 			var priorityQueue = new PriorityQueue<AStarState>();
 			var startState = new AStarState
 			{
+				DestroyedCell = Model.IsFull(BotPosition) ? BotPosition : null,
 				EndPosition = BotPosition,
 				Straight = true
 			};
@@ -302,7 +305,7 @@ namespace Flash.Infrastructure.Algorithms
 		{
 			if (Straight)
 			{
-				if (DestroyedCell != null)
+				if (DestroyedCell != null && Move1 != null)
 					yield return new VoidCommand(EndPosition - StartPosition);
 				if (Move1 != null && Move2 == null)
 					yield return new SMoveCommand(Move1);
