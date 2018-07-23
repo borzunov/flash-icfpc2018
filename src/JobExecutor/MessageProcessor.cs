@@ -32,10 +32,9 @@ namespace JobExecutor
 
         private void ProcessInternal(Message message)
         {
-            var processResult = ProcessResult.FromMessage(message, Environment.MachineName);
-            
             try
             {
+                var processResult = ProcessResult.FromMessage(message, Environment.MachineName);
                 var workPath = PrepareEnv(message);
                 RunCode(message, workPath);
                 processResult.IsSuccess = true;
@@ -44,10 +43,10 @@ namespace JobExecutor
             }
             catch (Exception e)
             {
+                var processResult = ProcessResult.FromMessage(message, Environment.MachineName);
                 processResult.IsSuccess = false;
                 processResult.ErrorMessage = e.ToString();
                 DumpProcessResult(processResult);
-                throw;
             }
         }
 
@@ -109,7 +108,6 @@ namespace JobExecutor
             };
             process.Start();
             process.BeginOutputReadLine();
-            process.WaitForExit();
 
             process.WaitForExit(message.TimeoutMilliseconds);
 
