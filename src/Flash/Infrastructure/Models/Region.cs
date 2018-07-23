@@ -159,5 +159,13 @@ namespace Flash.Infrastructure.Models
 				return new List<Vector> { p4, p5, p6, p1, p2, p3, Max, Min };
 			}
 		}
+
+	    public IEnumerable<Vector> AllPoints()
+	    {
+	        for (var x = Min.X; x <= Max.X; x++)
+	        for (var y = Min.Y; y <= Max.Y; y++)
+	        for (var z = Min.Z; z <= Max.Z; z++)
+                yield return new Vector(x, y, z);
+        }
 	}
 }
