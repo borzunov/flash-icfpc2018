@@ -18,7 +18,7 @@ namespace JobTaskSender
     {
         static string problemsDirectory = @"\\vm-dev-cont1\data\problemsF";
 
-        public static int TimeoutMilliseconds = (int)TimeSpan.FromSeconds(5).TotalMilliseconds;
+        public static int TimeoutMilliseconds = (int)TimeSpan.FromMinutes(10).TotalMilliseconds;
 
         static void Main(string[] args)
         {
