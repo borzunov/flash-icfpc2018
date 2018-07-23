@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -104,7 +105,9 @@ namespace JobExecutor
             process.OutputDataReceived += (sender, args) =>
             {
                 if (args.Data != null)
+                {
                     log.Info(args.Data);
+                }
             };
             process.Start();
             process.BeginOutputReadLine();
@@ -116,7 +119,23 @@ namespace JobExecutor
                 process.Kill();
                 throw new TimeoutException($"Timeout: {message.TimeoutMilliseconds}ms");
             }
+
+            if(process.ExitCode != 0)
+            {
+                throw new NonZeroExitCodeException($"Exit code: {process.ExitCode}");
+            }
+
+
         }
+
+        private class NonZeroExitCodeException : Exception
+        {
+            public NonZeroExitCodeException(string msg) : base(msg)
+            {
+
+            }
+        }
+
 
         private class TimeoutException : Exception
         {
