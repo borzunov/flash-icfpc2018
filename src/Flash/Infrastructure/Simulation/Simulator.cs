@@ -28,7 +28,7 @@ namespace Flash.Infrastructure.Simulation
             }
         }
 
-        private byte[] CreateResultTrace()
+        public byte[] CreateResultTrace()
         {
             return TraceBinarySerializer.Create().Serialize(new Trace(allCommands));
         }
