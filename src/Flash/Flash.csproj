@@ -69,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Infrastructure\AIResult.cs" />
+    <Compile Include="Infrastructure\AI\EasyAI.cs" />
     <Compile Include="Infrastructure\AI\FileAI.cs" />
     <Compile Include="Infrastructure\AI\GreedyGravityAI.cs" />
     <Compile Include="Infrastructure\Alghorithms\BridgesFinder.cs" />
