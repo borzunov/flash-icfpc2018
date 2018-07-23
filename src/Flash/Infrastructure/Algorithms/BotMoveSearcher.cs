@@ -306,24 +306,24 @@ namespace Flash.Infrastructure.Algorithms
 			if (Straight)
 			{
 				if (DestroyedCell != null && Move1 != null)
-					yield return new VoidCommand(EndPosition - StartPosition);
+					yield return new VoidCommand(EndPosition - StartPosition, EndPosition);
 				if (Move1 != null && Move2 == null)
 					yield return new SMoveCommand(Move1);
 				if (Move1 != null && Move2 != null)
 					yield return new LMoveCommand(Move1, Move2);
 				if (LastDestroyedCell != null)
-					yield return new FillCommand(LastDestroyedCell - EndPosition);
+					yield return new FillCommand(LastDestroyedCell - EndPosition, LastDestroyedCell);
 			}
 			else
 			{
 				if (LastDestroyedCell != null)
-					yield return new VoidCommand(LastDestroyedCell - EndPosition);
+					yield return new VoidCommand(LastDestroyedCell - EndPosition, LastDestroyedCell);
 				if (Move1 != null && Move2 == null)
 					yield return new SMoveCommand(-Move1);
 				if (Move1 != null && Move2 != null)
 					yield return new LMoveCommand(-Move2, -Move1);
 				if (DestroyedCell != null && StartPosition != null)
-					yield return new FillCommand(DestroyedCell - StartPosition);
+					yield return new FillCommand(DestroyedCell - StartPosition, EndPosition);
 			}
 		}
 
