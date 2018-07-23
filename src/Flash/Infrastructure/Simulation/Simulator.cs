@@ -47,7 +47,7 @@ namespace Flash.Infrastructure.Simulation
             }
 
             // validation
-            Validate(state, singleCommands, groupCommands);
+            //Validate(state, singleCommands, groupCommands);
 
             // apply
             foreach (var (bot, command) in singleCommands)

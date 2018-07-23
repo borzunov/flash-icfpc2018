@@ -19,7 +19,7 @@ namespace Flash
         public static void Main(string[] args)
         {
             //var trackFilePath = @"..\..\..\data\track\LA001.nbt";
-            var modelFilePath = @"..\..\..\data\models\LA030_tgt.mdl";
+            var modelFilePath = @"..\..\..\data\models\LA002_tgt.mdl";
 
             var matrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(modelFilePath));
 
@@ -49,7 +49,11 @@ namespace Flash
                 {
                     break;
                 }
-            }
+	            if (commands.Count == 2 && commands[1] is HaltCommand)
+	            {
+		            break;
+	            }
+			}
 
 
 			File.WriteAllBytes(@"C:\Users\s.jane\Desktop\result\LA019.nbt", b.ToArray());
