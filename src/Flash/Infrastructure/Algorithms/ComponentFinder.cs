@@ -49,7 +49,7 @@ namespace Flash.Infrastructure.Algorithms
             {
                 var cur = points[i];
                 foreach (var neigh in cur.GetAdjacents())
-                    if (xorMatrix.Contains(neigh) && xorMatrix.IsFull(cur))
+                    if (xorMatrix.Contains(neigh) && xorMatrix.IsFull(neigh))
                     {
                         var neighComp = pointComp[neigh.X, neigh.Y, neigh.Z];
                         if (targetMatrix.IsFull(cur) == targetMatrix.IsFull(neigh) &&
