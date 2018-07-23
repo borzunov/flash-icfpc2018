@@ -81,7 +81,7 @@ namespace Flash.Infrastructure.AI
 					var bot2 = state.Bots[index + 1];
 
 					var near = bot1.Pos.GetNears().FirstOrDefault(x => x == bot2.Pos);
-					if (near != null)
+					if (near != null && fussionQueue?.Count == 0)
 					{
 						ans.Add(new FusionPCommand(near - bot1.Pos));
 						ans.Add(new FusionSCommand(new Vector(0, 0, 0) - near + bot1.Pos));
@@ -294,6 +294,9 @@ namespace Flash.Infrastructure.AI
 			var clearCommand = enumerable.Select(x => new FillCommand(x - bot.Pos)).ToList();
 			commands = clearCommand.Concat(commands).ToList();
 			if(bot.Bid == 3)
+				Console.WriteLine();
+
+			if(commands.Any(x => x is VoidCommand && (x as VoidCommand).RealVoid == new Vector(16, 1, 8)))
 				Console.WriteLine();
 			return (positions, commands);
 		}
