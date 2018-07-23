@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Algorithms
@@ -36,7 +37,7 @@ namespace Flash.Infrastructure.Algorithms
                 
                 components.Add(TraverseComponent(components.Count, point));
             }
-            return components;
+            return components.OrderBy(x => x.Fill ? 0 : 1).ToList();
         }
 
         private Component TraverseComponent(int compIndex, Vector point)
@@ -65,7 +66,7 @@ namespace Flash.Infrastructure.Algorithms
                         }
                     }
             }
-            return new Component(points, neighs);
+            return new Component(targetMatrix.IsFull(point), points, neighs);
         }
     }
 }
