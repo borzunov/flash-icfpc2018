@@ -138,5 +138,9 @@ namespace Flash.Infrastructure.Models
         }
 
         public bool[,,] GetContent() => matrix; // For optimization
+	    public bool CanVoid(Vector p0)
+	    {
+		    throw new NotImplementedException();
+	    }
     }
 }
