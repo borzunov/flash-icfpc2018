@@ -27,7 +27,7 @@ namespace Flash.Infrastructure.AI
 		{
 			this.groundedChecker = groundedChecker;
 			this.matrix = matrix;
-			this.buildingTasks = new Queue<BuildingTask>(buildingTasks);
+			this.buildingTasks = new Queue<BuildingTask>(buildingTasks.Where(x => x.Type == BuildingTaskType.Fill || x.Type == BuildingTaskType.GFill));
 		}
 
 		public IEnumerable<ICommand> NextStep(State state)
