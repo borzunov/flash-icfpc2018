@@ -44,8 +44,10 @@ namespace Flash
 			        figure.Add(point);
 		        }
 	        }
-			
-			var path = new PathWork(new Vector(0, 0, 0), figure.ToList()[new Random().Next(figure.Count)], matrix, groundedChecker, 29, 0);
+
+	        var r = new Random(0);
+
+			var path = new PathWork(new Vector(0, 0, 0), figure.ToList()[r.Next(figure.Count)], matrix, groundedChecker, 29, 0);
 
 	        var works = new[] {(IWork)path};
 
@@ -59,7 +61,7 @@ namespace Flash
 	        {
 		        if ((commands == null || commandIdx >= commands.Count) && i < works.Length)
 		        {
-					works[i].DoWork(vector => false, out commands, out _);
+					works[i].DoWork(vector => false, out commands, out var p);
 			        i++;
 			        commandIdx = 0;
 				}

@@ -42,6 +42,7 @@ namespace Flash.Infrastructure.Algorithms
 			var endState = new AStarState
 			{
 				EndPosition = End,
+				StartPosition = End,
 				Straight = false,
 				DestroyedCell = Matrix.IsFull(End) ? End : null
 			};
@@ -318,8 +319,8 @@ namespace Flash.Infrastructure.Algorithms
 					yield return new SMoveCommand(-Move1);
 				if (Move1 != null && Move2 != null)
 					yield return new LMoveCommand(-Move2, -Move1);
-				if (DestroyedCell != null)
-					yield return new FillCommand(EndPosition - StartPosition);
+				if (DestroyedCell != null && StartPosition != null)
+					yield return new FillCommand(DestroyedCell - StartPosition);
 			}
 		}
 
