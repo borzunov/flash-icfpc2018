@@ -11,11 +11,12 @@ namespace Flash
     {
         public static void Main(string[] args)
         {
-            var srcModelPath = @"..\..\..\data\problemsF\FR001_src.mdl";
-            var tgtModelPath = @"..\..\..\data\problemsF\FR001_tgt.mdl";
+            var srcModelPath = @"..\..\..\data\problemsF\FR002_src.mdl";
+            var tgtModelPath = @"..\..\..\data\problemsF\FR002_tgt.mdl";
 
             var sourceMatrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(srcModelPath));
             var targetMatrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(tgtModelPath));
+//            sourceMatrix = new Matrix(targetMatrix.R);
 
             var mongoOplogWriter = new JsonOpLogWriter(new MongoJsonWriter());
             mongoOplogWriter.WriteLogName("FigureDecomposer");
@@ -25,6 +26,7 @@ namespace Flash
             var tasks = new FigureDecomposer(targetMatrix, sourceMatrix).Decompose();
             var fillPoints = new List<Vector>();
             var voidPoints = new List<Vector>();
+            var rand = new Random();
             foreach (var task in tasks)
             {
                 if (task.Type == BuildingTaskType.GFill || task.Type == BuildingTaskType.GVoid)
@@ -36,9 +38,8 @@ namespace Flash
                                 points.Add(new Vector(x, y, z));
 
                     var fill = task.Type == BuildingTaskType.GFill;
-                    if (fill)
                     mongoOplogWriter.WriteGroupColor(points.ToArray(),
-                        fill ? "00FF00" : "FF0000", fill ? 0.8 : 0.5);
+                        fill ? $"00FF{rand.Next(10, 99)}" : $"FF00{rand.Next(10, 99)}", fill ? 0.8 : 0.5);
                 } else if (task.Type == BuildingTaskType.Fill || task.Type == BuildingTaskType.Void)
                 {
                     if (task.Type == BuildingTaskType.Fill)
