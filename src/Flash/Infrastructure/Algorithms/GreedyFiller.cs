@@ -55,7 +55,7 @@ namespace Flash.Infrastructure.Algorithms
 			return figure;
 		}
 
-		public Dictionary<int, Vector> DoWork(Func<Vector, bool> isForbidden, out List<ICommand> commands, out List<Vector> volatiles)
+		public Dictionary<int, Vector> DoWork(IsGroundedChecker groundedChecker, Func<Vector, bool> isForbidden, out List<ICommand> commands, out List<Vector> volatiles)
 		{
 			if (figure.Where(isForbidden).Any())
 				throw new ArgumentException("`figure` should not intersect `prohibited`");

@@ -48,7 +48,7 @@ namespace Flash.Infrastructure.Algorithms
 			return new HashSet<Vector>();
 		}
 
-		public Dictionary<int, Vector> DoWork(Func<Vector, bool> isForbidden, out List<ICommand> commands, out List<Vector> vectors)
+		public Dictionary<int, Vector> DoWork(IsGroundedChecker groundedChecker, Func<Vector, bool> isForbidden, out List<ICommand> commands, out List<Vector> vectors)
 		{
 			var searcher = new BotMoveSearcher(matrix, BotPosition, isForbidden, BotsCount, EndPosition, isGroundedChecker){mongoOplogWriter = mongoOplogWriter};
 			searcher.FindPath(out vectors, out commands, out _);

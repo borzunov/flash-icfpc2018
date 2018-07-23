@@ -47,9 +47,10 @@ namespace Flash
 
 	        var r = new Random(0);
 
-			var path = new PathWork(new Vector(0, 0, 0), figure.ToList()[r.Next(figure.Count)], matrix, groundedChecker, 29, 0);
+			var clearWork = new GreedyClearer(matrix, figure, mongoOplogWriter);
+			var path = new PathWork(new Vector(0, 0, 0), clearWork.SetWorkerAndGetInput(groundedChecker, vector => false, new Vector(0, 0, 0), 0), matrix, groundedChecker, 29, 0);
 
-	        var works = new[] {(IWork)path};
+	        var works = new[] {(IWork)path, clearWork};
 
 	        var simulator = new Simulator();
 
@@ -61,7 +62,7 @@ namespace Flash
 	        {
 		        if ((commands == null || commandIdx >= commands.Count) && i < works.Length)
 		        {
-					works[i].DoWork(vector => false, out commands, out var p);
+					works[i].DoWork(groundedChecker, vector => false, out commands, out var p);
 			        i++;
 			        commandIdx = 0;
 				}
@@ -76,7 +77,7 @@ namespace Flash
 					else
 					{
 						var path1 = new PathWork(state.Bots[0].Pos, new Vector(0, 0, 0), state.Matrix, groundedChecker, 29, 0);
-						path1.DoWork(vector => false, out commands, out _);
+						path1.DoWork(groundedChecker, vector => false, out commands, out _);
 						commandIdx = 0;
 					}
 				}
