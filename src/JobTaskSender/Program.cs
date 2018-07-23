@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,22 +16,56 @@ namespace JobTaskSender
 {
     class Program
     {
+        static string problemsDirectory = @"\\vm-dev-cont1\data\problemsF";
+
         static void Main(string[] args)
         {
-            var factory = Jobs.CreateFactory();
-
-            var client = new MongoClient(Jobs.MongoConnectionString);
-            var db = client.GetDatabase(Jobs.MongoBlobsDbName);
-            var bucket = new GridFSBucket(db);
-            var blobId = bucket.UploadFromBytes("test_blob", File.ReadAllBytes(@"C:\Users\yuryev\source\repos\Run\Run\bin\Debug\Debug.zip"));
-            Console.WriteLine(blobId.ToString());
-
-            Send(factory, Jobs.QueueName, blobId.ToString());
-            
+            var strategyName = args[0];
+            var pathToRunDirectory = @"..\..\Run\bin";
+            var pathToZip = "task.zip";
+            if(File.Exists(pathToZip))
+                File.Delete(pathToZip);
+            ZipFile.CreateFromDirectory(pathToRunDirectory, pathToZip, CompressionLevel.Fastest, false);
+            var name = strategyName + new Random().Next(50000);
+            Console.WriteLine(name);
+            SendZip(pathToZip, name);
 
         }
 
-        private static void Send(ConnectionFactory factory, string queueName, string zipMongoBlobId)
+        private static void SendZip(string pathToZip, string name)
+        {
+            var factory = Jobs.CreateFactory();
+            var client = new MongoClient(Jobs.MongoConnectionString);
+            var db = client.GetDatabase(Jobs.MongoBlobsDbName);
+            var bucket = new GridFSBucket(db);
+            var blobId = bucket.UploadFromBytes(Path.GetFileName(pathToZip), File.ReadAllBytes(pathToZip));
+            Console.WriteLine(blobId.ToString());
+
+            var outDir = Path.Combine(@"\\vm-dev-cont1\TRACES", name);
+            if (!Directory.Exists(outDir))
+                Directory.CreateDirectory(outDir);
+            var tasks = Directory.EnumerateFiles(problemsDirectory)
+                .Where(x => Path.GetFileName(x).StartsWith("FA"))
+                .Select(x =>
+                {
+                    var outTracePath = Path.Combine(outDir, $"{Path.GetFileName(x).Substring(0, 5)}.nbt");
+                    var msg = new Message
+                    {
+                        ZipMongoBlobId = blobId.ToString(),
+                        FileNameNoRun = "run.exe",
+                        Arguments = $"--tgt={x.ToString()} --trace={outTracePath}"
+                    };
+                    var msgJson = JsonConvert.SerializeObject(msg);
+
+                    var body = Encoding.UTF8.GetBytes(msgJson);
+
+                    return body;
+                }).ToList();
+
+            Send(factory, Jobs.QueueName, tasks);
+        }
+
+        private static void Send(ConnectionFactory factory, string queueName, IEnumerable<byte[]> tasks)
         {
             using (var connection = factory.CreateConnection())
             {
@@ -42,25 +77,12 @@ namespace JobTaskSender
                         autoDelete: false,
                         arguments: null);
 
-                    
-
-                    for (int i = 0; i < 256; i++)
+                    foreach (var task in tasks)
                     {
-                        var message = JsonConvert.SerializeObject(new Message
-                        {
-                            ZipMongoBlobId = zipMongoBlobId,
-                            FileNameNoRun = "run.exe",
-                            Arguments = i.ToString()
-                        });
-
-                        var body = Encoding.UTF8.GetBytes(message);
-
                         channel.BasicPublish(exchange: "",
                             routingKey: queueName,
                             basicProperties: null,
-                            body: body);
-
-                        Console.WriteLine(" [x] Sent {0}", message);
+                            body: task);
                     }
                 }
             }

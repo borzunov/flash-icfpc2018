@@ -32,6 +32,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "jobs", "jobs", "{7A4BF645-A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobsCommon", "src\JobsCommon\JobsCommon.csproj", "{0E862AD4-D3CD-4AF3-9964-CA03AE6A9425}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Run", "src\Run\Run.csproj", "{9657B72B-7E13-40C4-94E9-8328807B9475}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,10 @@ Global
 		{0E862AD4-D3CD-4AF3-9964-CA03AE6A9425}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E862AD4-D3CD-4AF3-9964-CA03AE6A9425}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E862AD4-D3CD-4AF3-9964-CA03AE6A9425}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9657B72B-7E13-40C4-94E9-8328807B9475}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9657B72B-7E13-40C4-94E9-8328807B9475}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9657B72B-7E13-40C4-94E9-8328807B9475}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9657B72B-7E13-40C4-94E9-8328807B9475}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -89,6 +95,7 @@ Global
 		{87836696-2F89-409E-BB76-78DD1E14A92C} = {7A4BF645-A0A4-4DB7-95E3-D7918394CBE4}
 		{7A4BF645-A0A4-4DB7-95E3-D7918394CBE4} = {DE972490-366A-4ECF-A7A1-EF3E3FCC73B8}
 		{0E862AD4-D3CD-4AF3-9964-CA03AE6A9425} = {7A4BF645-A0A4-4DB7-95E3-D7918394CBE4}
+		{9657B72B-7E13-40C4-94E9-8328807B9475} = {7A4BF645-A0A4-4DB7-95E3-D7918394CBE4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A6AE2635-C3F4-4641-A791-BC01D4AEC176}
