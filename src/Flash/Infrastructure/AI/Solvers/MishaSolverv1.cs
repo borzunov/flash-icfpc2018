@@ -14,18 +14,18 @@ namespace Flash.Infrastructure.AI.Solvers
 		{
             if (srcMatrix == null && tgtMatrix != null)
             {
-                return Assembly(tgtMatrix);
+                return Assembly(State.CreateInitial(tgtMatrix.R, new FakeOpLog()).Matrix, tgtMatrix, true, out _);
             }
 
             if (srcMatrix != null && tgtMatrix == null)
             {
-                return Disassembly(srcMatrix);
+                return Disassembly(srcMatrix, State.CreateInitial(srcMatrix.R, new FakeOpLog()).Matrix);
             }
 
             return Reassembly(srcMatrix, tgtMatrix);
         }
 
-        private Trace Disassembly(Matrix model)
+        private Trace Disassembly(Matrix model, Matrix tgtMatrix)
         {
 			var mongoOplogWriter = new FakeOpLog();
             mongoOplogWriter.WriteLogName("GreedyGravityAI_IsGrounded");
@@ -44,7 +44,7 @@ namespace Flash.Infrastructure.AI.Solvers
 	        for (var z = 0; z < model.R; z++)
 	        {
 		        var point = new Vector(x, y, z);
-		        if (model.IsFull(point))
+		        if (model.IsFull(point) && tgtMatrix.IsVoid(point))
 		        {
 			        figure.Add(point);
 		        }
@@ -129,13 +129,14 @@ namespace Flash.Infrastructure.AI.Solvers
 	        }
 
             return simulator.CreateResultTraceAsTrace();
-        }
+		}
 
-        private Trace Assembly(Matrix model)
+        private Trace Assembly(Matrix srcMatrix, Matrix model, bool end, out Matrix result)
         {
             //asm
 		    var state = State.CreateInitial(model.R, new FakeOpLog());
-
+	        state.Matrix = srcMatrix;
+			
 			Console.WriteLine("matrix loaded");
 
 			var groundedChecker = new IsGroundedChecker(state.Matrix);
@@ -147,7 +148,7 @@ namespace Flash.Infrastructure.AI.Solvers
 					for (var z = 0; z < model.R; z++)
 					{
 						var point = new Vector(x, y, z);
-						if (model.IsFull(point))
+						if (model.IsFull(point) && srcMatrix.IsVoid(point))
 						{
 							figure.Add(point);
 						}
@@ -228,12 +229,13 @@ namespace Flash.Infrastructure.AI.Solvers
 				}
 			}
 
-			return simulator.CreateResultTraceAsTrace();
+	        result = state.Matrix;
+			return end ? simulator.CreateResultTraceAsTrace() : new Trace(simulator.CreateResultTraceAsTrace().Reverse().Skip(1).Reverse());
         }
 
         private Trace Reassembly(Matrix srcMatrix, Matrix tgtMatrix)
-        {
-            return null;
-        }
+		{
+			return new Trace(Assembly(srcMatrix, tgtMatrix, false, out srcMatrix).Concat(Disassembly(srcMatrix, tgtMatrix)));
+		}
     }
 }
