@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Converters;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Models;
 
@@ -20,6 +21,11 @@ namespace Flash.Infrastructure.Algorithms
 
 		private readonly JsonOpLogWriter mongoOplogWriter;
 
+		public IEnumerable<int> GetBots()
+		{
+			yield return BotId;
+		}
+
 		public GreedyFiller(Matrix matrix, HashSet<Vector> figure, JsonOpLogWriter mongoOplogWriter)
 		{
 			this.mongoOplogWriter = mongoOplogWriter;
@@ -29,9 +35,11 @@ namespace Flash.Infrastructure.Algorithms
 
 		public Vector GetPossibleStartPlace(IsGroundedChecker groundedChecker, Func<Vector, bool> isForbidden, Vector botCoordinate)
 		{
-			return figure.OrderByDescending(f => f.Mlen).FirstOrDefault(f =>
-				f.GetAdjacents()
-					.Any(adj => !figure.Contains(adj) && matrix.Contains(adj) && !isForbidden(botCoordinate) && groundedChecker.CanPlace(adj)));
+			return figure.OrderByDescending(f => (f - botCoordinate).Mlen)
+				.Where(f => f != botCoordinate)
+				.Where(f => groundedChecker.CanPlace(f))
+				.FirstOrDefault(f => f.GetAdjacents()
+					.Any(adj => !figure.Contains(adj) && matrix.Contains(adj) && !isForbidden(botCoordinate)));
 		}
 
 		public Vector SetWorkerAndGetInput(IsGroundedChecker groundedChecker, Func<Vector, bool> isForbidden, Vector botCoordinate, int botId)
@@ -40,9 +48,11 @@ namespace Flash.Infrastructure.Algorithms
 				throw new Exception("too many workers");
 
 			BotId = botId;
-			return start = figure.OrderBy(f => f.Mlen).FirstOrDefault(f =>
-				f.GetAdjacents()
-					.Any(adj => !figure.Contains(adj) && matrix.Contains(adj) && !isForbidden(botCoordinate) && groundedChecker.CanPlace(adj)));
+			return start = figure.OrderBy(f => (f - botCoordinate).Mlen)
+				.Where(f => f != botCoordinate)
+				.Where(f => groundedChecker.CanPlace(f))
+				.FirstOrDefault(f =>f.GetAdjacents()
+					.Any(adj => !figure.Contains(adj) && matrix.Contains(adj) && !isForbidden(botCoordinate)));
 		}
 
 		public bool IsEnoughWorkers()
@@ -72,50 +82,36 @@ namespace Flash.Infrastructure.Algorithms
 			var curPoint = start;
 			volatiles = new List<Vector>();
 			commands = new List<ICommand>();
+
+			Dictionary<Vector, int> filltimes = new Dictionary<Vector, int>();
+			int time = 0;
+
 			while (filled.Count < figure.Count)
 			{
+				time++;
 				var nextPoint = curPoint.GetAdjacents()
 					.Where(p => figure.Contains(p) && !filled.Contains(p))
 					.OrderByDescending(p => gravity[p])
 					.FirstOrDefault();
-				if (nextPoint == null)
-				{
-					nextPoint = figure.Where(p => p != curPoint && !filled.Contains(p))
-						.OrderBy(p => (curPoint - p).Mlen)
-						.ThenByDescending(p => gravity[p])
-						.FirstOrDefault();
-					if (nextPoint != null)
-					{
-						mongoOplogWriter?.WriteColor(curPoint, "0000FF", 0.5);
-						mongoOplogWriter?.WriteColor(nextPoint, "00FF00", 0.5);
-					}
 
-				}
-				else
-				{
-					mongoOplogWriter?.WriteColor(nextPoint, "FF0000", 0.5);
-				}
 				if (nextPoint == null)
-					nextPoint = figure
-						.SelectMany(fig => fig.GetAdjacents())
-						.Where(s => !figure.Contains(s))
-						.Where(s => !isForbidden(s))
-						.Where(matrix.Contains)
-						.OrderBy(s => (s - curPoint).Mlen)
-						.First();
+					break;
 
 				try
 				{
-					List<Vector> curPath;
-					List<ICommand> curCommands;
+					List<Vector> curPath = null;
+					List<ICommand> curCommands = null;
 					if (!curPoint.IsAdjacentTo(nextPoint))
 					{
-						Move(figure, isForbidden, curPoint, nextPoint, true, out curPath, out curCommands);
+						//Move(figure, isForbidden, curPoint, nextPoint, true, out curPath, out curCommands);
 					}
 					else
 					{
 						MoveStraight(curPoint, nextPoint, out curPath, out curCommands);
 					}
+					if(curPath == null)
+						break;
+
 					foreach (var vector in curPath.Where(vector => filled.Contains(vector)))
 					{
 						removeFills[vector] = removeFills.TryGetValue(vector, out var val) ? val + 1 : 1;
@@ -125,6 +121,11 @@ namespace Flash.Infrastructure.Algorithms
 					filled.Add(curPoint);
 					volatiles.AddRange(curPath);
 					commands.AddRange(curCommands);
+
+					foreach (var fillCommand in curCommands.OfType<FillCommand>())
+					{
+						filltimes[fillCommand.RealFill] = time;
+					}
 				}
 				catch (ArgumentException)
 				{
@@ -166,7 +167,7 @@ namespace Flash.Infrastructure.Algorithms
 				new FillCommand(curPoint - nextPoint, curPoint),
 			};
 		}
-
+		
 		private Dictionary<Vector, int> CalcGravity(HashSet<Vector> figure, Vector end)
 		{
 			var dist = new Dictionary<Vector, int>();

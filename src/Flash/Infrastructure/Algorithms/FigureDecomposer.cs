@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Flash.Infrastructure.Algorithms
 {
@@ -11,6 +12,7 @@ namespace Flash.Infrastructure.Algorithms
         private readonly long costPerStep;
         private readonly Matrix curMatrix, targetMatrix, xorMatrix;
         private readonly PointCounter curSums, targetSums, xorSums;
+        private IsGroundedChecker curGroundChecker;
         private readonly Random rand;
 
         public FigureDecomposer(Matrix targetMatrix, Matrix startMatrix = null)
@@ -26,6 +28,8 @@ namespace Flash.Infrastructure.Algorithms
             targetSums = new PointCounter(targetMatrix);
             xorSums = new PointCounter(xorMatrix);
 
+            curGroundChecker = new IsGroundedChecker(curMatrix);
+
             rand = new Random(42);
         }
 
@@ -39,14 +43,45 @@ namespace Flash.Infrastructure.Algorithms
             {
                 var stopwatch = Stopwatch.StartNew();
 
-                if (xorSums.TotalFulls <= 2)
+                if (xorSums.TotalFulls <= 3)
                     return null;
                 Console.WriteLine($"Points to change: {xorSums.TotalFulls}\n");
 
                 var state = FindNextRectangle(regionNo, initialTemp);
-                if ((state.Region.Max - state.Region.Min).Clen <= 2)
+                if ((state.Region.Max - state.Region.Min).Clen <= 3)
                 {
                     Console.WriteLine("Too small region, it will be skipped");
+                    return xorSums.TotalFulls;
+                }
+
+                Region leg = null;
+                if (state.Fill && BreakesGrounding(state) && state.Region.Min.Y > 0)
+                {
+                    var direction = state.Region.Max - state.Region.Min;
+                    if (direction.X < 3 || direction.Z < 3)
+                    {
+                        Console.WriteLine("We don't build regions like vertical lines if they are not grounded");
+                        return xorSums.TotalFulls;
+                    }
+                    
+                    var legX = state.Region.Min.X + 1;
+                    var legZ = state.Region.Min.Z + 1;
+                    leg = new Region(
+                        new Vector(legX, 0, legZ),
+                        new Vector(legX, state.Region.Min.Y - 1, legZ));
+                    Console.WriteLine($"Building leg {leg} for region {state.Region}");
+
+                    curMatrix.Fill(leg);
+                    UpdateXorMatrix(leg);
+                    if (leg.Volume >= 4)
+                        tasks.Add(new BuildingTask(BuildingTaskType.GFill, leg));
+                    else
+                        tasks.AddRange(leg.AllPoints()
+                            .Select(p => new BuildingTask(BuildingTaskType.Fill, new Region(p))));
+                }
+                if (!state.Fill && BreakesGrounding(state))
+                {
+                    Console.WriteLine("Can't fix ungrounded GVoids");
                     return xorSums.TotalFulls;
                 }
 
@@ -55,16 +90,17 @@ namespace Flash.Infrastructure.Algorithms
                 else
                     curMatrix.Clear(state.Region);
                 UpdateXorMatrix(state.Region);
-
-                curSums.Update(curMatrix, state.Region.Min);
-                xorSums.Update(xorMatrix, state.Region.Min);
-
                 var type = state.Fill ? BuildingTaskType.GFill : BuildingTaskType.GVoid;
                 tasks.Add(new BuildingTask(type, state.Region));
 
+                var minChanged = leg == null ? state.Region.Min : new Vector(0, 0, 0);
+                curSums.Update(curMatrix, minChanged);
+                xorSums.Update(xorMatrix, minChanged);
+                curGroundChecker = new IsGroundedChecker(curMatrix);
+
                 Console.WriteLine($"Elapsed {stopwatch.ElapsedMilliseconds} ms");
                 return xorSums.TotalFulls;
-            }, 0.001, 20);
+            }, 0.001, 50);
 
             Console.WriteLine($"Points to change: {xorSums.TotalFulls}");
             tasks.AddRange(CreatePointwiseTasks());
@@ -109,6 +145,7 @@ namespace Flash.Infrastructure.Algorithms
                     state = newState;
                     fitness = newFitness;
                 }
+
                 return fitness;
             }, 0.01, 10000);
             return state;
@@ -159,7 +196,7 @@ namespace Flash.Infrastructure.Algorithms
         private State GenerateState()
         {
             var region = new Region(GenerateInitialVector(), GenerateInitialVector());
-            return new State(rand.Next(1) == 1, ClipRegion(region));
+            return new State(rand.NextDouble() < 0.5, ClipRegion(region));
         }
 
         private State MutateState(State state)
@@ -215,8 +252,16 @@ namespace Flash.Infrastructure.Algorithms
             if (state.Fill)
                 diffInside = state.Region.Volume - diffInside;
             long spentForRem = 2 * (diffInside + diffOutside) * costPerStep;
-
+            
             return spentForRect + spentForRem;
+        }
+
+        private bool BreakesGrounding(State state)
+        {
+            if (state.Fill)
+                return !curGroundChecker.CanPlace(state.Region.AllPoints().ToList());
+            else
+                return !curGroundChecker.CanRemove(state.Region.AllPoints().ToHashSet());
         }
 
         private long EvaluateDifferenceFrom(Matrix matrix)

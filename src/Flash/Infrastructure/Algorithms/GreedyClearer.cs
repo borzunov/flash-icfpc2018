@@ -30,7 +30,6 @@ namespace Flash.Infrastructure.Algorithms
 		public Vector GetPossibleStartPlace(IsGroundedChecker groundedChecker, Func<Vector, bool> isForbidden, Vector botCoordinate)
 		{
 			return figure
-				.OrderByDescending(f => f.Mlen)
 				.Where(groundedChecker.CanRemove)
 				.FirstOrDefault(f => f.GetAdjacents()
 					.Any(adj => !figure.Contains(adj) && matrix.Contains(adj) && !isForbidden(botCoordinate)));
@@ -43,7 +42,6 @@ namespace Flash.Infrastructure.Algorithms
 
 			BotId = botId;
 			return start = figure
-				.OrderByDescending(f => f.Mlen)
 				.Where(groundedChecker.CanRemove)
 				.FirstOrDefault(f => f.GetAdjacents()
 					.Any(adj => !figure.Contains(adj) && matrix.Contains(adj) && !isForbidden(botCoordinate)));
@@ -73,12 +71,9 @@ namespace Flash.Infrastructure.Algorithms
 
 
 			var voided = new HashSet<Vector> {start};
+			if(matrix.IsFull(start))
+				groundedChecker.UpdateWithClear(start);
 			var curPoint = start;
-
-			foreach (var vector in figure.Where(f => matrix.IsVoid(f)))
-			{
-				voided.Add(vector);
-			}
 
 			volatiles = new List<Vector>();
 			commands = new List<ICommand>();
@@ -89,47 +84,44 @@ namespace Flash.Infrastructure.Algorithms
 				var nextPoint = curPoint.GetAdjacents()
 					.Where(p => figure.Contains(p) && !voided.Contains(p))
 					.Where(groundedChecker.CanRemove)
-					.OrderByDescending(p => gravity[p])
+					.OrderByDescending(f => f.GetAdjacents().Count(f1 => matrix.Contains(f1) && matrix.IsFull(f1) && !voided.Contains(f1)) == 1)
+					.ThenByDescending(p => gravity[p])
 					.FirstOrDefault();
 				
-				try
+				List<Vector> curPath;
+				List<ICommand> curCommands;
+				
+				if (nextPoint == null)
 				{
-					List<Vector> curPath;
-					List<ICommand> curCommands;
-					if (nextPoint == null)
-					{
-						nextPoint = Move(groundedChecker, figure, voided, isForbidden, curPoint, out curPath, out curCommands);
-					}
-					else
-					{
-						MoveStraight(curPoint, nextPoint, out curPath, out curCommands);
-					}
-					foreach (var vector in curPath.Where(vector => voided.Contains(vector)))
-					{
-						mongoOplogWriter?.WriteColor(vector, "FFFF00", 0.5);
-					}
-
-					voided.Add(nextPoint);
-					groundedChecker.UpdateWithClear(nextPoint);
-					volatiles.AddRange(curPath);
-					commands.AddRange(curCommands);
-				}
-				catch (ArgumentException)
-				{
-					Console.WriteLine("Exception, was able to draw only {0} points", voided.Count);
 					break;
 				}
 
+				MoveStraight(curPoint, nextPoint, out curPath, out curCommands);
+
+				foreach (var vector in curPath.Where(vector => voided.Contains(vector)))
+				{
+					mongoOplogWriter?.WriteColor(vector, "FFFF00", 0.5);
+				}
+
+				voided.Add(nextPoint);
 				groundedChecker.UpdateWithClear(nextPoint);
+				commands.AddRange(curCommands);
+				volatiles.AddRange(curPath);
+				
 				curPoint = nextPoint;
 			}
 
-			foreach (var vector in volatiles.Where(f => matrix.IsFull(f)).Reverse())
+			foreach (var vector in commands.OfType<VoidCommand>().Select(c => c.RealVoid).Reverse())
 			{
 				groundedChecker.UpdateWithFill(vector);
 			}
 
 			return new Dictionary<int, Vector>{{ BotId, curPoint } };
+		}
+
+		public IEnumerable<int> GetBots()
+		{
+			yield return BotId;
 		}
 
 		private static void MoveStraight(Vector curPoint, Vector nextPoint, out List<Vector> curPath, out List<ICommand> curCommands)
@@ -145,65 +137,6 @@ namespace Flash.Infrastructure.Algorithms
 			};
 		}
 
-		private Vector Move(IsGroundedChecker groundedChecker, HashSet<Vector> figure, HashSet<Vector> voided, Func<Vector, bool> forbidden, Vector start,  
-			out List<Vector> path, out List<ICommand> commands)
-		{
-			path = new List<Vector>();
-			commands = new List<ICommand>();
-
-			var prev = new Dictionary<Vector, Tuple<Vector, List<ICommand>>>();
-			var order = new Queue<Vector>();
-			prev[start] = null;
-			order.Enqueue(start);
-			var found = false;
-			Vector end = null;
-
-			while (order.Count > 0)
-			{
-				var cur = order.Dequeue();
-
-				var neighs = cur.GetAdjacents();
-				foreach (var neigh in neighs)
-				{
-					if (!voided.Contains(neigh) && figure.Contains(neigh))
-					{
-						if (groundedChecker.CanRemove(neigh))
-						{
-							found = true;
-							end = neigh;
-							prev[neigh] = Tuple.Create(cur, new List<ICommand> { new SMoveCommand(neigh - cur), new VoidCommand(neigh - cur, neigh) });
-							break;
-						}
-						continue;
-					}
-
-					if (!figure.Contains(neigh) || !voided.Contains(neigh) || prev.ContainsKey(neigh) || forbidden(neigh))
-						continue;
-
-					prev[neigh] = Tuple.Create(cur, new List<ICommand> { new SMoveCommand(neigh - cur) });
-					order.Enqueue(neigh);
-				}
-				if (found)
-					break;
-			}
-			if (!found)
-				return null;
-
-			var point = end;
-			while (point != start)
-			{
-				path.Add(point);
-				var prevPoint = prev[point];
-				
-				commands.AddRange(prevPoint.Item2);
-				point = prevPoint.Item1;
-			}
-			path.Reverse();
-			commands.Reverse();
-
-			return point;
-		}
-
 		private Dictionary<Vector, int> CalcGravity(HashSet<Vector> figure, Vector end)
 		{
 			var dist = new Dictionary<Vector, int>();
@@ -217,7 +150,7 @@ namespace Flash.Infrastructure.Algorithms
 					if (figure.Contains(neigh) && !dist.ContainsKey(neigh))
 					{
 						var diff = neigh - cur;
-						dist[neigh] = dist[cur] - diff.X - diff.Y * 4 - diff.Z * 2;
+						dist[neigh] = dist[cur] - diff.X + diff.Y * 4 - diff.Z * 2;
 						order.Enqueue(neigh);
 					}
 			}

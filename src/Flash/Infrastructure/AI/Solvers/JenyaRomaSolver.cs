@@ -47,7 +47,6 @@ namespace Flash.Infrastructure.AI.Solvers
                 var commands = ai.NextStep(state).ToList();
                 var trace = new Trace(commands);
 
-
                 simulator.NextStep(state, trace);
 
                 if (commands.Count == 1 && commands[0] is HaltCommand)

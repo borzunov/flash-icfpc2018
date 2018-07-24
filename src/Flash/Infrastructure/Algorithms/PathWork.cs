@@ -13,12 +13,18 @@ namespace Flash.Infrastructure.Algorithms
 		private Vector BotPosition;
 		private Vector EndPosition;
 		private Matrix matrix;
+		private Matrix model;
 		private IsGroundedChecker isGroundedChecker;
 		private int BotsCount;
 		public JsonOpLogWriter mongoOplogWriter;
 		public int BotId;
 
-		public PathWork(Vector botPosition, Vector endPosition, Matrix matrix, IsGroundedChecker isGroundedChecker, int botsCount, int botId)
+		public IEnumerable<int> GetBots()
+		{
+			yield return BotId;
+		}
+
+		public PathWork(Vector botPosition, Vector endPosition, Matrix matrix, IsGroundedChecker isGroundedChecker, int botsCount, int botId, Matrix model)
 		{
 			BotPosition = botPosition;
 			EndPosition = endPosition;
@@ -26,6 +32,7 @@ namespace Flash.Infrastructure.Algorithms
 			this.isGroundedChecker = isGroundedChecker;
 			BotsCount = botsCount;
 			BotId = botId;
+			this.model = model;
 		}
 
 		public Vector GetPossibleStartPlace(IsGroundedChecker groundedChecker, Func<Vector, bool> isForbidden, Vector botCoordinate)
@@ -50,7 +57,7 @@ namespace Flash.Infrastructure.Algorithms
 
 		public Dictionary<int, Vector> DoWork(IsGroundedChecker groundedChecker, Func<Vector, bool> isForbidden, out List<ICommand> commands, out List<Vector> vectors)
 		{
-			var searcher = new BotMoveSearcher(matrix, BotPosition, isForbidden, BotsCount, EndPosition, isGroundedChecker){mongoOplogWriter = mongoOplogWriter};
+			var searcher = new BotMoveSearcher(matrix, model, BotPosition, isForbidden, BotsCount, EndPosition, isGroundedChecker){mongoOplogWriter = mongoOplogWriter};
 			searcher.FindPath(out vectors, out commands, out _);
 			return new Dictionary<int, Vector>
 			{

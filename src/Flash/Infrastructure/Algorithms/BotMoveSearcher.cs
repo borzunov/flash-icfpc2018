@@ -12,6 +12,7 @@ namespace Flash.Infrastructure.Algorithms
 	class BotMoveSearcher
 	{
 		private Matrix Matrix;
+		private Matrix Model;
 		private IsGroundedChecker GroundedChecker;
 		private Vector BotPosition;
 		private Vector End;
@@ -21,7 +22,7 @@ namespace Flash.Infrastructure.Algorithms
 
 		private Dictionary<Tuple<Vector, bool>, AStarState> MinStates = new Dictionary<Tuple<Vector, bool>, AStarState>();
 
-		public BotMoveSearcher(Matrix matrix, Vector botPosition, Func<Vector, bool> isForbiddenArea, int botsCount, Vector end, IsGroundedChecker groundedChecker)
+		public BotMoveSearcher(Matrix matrix, Matrix model, Vector botPosition, Func<Vector, bool> isForbiddenArea, int botsCount, Vector end, IsGroundedChecker groundedChecker)
 		{
 			Matrix = matrix;
 			BotPosition = botPosition;
@@ -29,6 +30,7 @@ namespace Flash.Infrastructure.Algorithms
 			BotsCount = botsCount;
 			End = end;
 			GroundedChecker = groundedChecker;
+			Model = model;
 		}
 		private static Random rand = new Random();
 		public bool FindPath(out List<Vector> movePositions, out List<ICommand> commands, out int iterationsCount)
@@ -36,13 +38,14 @@ namespace Flash.Infrastructure.Algorithms
 			var priorityQueue = new PriorityQueue<AStarState>();
 			var startState = new AStarState
 			{
+				DestroyedCell = Model.IsFull(BotPosition) ? BotPosition : null,
 				EndPosition = BotPosition,
 				Straight = true
 			};
 			var endState = new AStarState
 			{
-				EndPosition = End,
 				StartPosition = End,
+				EndPosition = End,
 				Straight = false,
 				DestroyedCell = Matrix.IsFull(End) ? End : null
 			};
@@ -128,7 +131,7 @@ namespace Flash.Infrastructure.Algorithms
 
 					var move = vector * i;
 					var position = botPosition + move;
-					if(!Matrix.Contains(position) || Matrix.IsFull(position) || IsForbiddenArea(position))
+					if(!Matrix.Contains(position) || Matrix.IsFull(position) || IsForbiddenArea(position) || position == BotPosition)
 						break;
 					var weight = currentWeight + GetSMoveWeight(i);
 					yield return new AStarState
@@ -178,7 +181,7 @@ namespace Flash.Infrastructure.Algorithms
 						if(x < 0 && bannedNX || x > 0 && bannedPX)
 							continue;
 						if (!Matrix.Contains(botPosition + move1) || Matrix.IsFull(botPosition + move1) ||
-						    IsForbiddenArea(botPosition + move1))
+						    IsForbiddenArea(botPosition + move1) || botPosition + move1 == BotPosition)
 						{
 							if (x < 0)
 								bannedNX = true;
@@ -196,7 +199,7 @@ namespace Flash.Infrastructure.Algorithms
 							if (y < 0 && bannedNY || y > 0 && bannedPY)
 								continue;
 							if (!Matrix.Contains(botPosition + move1 + move2) || Matrix.IsFull(botPosition + move1 + move2) ||
-							    IsForbiddenArea(botPosition + move1 + move2))
+							    IsForbiddenArea(botPosition + move1 + move2) || botPosition + move1 + move2 == BotPosition)
 							{
 								if (y < 0)
 									bannedNY = true;
@@ -302,25 +305,25 @@ namespace Flash.Infrastructure.Algorithms
 		{
 			if (Straight)
 			{
-				if (DestroyedCell != null)
-					yield return new VoidCommand(EndPosition - StartPosition);
+				if (DestroyedCell != null && Move1 != null)
+					yield return new VoidCommand(EndPosition - StartPosition, EndPosition);
 				if (Move1 != null && Move2 == null)
 					yield return new SMoveCommand(Move1);
 				if (Move1 != null && Move2 != null)
 					yield return new LMoveCommand(Move1, Move2);
 				if (LastDestroyedCell != null)
-					yield return new FillCommand(LastDestroyedCell - EndPosition);
+					yield return new FillCommand(LastDestroyedCell - EndPosition, LastDestroyedCell);
 			}
 			else
 			{
 				if (LastDestroyedCell != null)
-					yield return new VoidCommand(LastDestroyedCell - EndPosition);
+					yield return new VoidCommand(LastDestroyedCell - EndPosition, LastDestroyedCell);
 				if (Move1 != null && Move2 == null)
 					yield return new SMoveCommand(-Move1);
 				if (Move1 != null && Move2 != null)
 					yield return new LMoveCommand(-Move2, -Move1);
-				if (DestroyedCell != null && StartPosition != null)
-					yield return new FillCommand(DestroyedCell - StartPosition);
+				if (DestroyedCell != null && StartPosition != EndPosition)
+					yield return new FillCommand(DestroyedCell - StartPosition, EndPosition);
 			}
 		}
 

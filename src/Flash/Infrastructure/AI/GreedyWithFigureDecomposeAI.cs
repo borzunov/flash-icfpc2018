@@ -344,7 +344,7 @@ namespace Flash.Infrastructure.AI
 				return (new List<Vector>(), new List<ICommand>());
 
 			bool IsForbiddenArea(Vector v) => fobidden.Contains(v) || state.Bots.Any(x => x.Bid != bot.Bid && x.Pos == v);
-			var botMoveSearcher = new BotMoveSearcher(state.Matrix, bot.Pos, IsForbiddenArea, state.Bots.Length, target, groundedChecker);
+			var botMoveSearcher = new BotMoveSearcher(state.Matrix, null, bot.Pos, IsForbiddenArea, state.Bots.Length, target, groundedChecker);
 
 			var s = botMoveSearcher.FindPath(out var positions, out var commands, out _);
 
