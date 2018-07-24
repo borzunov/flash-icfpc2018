@@ -19,7 +19,7 @@ namespace Flash
         public static void Main(string[] args)
         {
             //var trackFilePath = @"..\..\..\data\track\LA001.nbt";
-            var modelFilePath = @"..\..\..\data\models\LA001_tgt.mdl";
+            var modelFilePath = @"..\..\..\data\models\LA047_tgt.mdl";
 
             var matrix = MatrixDeserializer.Deserialize(File.ReadAllBytes(modelFilePath));
 
