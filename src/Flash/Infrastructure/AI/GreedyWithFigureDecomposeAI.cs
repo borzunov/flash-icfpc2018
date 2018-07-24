@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
+using Flash.Infrastructure.Alghorithms;
 using Flash.Infrastructure.Algorithms;
 using Flash.Infrastructure.Commands;
 using Flash.Infrastructure.Models;
@@ -12,17 +11,23 @@ namespace Flash.Infrastructure.AI
 	public class GreedyWithFigureDecomposeAI : IAI
 	{
 		private readonly IsGroundedChecker groundedChecker;
+		private readonly Matrix matrix;
 		private readonly Queue<BuildingTask> buildingTasks;
 		private Dictionary<int, Queue<ICommand>> commandsQueue;
 		private Queue<ICommand> myQueue;
 		private int myBodBid = 0;
 		private Queue<ICommand> fussionQueue;
 		private bool FLAG = true;
+		public HashSet<Vector> freeBots;
+		public Dictionary<BuildingTask, HashSet<Bot>> taskToBots;		
 
-		public GreedyWithFigureDecomposeAI(List<BuildingTask> buildingTasks, IsGroundedChecker groundedChecker)
+		public HashSet<Vector> tehdolg = new HashSet<Vector>();
+
+		public GreedyWithFigureDecomposeAI(List<BuildingTask> buildingTasks, IsGroundedChecker groundedChecker, Matrix matrix)
 		{
 			this.groundedChecker = groundedChecker;
-			this.buildingTasks = new Queue<BuildingTask>(buildingTasks);
+			this.matrix = matrix;
+			this.buildingTasks = new Queue<BuildingTask>(buildingTasks.Where(x => x.Type == BuildingTaskType.Fill || x.Type == BuildingTaskType.GFill));
 		}
 
 		public IEnumerable<ICommand> NextStep(State state)
@@ -30,7 +35,7 @@ namespace Flash.Infrastructure.AI
 			if (FLAG)
 			{
 				FLAG = false;
-				return new List<ICommand> {new FlipCommand()};
+				return new List<ICommand> { new FlipCommand() };
 			}
 			var ans = new List<ICommand>();
 
@@ -39,6 +44,7 @@ namespace Flash.Infrastructure.AI
 			{
 				Console.WriteLine();
 
+				return new List<ICommand> {new HaltCommand()};
 				return ans;
 			}
 
@@ -75,10 +81,13 @@ namespace Flash.Infrastructure.AI
 					var bot2 = state.Bots[index + 1];
 
 					var near = bot1.Pos.GetNears().FirstOrDefault(x => x == bot2.Pos);
-					if (near != null)
+					if (near != null && fussionQueue?.Count == 0)
 					{
 						ans.Add(new FusionPCommand(near - bot1.Pos));
 						ans.Add(new FusionSCommand(new Vector(0, 0, 0) - near + bot1.Pos));
+
+						if (matrix.IsFull(bot2.Pos))
+							tehdolg.Add(bot2.Pos);
 						fussionQueue = null;
 					}
 					else
@@ -90,44 +99,24 @@ namespace Flash.Infrastructure.AI
 
 						var command = fussionQueue.Dequeue();
 
-						var newList = GetFixCommand(state, command, bot2);
-
-						if (newList.Count != 0)
-						{
-							fussionQueue = new Queue<ICommand>(newList.Concat(fussionQueue));
-							ans.Add(fussionQueue.Dequeue());
-						}
-						else
-						{
-							ans.Add(command);
-						}
-						//ans.Add(command);
+						ans.Add(command);
 					}
 				}
 			}
 			else if (state.Bots.Length != 8)
 			{
-				var commands = GetFirstCommads(state);
-				foreach (var command in commands)
-				{
-					ans.Add(command);
-				}
+				ans.AddRange(BotDivider.GetDivideCommandsForOneStep(state, state.Bots.Length));
 			}
 			else
 			{
 				var task = buildingTasks.Peek();
-				var taretPoints = task.Region.Points();
+		
+				var targetPoints = task.Region.Points();
 
-				commandsQueue = commandsQueue ?? GetCommadsQueue(state, taretPoints, task.Region);
+				commandsQueue = commandsQueue ?? GetCommadsQueue(state, targetPoints, task.Region, true);
 
 				if (!commandsQueue.Any() || commandsQueue.All(x => x.Value.Count == 0))
-				{
-					commandsQueue = GetCommadsQueue(state, taretPoints, task.Region);
-				}
-				else
-				{
-					
-				}
+					commandsQueue = GetCommadsQueue(state, targetPoints, task.Region, true);
 
 				if (!commandsQueue.Any() || commandsQueue.All(x => x.Value.Count == 0))
 				{
@@ -143,22 +132,11 @@ namespace Flash.Infrastructure.AI
 				{
 					foreach (var bot in state.Bots)
 					{
-
 						if (commandsQueue.ContainsKey(bot.Bid) && commandsQueue[bot.Bid].Count != 0)
 						{
 							var moveCommand = commandsQueue[bot.Bid].Dequeue();
-								
-							var newList = GetFixCommand(state, moveCommand, bot);
 
-							if (newList.Count != 0)
-							{
-								commandsQueue[bot.Bid] = new Queue<ICommand>(newList.Concat(commandsQueue[bot.Bid]));
-								ans.Add(commandsQueue[bot.Bid].Dequeue());
-							}
-							else
-							{
-								ans.Add(moveCommand);
-							}
+							ans.Add(moveCommand);
 						}
 						else
 						{
@@ -168,57 +146,14 @@ namespace Flash.Infrastructure.AI
 				}
 			}
 
-			if(ans.Count != state.Bots.Length)
+			if (ans.Count != state.Bots.Length)
 				throw new InvalidOperationException();
+
 			return ans;
 		}
 
 
-		private List<ICommand> GetFixCommand(State state, ICommand moveCommand, Bot bot)
-		{
-			if (moveCommand is SMoveCommand)
-			{
-				var command = (SMoveCommand) moveCommand;
-				var d = command.Direction;
-
-				var vector = bot.Pos + d;
-				if(state.Matrix.IsVoid(vector))
-					return new List<ICommand>();
-
-				if (d.IsNd)
-				{
-					return new List<ICommand> {new VoidCommand(d), command};
-				}
-
-				var n_d = d.Normalize();
-				var direction = d - n_d;
-				return new List<ICommand> { new SMoveCommand(direction), new VoidCommand(n_d), new SMoveCommand(n_d) };
-			}
-
-			if (moveCommand is LMoveCommand)
-			{
-				var command = (LMoveCommand)moveCommand;
-				var f = command.FirstDirection;
-				var s = command.SecondDirection;
-
-				var vector = bot.Pos + f + s;
-
-				if (state.Matrix.IsVoid(vector))
-					return new List<ICommand>();
-
-				if (s.IsNd)
-				{
-					return new List<ICommand> { new SMoveCommand(f), new VoidCommand(s), new SMoveCommand(s) };
-				}
-
-				var n_s = s.Normalize();
-				return new List<ICommand> { new LMoveCommand(f, s - n_s), new VoidCommand(n_s), new SMoveCommand(n_s) };
-			}
-
-			return new List<ICommand>();
-		}
-
-		private Dictionary<int, Queue<ICommand>> GetCommadsQueue(State state, List<Vector> points, Region region)
+		private Dictionary<int, Queue<ICommand>> GetCommadsQueue(State state, List<Vector> points, Region region, bool flag)
 		{
 			var commands = new Dictionary<int, Queue<ICommand>>();
 			var fobidden = new HashSet<Vector>();
@@ -235,7 +170,6 @@ namespace Flash.Infrastructure.AI
 					&& !region.Contains(v)
 					&& state.Bots.All(x => bot.Bid == x.Bid || x.Pos != v)
 					&& !used.Contains(v)
-					//&& state.Matrix.IsVoid(v)
 					&& !fobidden.Contains(v));
 
 				if (point == null)
@@ -244,8 +178,8 @@ namespace Flash.Infrastructure.AI
 				used.Add(point);
 				
 				fobidden.UnionWith(used);
-				var (positions, moveCommands) = GetMoveCommands(state, bot, point, fobidden);
-				if(positions.Any())
+				var (positions, moveCommands) = GetMoveCommands(state, bot, point, fobidden, flag);
+				if (positions.Any())
 					fobidden.UnionWith(positions);
 
 				if (moveCommands.Any())
@@ -261,7 +195,7 @@ namespace Flash.Infrastructure.AI
 
 					used.Add(point);
 					fobidden.UnionWith(used);
-					var (positions, moveCommands) = GetMoveCommands(state, bot, point, fobidden);
+					var (positions, moveCommands) = GetMoveCommands(state, bot, point, fobidden, flag);
 					fobidden.UnionWith(positions);
 
 					if (moveCommands.Any())
@@ -338,22 +272,32 @@ namespace Flash.Infrastructure.AI
 			yield return new FissionCommand(new Vector(1, 0, 0), bot.Seeds.Length - 1);
 		}
 
-		private (List<Vector> positions, List<ICommand> commands) GetMoveCommands(State state, Bot bot, Vector target, HashSet<Vector> fobidden)
+		private (List<Vector> positions, List<ICommand> commands) GetMoveCommands(State state, Bot bot, Vector target,
+			HashSet<Vector> fobidden, bool flag = true)
 		{
 			if (bot.Pos == target)
 				return (new List<Vector>(), new List<ICommand>());
 
 			bool IsForbiddenArea(Vector v) => fobidden.Contains(v) || state.Bots.Any(x => x.Bid != bot.Bid && x.Pos == v);
-			var botMoveSearcher = new BotMoveSearcher(state.Matrix, null, bot.Pos, IsForbiddenArea, state.Bots.Length, target, groundedChecker);
+			var botMoveSearcher = new BotMoveSearcher(state.Matrix, matrix, bot.Pos, IsForbiddenArea, state.Bots.Length, target,
+				groundedChecker);
 
 			var s = botMoveSearcher.FindPath(out var positions, out var commands, out _);
 
 			if (!s)
 			{
-				return (null, null);
-				//return (new List<Vector>(), new List<ICommand>());
+				return (new List<Vector>(), new List<ICommand>());
 			}
 
+			var enumerable = tehdolg.Where(x => bot.Pos.GetNears().Contains(x)).ToList();
+			tehdolg.ExceptWith(enumerable);
+			var clearCommand = enumerable.Select(x => new FillCommand(x - bot.Pos)).ToList();
+			commands = clearCommand.Concat(commands).ToList();
+			if(bot.Bid == 3)
+				Console.WriteLine();
+
+			if(commands.Any(x => x is VoidCommand && (x as VoidCommand).RealVoid == new Vector(16, 1, 8)))
+				Console.WriteLine();
 			return (positions, commands);
 		}
 	}

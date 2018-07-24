@@ -1,4 +1,5 @@
-﻿using Flash.Infrastructure.Models;
+﻿using System;
+using Flash.Infrastructure.Models;
 
 namespace Flash.Infrastructure.Commands
 {
@@ -15,7 +16,9 @@ namespace Flash.Infrastructure.Commands
         {
             var oldPosition = bot.Pos;
             var newPosition = bot.Pos + Direction;
-            
+
+	        if (state.Matrix.IsFull(newPosition))
+				Console.WriteLine();
             bot.Pos = newPosition;
 			state.Energy += 2*Direction.Mlen;
 

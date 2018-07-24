@@ -17,12 +17,15 @@ namespace Flash.Infrastructure.Commands
 
         public void Apply(State state, Bot bot)
         {
+			
             var vector = bot.Pos + NearDistance;
             if (state.Matrix.IsFull(vector))
             {
                 state.OpLogWriter.WriteRemove(vector);
                 state.Matrix.Clear(vector);
-                state.Energy -= 12;
+	            if (vector == new Vector(16, 1, 9))
+		            Console.WriteLine();
+					state.Energy -= 12;
             }
             else
             {

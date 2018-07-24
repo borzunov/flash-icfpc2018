@@ -58,7 +58,7 @@ namespace Flash.Infrastructure.Algorithms
                 if (state.Fill && BreakesGrounding(state) && state.Region.Min.Y > 0)
                 {
                     var direction = state.Region.Max - state.Region.Min;
-                    if (direction.X < 3 || direction.Z < 3)
+                    if (true/*direction.X < 3 || direction.Z < 3*/)
                     {
                         Console.WriteLine("We don't build regions like vertical lines if they are not grounded");
                         return xorSums.TotalFulls;

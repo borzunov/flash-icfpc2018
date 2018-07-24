@@ -24,6 +24,8 @@ namespace Flash.Infrastructure.Commands
             }
             else
             {
+				if(voxel == new Vector(16, 1, 9))
+					Console.WriteLine();
                 state.Energy += 12;
                 state.Matrix.Fill(voxel);
             }
